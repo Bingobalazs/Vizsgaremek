@@ -45,7 +45,7 @@
             <div class="col-md-2"></div>
             <div class="col-md-8">
             @foreach ($data as $i)
-                <div class="card w-100" style="@if ($i->viewed) background-color:#f2f2f2 @endif" onclick="window.location.href='{{ url('/cars/' . $i->id) }}';">
+                <div class="card w-100" onclick="window.location.href='{{ url('/cars/' . $i->id) }}';">
                     <img src="{{ asset( $i->kep_url) }}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title">{{ $i->marka }} {{ $i->modell }}</h5>

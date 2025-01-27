@@ -25,15 +25,25 @@ class AuthController extends Controller
     {
         /*$cars = Auto::all();
         return view('index', compact('cars'));*/
-        $userId = Auth::id(); // Bejelentkezett felhasználó azonosítója
+        $id = Auth::id(); // Bejelentkezett felhasználó azonosítója
 
-        $data = DB::table('Auto')
+        /*$data = DB::table('Auto')
         ->leftJoin('views', function ($join) use ($userId) {
             $join->on('Auto.id', '=', 'views.auto_id')
                 ->where('views.user_id', '=', $userId);
         })
         ->select('Auto.*', DB::raw('views.id as viewed'), DB::raw('views.updated_at as date'))
-        ->get();
+        ->get();*/
+        $data = DB::table('Auto')
+                ->join('users', 'users.id', '=', 'Auto.user_id')
+                ->leftJoin('views', function ($join) use ($id) {
+                    $join->on('views.auto_id', '=', 'Auto.id')
+                         ->where('views.user_id', '=', $id);
+                })
+                ->where('users.public', 1)
+                ->select('Auto.id as id', 'Auto.marka', 'Auto.modell', 'Auto.created_at', 'Auto.kep_url', 
+                    DB::raw('IF(views.id IS NULL, false, true) as viewed'))  // Ha nincs rekord a views táblában, akkor false (nem látta), egyébként true (látta)
+                ->get();
 
         return view('index', compact('data'));
     }
