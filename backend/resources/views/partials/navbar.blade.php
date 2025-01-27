@@ -48,6 +48,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <li><a class="dropdown-item" href="{{route('own')}}">Saját hirdetések</a></li>
+                        <li><a class="dropdown-item" href="{{route('profil')}}">Profil</a></li>
                         <li><a class="dropdown-item" href="{{route('logout')}}">Kijelentkezés</a></li>
                     </ul>
                 </li>

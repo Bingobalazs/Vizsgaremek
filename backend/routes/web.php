@@ -56,6 +56,8 @@ Route::controller(AutoController::class)->group(function () {
     Route::get('cars/{id}', 'show')->name('show');
     Route::post('/cars/{id}/comment', 'store')->name('comment');
     Route::get('/like/{id}', 'like')->name('like');
+    Route::get('/profil', 'profil')->name('profil');
+    Route::post('/modifyprofile', 'modifyprofile')->name('modifyprofile')->middleware('auth');;
 });
 
 

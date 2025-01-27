@@ -253,4 +253,45 @@ class AutoController extends Controller
         return redirect()->route('show', $auto_id);
     
     }
+
+    public function profil()
+    {
+        $user = Auth::user();
+
+        return view('profil', compact('user'));
+    }
+
+    public function modifyprofile(Request $request)
+    {
+        $id = Auth::id();
+
+        $user['name'] = $request->input('name');
+        $user['email'] = $request->input('email');
+        $user['password'] = $request->input('password');
+        $user['public'] = $request->input('public');
+
+        if ($user['password'] == null)
+        {
+            DB::table('users')
+            ->where('id', $id)
+            ->update([
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'public' => $user['public'],
+            ]);
+        }
+        else
+        {
+            DB::table('users')
+            ->where('id', $id)
+            ->update([
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'public' => $user['public'],
+                'password' => bcrypt($user['password']),
+            ]);
+        }
+
+        return redirect()->route('profil', compact('user'));
+    }
 }
