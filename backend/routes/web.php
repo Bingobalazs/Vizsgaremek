@@ -55,7 +55,7 @@ Route::controller(AutoController::class)->group(function () {
     Route::delete('own/delete', 'delete')->name('own.delete');
     Route::get('cars/{id}', 'show')->name('show');
     Route::post('/cars/{id}/comment', 'store')->name('comment');
-    Route::post('/like/{id}', 'like')->name('like');
+    Route::get('/like/{id}', 'like')->name('like');
 });
 
 

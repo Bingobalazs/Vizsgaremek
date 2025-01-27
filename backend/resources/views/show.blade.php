@@ -56,7 +56,11 @@
                     {{ \Carbon\Carbon::parse($item->created_at)->format('Y. m. d.') }}
                 @endif
                 </p>
-
+                @if ($viewed)
+                    <button class="btn btn-secondary" onclick="window.location.href='{{ url('/like/' . $item->id) }}';">LIKED</button>
+                @else
+                    <button class="btn btn-primary" onclick="window.location.href='{{ url('/like/' . $item->id) }}';">LIKE</button>
+                @endif
                 <p><span class="leiras">{{ $item->leiras }}</span><br><span class="tel">{{ $item->kontakt_info }}</span></p>
                 <h3 class="ar">{{ $item->ar }} Ft</h3>
             </div>

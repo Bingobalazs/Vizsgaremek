@@ -27,14 +27,13 @@ class AuthController extends Controller
         return view('index', compact('cars'));*/
         $userId = Auth::id(); // Bejelentkezett felhasználó azonosítója
 
-        // Lekérjük az összes elemet az `items` táblából
         $data = DB::table('Auto')
-            ->leftJoin('views', function ($join) use ($userId) {
-                $join->on('Auto.id', '=', 'views.auto_id')
-                    ->where('views.user_id', '=', $userId);
-            })
-            ->select('Auto.*', DB::raw('views.id as viewed'), DB::raw('views.updated_at as date'))
-            ->get();
+        ->leftJoin('views', function ($join) use ($userId) {
+            $join->on('Auto.id', '=', 'views.auto_id')
+                ->where('views.user_id', '=', $userId);
+        })
+        ->select('Auto.*', DB::raw('views.id as viewed'), DB::raw('views.updated_at as date'))
+        ->get();
 
         return view('index', compact('data'));
     }

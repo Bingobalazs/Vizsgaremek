@@ -160,6 +160,7 @@ class AutoController extends Controller
 
     public function show($id)
     {
+        
         //$item = Auto::findOrFail($id);
         $car = DB::table('Auto')->where('id', $id)->first();
         $comments = DB::table('comment')
@@ -181,12 +182,29 @@ class AutoController extends Controller
 
         $userId = Auth::id(); // Bejelentkezett felhasználó azonosítója
 
-        return view('show', compact('item', 'comments', 'car'));
+        $data = Auto::leftJoin('views', function ($join) use ($userId) {
+            $join->on('Auto.id', '=', 'views.auto_id')
+                 ->where('views.user_id', '=', $userId);
+        })
+        ->select('Auto.*', 'views.id as viewed', 'views.updated_at as date')
+        ->get();
+
+        $viewed = DB::table('views')
+        ->where('user_id', $userId)
+        ->where('auto_id', $id)
+        ->exists();
+
+        /*           DB::table('views')
+            ->where('user_id', $userId)
+            ->where('auto_id', $id)
+            ->delete();*/
+
+        return view('show', compact('item', 'comments', 'car', 'data', 'viewed'));
     }
     public function like($id)
     {
         $userId = Auth::id();
-        
+
         $viewExists = DB::table('views')
             ->where('user_id', $userId)
             ->where('auto_id', $id)
@@ -196,7 +214,14 @@ class AutoController extends Controller
             ->where('auto_id', $id)
             ->update(['updated_at' => now()]);
 
-        if (!$viewExists) {
+        if($viewExists)
+        {
+            DB::table('views')
+            ->where('user_id', $userId)
+            ->where('auto_id', $id)
+            ->delete();
+        }
+        else {
             // Új megtekintés rögzítése
             DB::table('views')->insert([
                 'user_id' => $userId,
@@ -205,6 +230,8 @@ class AutoController extends Controller
                 'updated_at' => now(),
             ]);
         }
+
+        return redirect()->route('show', ['id' => $id])->with('viewed', $viewExists);
     }
 
     public function store(Request $request, $auto_id)
@@ -223,7 +250,7 @@ class AutoController extends Controller
         ]);
 
         // Átirányítás a hirdetés részletek oldalára, sikeres komment felvétel után
-        return redirect()->route('show', $auto_id)->with('success', 'Komment sikeresen hozzáadva!');
+        return redirect()->route('show', $auto_id);
     
     }
 }

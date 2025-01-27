@@ -57,15 +57,6 @@
                             @endif
                         </p>
                     </div>
-                    @if ($i->viewed)
-                        <p class="date">
-                            @if ($i->date instanceof \Carbon\Carbon)
-                                {{ $i->date->diffForHumans() }}
-                            @else
-                                {{ \Carbon\Carbon::parse($i->date)->diffForHumans() }}
-                            @endif
-                        </p>
-                    @endif
                 </div>
             @endforeach
             </div>
