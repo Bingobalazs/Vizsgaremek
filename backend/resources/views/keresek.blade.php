@@ -11,7 +11,7 @@
 
     @foreach($users as $user)
         {{$user->name}} 
-        <form actio="{{ route('accept', ['id' => $user->id]) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('accept', ['id' => $user->id]) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <button class="btn btn-primary" type="submit">Ismerem</button>
         </form>

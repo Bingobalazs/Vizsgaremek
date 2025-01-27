@@ -357,7 +357,45 @@ class AutoController extends Controller
     public function accept($id)
     {
         
- 
+        $userId = Auth::id();
+
+        $connection = DB::table('jelolesek')
+            ->where(function ($query) use ($userId, $id) {
+                $query->where('from_id', '=', $userId)
+                    ->where('to_id', '=', $id);
+            })
+            ->orWhere(function ($query) use ($userId, $id) {
+                $query->where('from_id', '=', $id)
+                    ->where('to_id', '=', $userId);
+            })
+            ->first(); // Lekérjük az első találatot
+
+        // Ha létezik a kapcsolat, töröljük
+        if ($connection) {
+            DB::table('jelolesek')
+                ->where('from_id', '=', $userId)
+                ->where('to_id', '=', $id)
+                ->orWhere(function ($query) use ($userId, $id) {
+                    $query->where('from_id', '=', $id)
+                        ->where('to_id', '=', $userId);
+                })
+                ->delete();
+}
+
+        $exists = DB::table('friends')
+        ->where('user_id', $userId)
+        ->where('other_user_id', $id)
+        ->exists();
+
+        if(!$exists)
+        {
+        DB::table('friends')->insert([
+            'user_id' => $userId,
+            'other_user_id' => $id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        }
 
         return redirect()->back();
 
