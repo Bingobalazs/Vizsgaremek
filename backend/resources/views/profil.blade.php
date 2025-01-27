@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>{{ $user->name }} adatai</title>
 </head>
 <body>
+    @include('partials.navbar')
+
     <form method="POST" action="{{ route('modifyprofile') }}" enctype="multipart/form-data">
         @csrf
         <p>Név<input type="text" name="name" value="{{ $user->name }}"></p>
@@ -21,7 +23,7 @@
             <p>Privát <input type="radio" name="public" value="0" checked></p>
         @endif
 
-        <button type="submit">Módosítás</button>
+        <button class="btn btn-outline-secondary" type="submit">Módosítás</button>
     </form>
 </body>
 </html>
