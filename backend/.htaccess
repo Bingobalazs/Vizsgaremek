@@ -1,0 +1,14 @@
+
+# BEGIN WordPress
+# A `BEGIN WordPress` és az `END WordPress` sorok közötti tartalom dinamikusan lett létrehozva, és csak WordPress szűrők módosíthatják. E kettő sor közötti bármilyen kézi módosítás el fog veszni.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress

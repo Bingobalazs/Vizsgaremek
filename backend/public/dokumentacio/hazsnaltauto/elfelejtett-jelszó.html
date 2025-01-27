@@ -1,0 +1,53 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html lang="en-US" data-preset="contrast" data-primary-color="#307FFF"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8"><meta name="robots" content="noindex"><meta name="built-on" content="2025-01-07T23:07:23.7090695"><title>Elfelejtett jelsz&oacute; | Hazsnáltautó</title><script type="application/json" id="virtual-toc-data">[{"id":"e-mail-k-ld-s","level":0,"title":"E-mail küldés","anchor":"#e-mail-k-ld-s"},{"id":"jelsz-bea-ll-t-s","level":0,"title":"Jelszó beaállítás","anchor":"#jelsz-bea-ll-t-s"}]</script><script type="application/json" id="topic-shortcuts"></script><link href="https://resources.jetbrains.com/writerside/apidoc/6.10.0-b575/app.css" rel="stylesheet"><meta name="msapplication-TileColor" content="#000000"><link rel="apple-touch-icon" sizes="180x180" href="https://jetbrains.com/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="https://jetbrains.com/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="https://jetbrains.com/favicon-16x16.png"><meta name="msapplication-TileImage" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-144x144.png"><meta name="msapplication-square70x70logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-70x70.png"><meta name="msapplication-square150x150logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-150x150.png"><meta name="msapplication-wide310x150logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-310x150.png"><meta name="msapplication-square310x310logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-310x310.png"><meta name="image" content=""><!-- Open Graph --><meta property="og:title" content="Elfelejtett jelsz&oacute; | Hazsnáltautó"><meta property="og:description" content=""><meta property="og:image" content=""><meta property="og:site_name" content="Hazsnáltautó Help"><meta property="og:type" content="website"><meta property="og:locale" content="en_US"><meta property="og:url" content="writerside-documentation/https://kovacscsabi.moriczcloud.hu/dokumentacio/hazsnaltauto/v3/elfelejtett-jelszó.html"><!-- End Open Graph --><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content=""><meta name="twitter:title" content="Elfelejtett jelsz&oacute; | Hazsnáltautó"><meta name="twitter:description" content=""><meta name="twitter:creator" content=""><meta name="twitter:image:src" content=""><!-- End Twitter Card --><!-- Schema.org WebPage --><script type="application/ld+json">{
+    "@context": "http://schema.org",
+    "@type": "WebPage",
+    "@id": "writerside-documentation/https://kovacscsabi.moriczcloud.hu/dokumentacio/hazsnaltauto/v3/elfelejtett-jelszó.html#webpage",
+    "url": "writerside-documentation/https://kovacscsabi.moriczcloud.hu/dokumentacio/hazsnaltauto/v3/elfelejtett-jelszó.html",
+    "name": "Elfelejtett jelsz&oacute; | Hazsnáltautó",
+    "description": "",
+    "image": "",
+    "inLanguage":"en-US"
+}</script><!-- End Schema.org --><!-- Schema.org WebSite --><script type="application/ld+json">{
+    "@type": "WebSite",
+    "@id": "writerside-documentationhttps://kovacscsabi.moriczcloud.hu/dokumentacio/hazsnaltauto/#website",
+    "url": "writerside-documentationhttps://kovacscsabi.moriczcloud.hu/dokumentacio/hazsnaltauto/",
+    "name": "Hazsnáltautó Help"
+}</script><!-- End Schema.org --></head><body data-id="Elfelejtett-jelszó" data-main-title="Elfelejtett jelszó" data-article-props="{&quot;seeAlsoStyle&quot;:&quot;links&quot;}" data-template="article" data-breadcrumbs="Funkciók.md|Funkciók///Hitelesítés.md|Hitelesítés"><div class="wrapper"><main class="panel _main"><header class="panel__header"><div class="container"><h3>Hazsnáltautó v3 Help</h3><div class="panel-trigger"></div></div></header><section class="panel__content"><div class="container"><article class="article" data-shortcut-switcher="inactive"><h1 data-toc="Elfelejtett-jelszó" id="Elfelejtett-jelszó.md">Elfelejtett jelszó</h1><p id="-yjd37g_3">Erre a funkci&oacute;ra a laravel be&eacute;p&iacute;tett funkci&oacute;j&aacute;t haszn&aacute;ltam.</p><section class="chapter"><h2 id="e-mail-k-ld-s" data-toc="e-mail-k-ld-s">E-mail k&uuml;ld&eacute;s</h2><p id="-yjd37g_6">Hab&aacute;r val&oacute;ban sokkal egyszerűbb lett volna sim&aacute;n a php <code class="code" id="-yjd37g_9">mailto</code> f&uuml;ggv&eacute;nnyel egy ideiglenes jelsz&oacute;t k&uuml;ldeni, ekkor m&eacute;g nem tudtam hogy ez is elfogadhat&oacute; megold&aacute;s...</p><p id="-yjd37g_7">A Laravel megold&aacute;s &uacute;gy műk&ouml;dik mint a legt&ouml;bb weboldal jelsz&oacute;-vissza&aacute;ll&iacute;t&aacute;sa: K&uuml;ld egy linket a megadott e-mail c&iacute;mre amely megnyit&aacute;s&aacute;val a felhaszn&aacute;l&oacute; &uacute;j jelsz&oacute;t &aacute;ll&iacute;that be.</p><section class="chapter"><h3 id="ehhez-a-k-vetkez-k-sz-ks-gesek" data-toc="ehhez-a-k-vetkez-k-sz-ks-gesek">Ehhez a k&ouml;vetkezők sz&uuml;ks&eacute;gesek:</h3><ul class="list _bullet" id="-yjd37g_10"><li class="list__item" id="-yjd37g_12"><p>Egy <code class="code" id="-yjd37g_14">view</code>, amely bek&eacute;ri az e-mail c&iacute;met</p></li><li class="list__item" id="-yjd37g_13"><p>Egy m&aacute;sik <code class="code" id="-yjd37g_15">view</code>, ahol az &uacute;j jelsz&oacute;t tudjuk be&aacute;ll&iacute;tani</p></li></ul><section class="chapter"><h4 id="authcontroller-php" data-toc="authcontroller-php">AuthController.php</h4><div class="code-block" data-lang="php">
+$request-&gt;validate(['email' =&gt; 'required|email']);
+
+$user = User::where('email', $request-&gt;email)-&gt;first();
+if (!$user) {
+    \Log::error('User not found with email: ' . $request-&gt;email);
+}
+
+$status = Password::sendResetLink(
+    $request-&gt;only('email')
+);
+
+return $status === Password::RESET_LINK_SENT
+    ? back()-&gt;with(['status' =&gt; __($status)])
+    : back()-&gt;withErrors(['email' =&gt; __($status)]);
+</div></section></section></section><section class="chapter"><h2 id="jelsz-bea-ll-t-s" data-toc="jelsz-bea-ll-t-s">Jelsz&oacute; bea&aacute;ll&iacute;t&aacute;s</h2><p id="-yjd37g_17">Miut&aacute;n a felhaszn&aacute;l&oacute; megynitott a linket, egy &uacute;j jelsz&oacute;t &aacute;ll&iacute;that be.</p><figure id="-yjd37g_18"><img alt="pswresetEmail.png" src="images/pswresetEmail.png" title="pswresetEmail.png" width="809" height="672"></figure><aside class="prompt" data-type="warning" data-title="" id="-yjd37g_19"><p id="-yjd37g_21">Mivel bejelentkez&eacute;si hiba miatt nem tudtunk <code class="code" id="-yjd37g_22">SMTP</code> szolg&aacute;ltat&aacute;st, vagy m&aacute;s biztons&aacute;gos levelez&eacute;si protokolt haszn&aacute;lni, ez&eacute;rt nagy es&eacute;llyel a felhaszn&aacute;l&oacute; <code class="code" id="-yjd37g_23">spam</code> mapp&aacute;j&aacute;ba ker&uuml;lnek az email-ek.</p></aside><section class="chapter"><h3 id="newpasswordcontroller-php" data-toc="newpasswordcontroller-php">NewPasswordController.php</h3><div class="code-block" data-lang="php">
+$request-&gt;validate([
+    'token' =&gt; 'required',
+    'email' =&gt; 'required|email',
+    'password' =&gt; ['required', 'confirmed', Rules\Password::defaults()],
+]);
+
+$status = Password::reset(
+    $request-&gt;only('email', 'password', 'password_confirmation', 'token'),
+    function ($user, $password) {
+        $user-&gt;forceFill([
+            'password' =&gt; Hash::make($password),
+        ])-&gt;save();
+
+        $user-&gt;setRememberToken(Str::random(60));
+    }
+);
+
+return $status === Password::PASSWORD_RESET
+    ? redirect()-&gt;route('login')-&gt;with('status', __($status))
+    : back()-&gt;withErrors(['email' =&gt; [__($status)]]);
+}
+</div></section></section><div class="last-modified">Last modified: 07 január 2025</div><div data-feedback-placeholder="true"></div><div class="navigation-links _bottom"><a href="hitelesítés.html" class="navigation-links__prev">Hiteles&iacute;t&eacute;s</a><a href="bejelentkezés.html" class="navigation-links__next">Bejelentkez&eacute;s</a></div></article><div id="disqus_thread"></div></div></section></main></div><script src="https://resources.jetbrains.com/writerside/apidoc/6.10.0-b575/app.js"></script></body></html>
