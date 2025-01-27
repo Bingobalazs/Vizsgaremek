@@ -194,12 +194,16 @@ class AutoController extends Controller
         ->where('auto_id', $id)
         ->exists();
 
+        $count = DB::table('views')
+        ->where('auto_id', $id)
+        ->count();
+
         /*           DB::table('views')
             ->where('user_id', $userId)
             ->where('auto_id', $id)
             ->delete();*/
 
-        return view('show', compact('item', 'comments', 'car', 'data', 'viewed'));
+        return view('show', compact('item', 'comments', 'car', 'data', 'viewed', 'count'));
     }
     public function like($id)
     {
