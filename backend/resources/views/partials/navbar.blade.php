@@ -25,7 +25,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <!-- Bal oldali felirat -->
-        <a class="navbar-brand" href="{{route('index')}}">Második Sebesség webáruház</a>
+        <a class="navbar-brand" href="{{route('index')}}">Blabber</a>
 
         <!-- Gombok a jobb oldalon -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,9 @@
 
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{route('users')}}">Kit ismerhetek?</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{route('index')}}">Böngészés</a>
                 </li>
@@ -48,6 +51,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <li><a class="dropdown-item" href="{{route('own')}}">Saját hirdetések</a></li>
+                        <li><a class="dropdown-item" href="{{route('friend_req')}}">Jelölések</a></li>
                         <li><a class="dropdown-item" href="{{route('profil')}}">Profil</a></li>
                         <li><a class="dropdown-item" href="{{route('logout')}}">Kijelentkezés</a></li>
                     </ul>

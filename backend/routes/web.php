@@ -57,7 +57,11 @@ Route::controller(AutoController::class)->group(function () {
     Route::post('/cars/{id}/comment', 'store')->name('comment');
     Route::get('/like/{id}', 'like')->name('like');
     Route::get('/profil', 'profil')->name('profil');
-    Route::post('/modifyprofile', 'modifyprofile')->name('modifyprofile')->middleware('auth');;
+    Route::post('/modifyprofile', 'modifyprofile')->name('modifyprofile')->middleware('auth');
+    Route::get('/users', 'users')->name('users');
+    Route::post('/jeloles/{id}', 'jeloles')->name('jeloles');
+    Route::get('/friend_req', 'friend_req')->name('friend_req');
+    Route::post('/accept/{id}', 'accept')->name('accept');
 });
 
 

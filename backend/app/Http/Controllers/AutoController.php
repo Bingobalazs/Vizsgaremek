@@ -298,4 +298,68 @@ class AutoController extends Controller
 
         return redirect()->route('profil', compact('user'));
     }
+
+    public function users()
+    {
+        $id = Auth::id();
+
+        $users = DB::table('users')
+            ->where('id', '!=', $id)
+            ->get();
+
+        return view('users', compact('users'));
+    }
+
+    public function jeloles($id)
+    {
+        $userId = Auth::id();
+
+        $users = DB::table('users')
+            ->where('id', '!=', $userId)
+            ->get();
+
+        $exists = DB::table('jelolesek')
+            ->where('from_id', $userId)
+            ->where('to_id', $id)
+            ->exists();
+
+        if(!$exists)
+        {
+            DB::table('jelolesek')->insert([
+                'from_id' => $userId,
+                'to_id' => $id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        
+        return redirect()->back()->with(compact('users'));
+    }
+
+    public function friend_req()
+    {
+        
+        $id = Auth::id();
+
+        $users = DB::table('users')
+            ->join('jelolesek', function ($join) use ($id) {
+                $join->on('users.id', '=', 'jelolesek.from_id');
+            })
+            ->where('jelolesek.to_id', '=', $id)
+            ->distinct()
+            ->select('users.*')
+            ->get();
+
+        return view('keresek', compact('users'));
+
+    }
+
+    public function accept($id)
+    {
+        
+ 
+
+        return redirect()->back();
+
+    }
 }
