@@ -1,3 +1,4 @@
 .env
 config/secrets.json
 /.idea
+.github/workflows/main.yml
