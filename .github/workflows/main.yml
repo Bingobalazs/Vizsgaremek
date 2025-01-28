@@ -14,3 +14,4 @@ jobs:
         server: kovacscsabi.moriczcloud.hu
         username: kovacscsabi
         password: ${{ secrets.ftp_password }}
+        local-dir: ./backend/	
