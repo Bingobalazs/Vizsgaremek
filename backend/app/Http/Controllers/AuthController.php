@@ -41,7 +41,7 @@ class AuthController extends Controller
                          ->where('views.user_id', '=', $id);
                 })
                 ->where('users.public', 1)
-                ->select('Auto.id as id', 'Auto.marka', 'Auto.modell', 'Auto.created_at', 'Auto.kep_url', 
+                ->select('Auto.id as id', 'Auto.marka', 'Auto.modell', 'Auto.created_at', 'Auto.kep_url',
                     DB::raw('IF(views.id IS NULL, false, true) as viewed'))  // Ha nincs rekord a views táblában, akkor false (nem látta), egyébként true (látta)
                 ->get();
 
@@ -88,16 +88,16 @@ class AuthController extends Controller
         $data['code'] = rand(100000, 999999);
 
 
-        $to = $data['email']; 
+        $to = $data['email'];
         $subject = "Regisztrációs kód";
-        $message = "    
-        
+        $message = "
+
                     <h1>Üdv a Hazsnáltautónál!</h1>
                     <p>A regisztráció véglegesítéséhez szükséged lesz az alábbi kódra:</p>
-                    
+
                     <h2 style=' text-align: center; color: #007FFF;'>
                    <strong>{$data['code']}</strong></h2>
-                    
+
                     <p>Köszönjük a regisztrációt!</p>
                     <a href='kovacscsabi.moriczcloud.hu'>Tovább a hazsnáltautóra</a>
                     ";
@@ -158,10 +158,7 @@ class AuthController extends Controller
         return redirect(route('login'));
     }
 
-    public function add()
-    {
-        return view('add');
-    }
+
 
 
 
@@ -242,5 +239,62 @@ class AuthController extends Controller
         }
 
     }
+
+
+
+    public function profil()
+    {
+        $user = Auth::user();
+
+        return view('profil', compact('user'));
+    }
+
+    public function modifyprofile(Request $request)
+    {
+        $id = Auth::id();
+
+        $user['name'] = $request->input('name');
+        $user['email'] = $request->input('email');
+        $user['password'] = $request->input('password');
+        $user['public'] = $request->input('public');
+
+        if ($user['password'] == null)
+        {
+            DB::table('users')
+                ->where('id', $id)
+                ->update([
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'public' => $user['public'],
+                ]);
+        }
+        else
+        {
+            DB::table('users')
+                ->where('id', $id)
+                ->update([
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'public' => $user['public'],
+                    'password' => bcrypt($user['password']),
+                ]);
+        }
+
+        return redirect()->route('profil', compact('user'));
+    }
+
+    public function users()
+    {
+        $id = Auth::id();
+
+        $users = DB::table('users')
+            ->where('id', '!=', $id)
+            ->get();
+
+        return view('users', compact('users'));
+    }
+
+
+
 }
 

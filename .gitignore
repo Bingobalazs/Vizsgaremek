@@ -1,2 +1,6 @@
 .env
 config/secrets.json
+.idea/deployment.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/php.xml
+/.idea
