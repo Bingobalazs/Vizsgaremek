@@ -21,38 +21,39 @@ use App\Http\Controllers\testAPIxController;
 
 // Felhasználókezlés
 Route::controller(AuthController::class)->group(function () {
-Route::get('/','index')->name('index');
+    Route::get('/','index')->name('index');
 
-Route::get('/login','login')->name('login');
-Route::post('/login','loginPost')->name('login.post');
+    Route::get('/login','login')->name('login');
+    Route::post('/login','loginPost')->name('login.post');
 
-// Regisztráció
-Route::get('/registration','registration')->name('registration');
-Route::post('/registration','registrationPost')->name('registration.post');
-Route::post('/registration2','registrationPostCode')->name('registration.code');
+    // Regisztráció
+    Route::get('/registration','registration')->name('registration');
+    Route::post('/registration','registrationPost')->name('registration.post');
+    Route::post('/registration2','registrationPostCode')->name('registration.code');
 
-// Kijelentkezés
-Route::get('/logout','logout')->name('logout');
+    // Kijelentkezés
+    Route::get('/logout','logout')->name('logout');
 
-// Hirdetés hozzáadása
-Route::get('/add',   'add')->name('add');
+    // Hirdetés hozzáadása
+    Route::get('/add',   'add')->name('add');
 
-// Elfelejtett jelszó
-    // Link kérés
-    Route::get('/forgot-password',  'forgot')->name('password.request');
-    Route::post('/forgot-password',  'resetmail')->name('password.email');
+    // Elfelejtett jelszó
+        // Link kérés
+        Route::get('/forgot-password',  'forgot')->name('password.request');
+        Route::post('/forgot-password',  'resetmail')->name('password.email');
 
-    // Jelszó visszaállítás
+        // Jelszó visszaállítás
 
-// Profil és módosítás
-Route::get('/profil', 'profil')->name('profil');
-Route::post('/modifyprofile', 'modifyprofile')->name('modifyprofile')->middleware('auth');
+    // Profil és módosítás
+    Route::get('/profil', 'profil')->name('profil');
+    Route::post('/modifyprofile', 'modifyprofile')->name('modifyprofile')->middleware('auth');
 
-// Felhasználók listázása
-Route::get('/users', 'users')->name('users');
+    // Felhasználók listázása
+    Route::get('/users', 'users')->name('users');
 
 });
 
+// Jelszó reset
 Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
 Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 

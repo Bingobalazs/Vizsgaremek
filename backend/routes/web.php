@@ -50,6 +50,7 @@ Route::controller(AuthController::class)->group(function () {
 
     // Felhasználók listázása
     Route::get('/users', 'users')->name('users');
+    Route::get('/view/users', 'wiewUsers')->name('users');
 
 });
 

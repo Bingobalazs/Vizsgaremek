@@ -283,7 +283,16 @@ class AuthController extends Controller
         return redirect()->route('profil', compact('user'));
     }
 
+    public function users()
+    {
+        $id = Auth::id();
 
+        $users = DB::table('users')
+            ->where('id', '!=', $id)
+            ->get();
+
+        return view('users', compact('users'));
+    }
 
 
 
