@@ -12,3 +12,4 @@ RewriteRule . /index.php [L]
 </IfModule>
 
 # END WordPress
+Header set Access-Control-Allow-Origin "*"
