@@ -48,9 +48,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/profil', 'profil')->name('profil');
     Route::post('/modifyprofile', 'modifyprofile')->name('modifyprofile')->middleware('auth');
 
-    // Felhasználók listázása
-    Route::get('/users', 'users')->name('users');
-    Route::get('/view/users', 'wiewUsers')->name('users');
+
 
 });
 
@@ -82,6 +80,10 @@ Route::controller(FriendsController::class)->group(function () {
     Route::post('/jeloles/{id}', 'jeloles')->name('jeloles');
     Route::get('/friend_req', 'friend_req')->name('friend_req');
     Route::post('/accept/{id}', 'accept')->name('accept');
+
+    // Felhasználók listázása
+    Route::get('/users', 'users')->name('users');
+    Route::get('/view/users', 'wiewUsers')->name('users');
 
 });
 
