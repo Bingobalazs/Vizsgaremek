@@ -101,4 +101,6 @@ Route::controller(FriendsController::class)->group(function () {
 
 Route::controller(testAPIxController::class)->group(function () {
     Route::get('/testapi','testAPI')->name('testapi');
+    Route::post('/testapi','postTest')->name('testapi.post');
+
 });

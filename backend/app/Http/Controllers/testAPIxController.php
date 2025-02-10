@@ -3,8 +3,9 @@
 
     use Illuminate\Http\Request;
     use App\Models\api;
+    use Illuminate\Support\Facades\Auth;
 
-    class testAPIx extends Controller
+    class testAPIxController extends Controller
     {
         private function CheckAPIKey($key)
         {
@@ -12,7 +13,7 @@
             return $user;
         }
 
-        public function testAPI() 
+        public function testAPI()
         {
             if(isset($_GET['apiKey']))
             {
@@ -25,5 +26,26 @@
             }
             else return response()->json(['error' => 'Missing API key'], 403);
         }
+
+        public function postTest(Request $request)
+        {
+            $request->validate([
+                'email' => 'required',
+                'password' => 'required'
+            ]);
+
+            $data = $request->only('email', 'password');
+            try {
+                if (Auth::attempt($data))
+                {
+                    return redirect()->intended(route('index'))->with("success", "Hot Sex");
+                }
+                return redirect(route('login'))->with("error", "Naha");
+
+            } catch (Exception $e) {
+                return $e->getMessage();
+            }
+        }
+
     }
 ?>
