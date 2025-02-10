@@ -127,9 +127,10 @@
       <path value="$PROJECT_DIR$/backend/vendor/filp/whoops" />
       <path value="$PROJECT_DIR$/backend/vendor/voku/portable-ascii" />
       <path value="$PROJECT_DIR$/backend/vendor/brick/math" />
+      <path value="$PROJECT_DIR$/backend/vendor/laravel/sanctum" />
     </include_path>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="8.0">
+  <component name="PhpProjectSharedConfiguration" php_language_level="7.3">
     <option name="suggestChangeDefaultLanguageLevel" value="false" />
   </component>
   <component name="PhpStanOptionsConfiguration">
