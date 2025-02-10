@@ -38,9 +38,9 @@
             try {
                 if (Auth::attempt($data))
                 {
-                    return redirect()->intended(route('index'))->with("success", "Hot Sex");
+                    return Auth::getSession();
                 }
-                return redirect(route('login'))->with("error", "Naha");
+                return "2111111";
 
             } catch (Exception $e) {
                 return $e->getMessage();

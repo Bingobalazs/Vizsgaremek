@@ -5,7 +5,7 @@
     use App\Models\api;
     use Illuminate\Support\Facades\Auth;
 
-    class testAPIx extends Controller
+    class testAPIxController extends Controller
     {
         private function CheckAPIKey($key)
         {
@@ -38,7 +38,7 @@
             try {
                 if (Auth::attempt($data))
                 {
-                    return redirect()->intended(route('index'))->with("success", "Hot Sex");
+                    return Auth::getSession()->set('email', $request->email);
                 }
                 return redirect(route('login'))->with("error", "Naha");
 
