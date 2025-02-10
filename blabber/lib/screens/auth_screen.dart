@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:blabber/services/auth_api.dart';
+import 'package:blabber/main.dart';
 
 
 
@@ -30,10 +32,43 @@ class AuthScreen extends StatelessWidget {
     );
   }
 }
-
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _authService = AuthService();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<void> _login() async {
+    try {
+      final success = await _authService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (success) {
+        // Navigálás a főképernyőre
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => FirstRoute()),
+        );
+      } else {
+        // Hiba kezelése
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred')),
+      );
+    }
+  }
+
+  @override
+   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: Column(
@@ -54,7 +89,7 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
     );
-  }
+   }
 }
 
 class RegisterScreen extends StatelessWidget {
