@@ -10,7 +10,7 @@ use App\Http\Controllers\API\api_AuthController;
 
 Route::controller(api_AuthController::class)->group(function () {
 
-    Route::post('/login2', 'login2');
+    Route::post('/login', 'login');
     Route::post('/registration', 'registration');
 
     //Route::post('/register', 'Reg');

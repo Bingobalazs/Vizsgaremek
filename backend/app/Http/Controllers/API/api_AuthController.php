@@ -28,7 +28,7 @@ class api_AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login2(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -36,12 +36,20 @@ class api_AuthController extends Controller
             'device_name' => 'required',
         ]);
 
+        try {
         $user = User::where('email', $request->email)->first();
+        } catch (ModelNotFoundException $e){
+
+            return response()->json([
+                'error' => 'User not found'
+            ], 404);
+
+        }
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+            return response()->json([
+                'error' => 'Password or email incorrect'
+            ], 404);
         }
 
         // Create token with abilities/scopes if needed
