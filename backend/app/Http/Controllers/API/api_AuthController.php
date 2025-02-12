@@ -43,7 +43,7 @@ class api_AuthController extends Controller
         }
 
         // Create token with abilities/scopes if needed
-        $token = $user->createToken($request->device_name)->plainTextToken;
+        $token = $user->createToken('auth', ['server:auth'])->plainTextToken;
 
         return response()->json([
             'token' => $token,
