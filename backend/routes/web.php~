@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
@@ -105,26 +103,4 @@ Route::controller(testAPIxController::class)->group(function () {
     Route::get('/testapi','testAPI')->name('testapi');
     Route::post('/testapi','postTest')->name('testapi.post');
 
-});
-
-
-Route::post('/test/login', function (Request $request) {
-    $credentials = $request->validate([
-        'email' => 'required|email',
-        'password' => 'required'
-    ]);
-
-    if (!Auth::attempt($credentials)) {
-        return response()->json([
-            'message' => 'Invalid credentials'
-        ], 401);
-    }
-
-    $user = User::where('email', $request->email)->first();
-    $token = $user->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        'access_token' => $token,
-        'token_type' => 'Bearer',
-    ]);
 });
