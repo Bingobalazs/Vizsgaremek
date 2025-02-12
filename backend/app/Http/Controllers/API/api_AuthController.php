@@ -81,4 +81,49 @@ class api_AuthController extends Controller
     {
         return response()->json($request->user());
     }
+
+    public function registration(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required'
+        ]);
+
+        $data['name'] = $request->name;
+        $data['email'] = $request->email;
+        $data['password'] = Hash::make($request->password);
+        $data['code'] = rand(100000, 999999);
+
+
+        $to = $data['email'];
+        $subject = "Regisztrációs kód";
+        $message = "
+
+                    <h1>Üdv a Hazsnáltautónál!</h1>
+                    <p>A regisztráció véglegesítéséhez szükséged lesz az alábbi kódra:</p>
+
+                    <h2 style=' text-align: center; color: #007FFF;'>
+                   <strong>{$data['code']}</strong></h2>
+
+                    <p>Köszönjük a regisztrációt!</p>
+                    <a href='kovacscsabi.moriczcloud.hu'>Tovább a hazsnáltautóra</a>
+                    ";
+
+        $headers = 'From: anyad@sex.com' . "\r\n" .
+            'Content-Type: text/html; charset=UTF-8'. "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
+
+        mail($to, $subject, $message, $headers);
+
+
+        /*$user = User::create($data);
+
+        if (!$user)
+        {
+            return redirect(route('registration'))->with("error", "Naha");
+        }
+        return redirect(route('login'))->with("success", "Hot Sex");*/
+        return view('code', compact('data'));
+    }
 }
