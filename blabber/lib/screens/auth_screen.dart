@@ -1,121 +1,107 @@
 import 'package:flutter/material.dart';
-import 'package:blabber/services/auth_api.dart';
-import 'package:blabber/main.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+void main() {
+  runApp(MyApp());
+}
 
-
-
-class AuthScreen extends StatelessWidget {
-  const AuthScreen({super.key});
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text("Authentication"),
-          bottom: TabBar(
-            tabs: [
-              Tab(text: "Login"),
-              Tab(text: "Register"),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            LoginScreen(),
-            RegisterScreen(),
-          ],
-        ),
-      ),
+    return MaterialApp(
+      title: 'Bejelentkezés',
+      home: LoginPage(),
     );
   }
 }
-class LoginScreen extends StatefulWidget {
+
+class LoginPage extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _authService = AuthService();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _deviceController = TextEditingController();
+  bool _loading = false;
+  String? _errorMessage;
 
   Future<void> _login() async {
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
+
     try {
-      final success = await _authService.login(
-        _emailController.text,
-        _passwordController.text,
+      final response = await Dio().post(
+        'https://kovacscsabi.moriczcloud.hu/api/login',
+        data: {
+          'email': _emailController.text,
+          'password': _passwordController.text,
+          'device_name': _deviceController.text,
+        },
       );
 
-      if (success) {
-        // Navigálás a főképernyőre
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => FirstRoute()),
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final String token = data['token'];
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sikeres bejelentkezés!')),
         );
       } else {
-        // Hiba kezelése
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed')),
-        );
+        setState(() {
+          _errorMessage = response.data['message'];
+        });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred')),
-      );
+      setState(() {
+        _errorMessage = 'Hiba történt a bejelentkezés során';
+      });
+    } finally {
+      setState(() {
+        _loading = false;
+      });
     }
   }
 
   @override
-   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextField(
-            decoration: InputDecoration(labelText: "Email"),
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: "Password"),
-            obscureText: true,
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {},
-            child: Text("Login"),
-          )
-        ],
-      ),
-    );
-   }
-}
-
-class RegisterScreen extends StatelessWidget {
-  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextField(
-            decoration: InputDecoration(labelText: "Name"),
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: "Email"),
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: "Password"),
-            obscureText: true,
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {},
-            child: Text("Register"),
-          )
-        ],
+    return Scaffold(
+      appBar: AppBar(title: Text('Bejelentkezés')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Jelszó'),
+              obscureText: true,
+            ),
+            TextField(
+              controller: _deviceController,
+              decoration: InputDecoration(labelText: 'Eszköz neve'),
+            ),
+            SizedBox(height: 20),
+            if (_errorMessage != null) Text(_errorMessage!, style: TextStyle(color: Colors.red)),
+            if (_loading)
+              CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: _login,
+                child: Text('Bejelentkezés'),
+              ),
+          ],
+        ),
       ),
     );
   }
