@@ -1,106 +1,66 @@
-import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 
-class AuthService {
-  final storage = const FlutterSecureStorage();
-  final String baseUrl = 'https://kovacscsabi.moriczcloud.hu/login';
+import 'package:http/http.dart' as http;
 
-  // Login
-  Future<bool> login(String email, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/login'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      );
+class ApiService {
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        // Token mentése
-        await storage.write(
-          key: 'auth_token',
-          value: data['access_token'],
-        );
-        return true;
-      }
-      return false;
-    } catch (e) {
-      print('Login error: $e');
-      return false;
-    }
+  final String baseUrl;
+
+  ApiService({required this.baseUrl});
+
+  Future<dynamic> get(String endpoint, token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {'Accept': 'application/json', 'Authorization' : 'Bearer $token'},
+    );
+    print(token);
+    return _handleResponse(response);
   }
 
-  // Autentikált GET kérés
-  Future<Map<String, dynamic>> getAuthenticatedData(String endpoint) async {
-    try {
-      final token = await storage.read(key: 'auth_token');
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/$endpoint'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      }
-      throw Exception('Failed to load data');
-    } catch (e) {
-      print('Request error: $e');
-      throw Exception('Failed to load data');
-    }
+  Future<dynamic> postWithToken(String endpoint, Map<String, dynamic> data, token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {'Accept': 'application/json', 'Authorization' : 'Bearer $token'},
+      body: data,
+    );
+    return _handleResponse(response);
   }
 
-  // Autentikált POST kérés
-  Future<Map<String, dynamic>> postAuthenticatedData(String endpoint, Map<String, dynamic> data) async {
-    try {
-      final token = await storage.read(key: 'auth_token');
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/$endpoint'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(data),
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      }
-      throw Exception('Failed to post data');
-    } catch (e) {
-      print('Request error: $e');
-      throw Exception('Failed to post data');
-    }
+  Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {'Accept': 'application/json'},
+      body: data,
+    );
+    return _handleResponse(response);
   }
 
-  // Logout
-  Future<void> logout() async {
-    try {
-      final token = await storage.read(key: 'auth_token');
+  Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(data),
+    );
+    return _handleResponse(response);
+  }
 
-      // Backend értesítése (opcionális)
-      await http.post(
-        Uri.parse('$baseUrl/logout'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+  Future<dynamic> delete(String endpoint) async {
+    final response = await http.delete(Uri.parse('$baseUrl$endpoint'));
+    return _handleResponse(response);
+  }
 
-      // Token törlése
-      await storage.delete(key: 'auth_token');
-    } catch (e) {
-      print('Logout error: $e');
+
+  dynamic _handleResponse(http.Response response) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode >= 400 && response.statusCode < 500) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode >= 500 && response.statusCode < 600) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load data: ${response.statusCode}');
     }
   }
 }
+
