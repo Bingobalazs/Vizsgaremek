@@ -45,7 +45,7 @@ class FirstRoute extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AuthScreen()),
+                  MaterialPageRoute(builder: (context) =>  LoginPage()),
                 );
               },
             ),

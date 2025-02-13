@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,35 +23,25 @@ use App\Models\User;
 
 class api_AuthController extends Controller
 {
-    /**
-     * Handle user login
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function login(Request $request)
+
+    public function login(LoginRequest $loginRequest, Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-            'device_name' => 'required',
-        ]);
 
-        try {
-        $user = User::where('email', $request->email)->first();
-        } catch (ModelNotFoundException $e){
+        // Validate
+        $loginRequest->validated();
 
-            return response()->json([
-                'error' => 'User not found'
-            ], 404);
-
-        }
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        // check user
+        $user = User::where('email', $loginRequest->email)->first();
+        if (!$user || !Hash::check($loginRequest->password, $user->password)) {
             return response()->json([
                 'error' => 'Password or email incorrect'
-            ], 404);
+            ]);
         }
+
+
+
+
+
 
         // Create token with abilities/scopes if needed
         $token = $user->createToken('auth', ['server:auth'])->plainTextToken;
@@ -62,12 +53,7 @@ class api_AuthController extends Controller
         ]);
     }
 
-    /**
-     * Handle user logout
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function logout(Request $request)
     {
         // Revoke all tokens...
@@ -81,12 +67,7 @@ class api_AuthController extends Controller
         ]);
     }
 
-    /**
-     * Get authenticated user details
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function user(Request $request)
     {
         return response()->json($request->user());
@@ -127,13 +108,7 @@ class api_AuthController extends Controller
         mail($to, $subject, $message, $headers);
 
 
-        /*$user = User::create($data);
 
-        if (!$user)
-        {
-            return redirect(route('registration'))->with("error", "Naha");
-        }
-        return redirect(route('login'))->with("success", "Hot Sex");*/
         return view('code', compact('data'));
     }
 }
