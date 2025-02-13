@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
         data: {
           'email': _emailController.text,
           'password': _passwordController.text,
-          'device_name': _deviceController.text,
+          'device_name': "flutter",
         },
       );
 

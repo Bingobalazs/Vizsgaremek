@@ -36,7 +36,7 @@ class FirstRoute extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const UserProfileScreen()),
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
                 );
               },
             ),
@@ -49,6 +49,7 @@ class FirstRoute extends StatelessWidget {
                 );
               },
             ),
+
           ],
         ),
       ),
