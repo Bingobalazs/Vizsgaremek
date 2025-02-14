@@ -1,0 +1,118 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+
+class LoginService {
+  // Base URL konstansként definiálva
+  static const String baseUrl = 'https://kovacscsabi.moriczcloud.hu';
+
+  static Future<void> login(String email, String password, String deviceName) async {
+    // HTTP Client létrehozása
+    final client = http.Client();
+
+    try {
+      // Explicit URI parsing
+      final uri = Uri.parse('$baseUrl/api/login');
+
+      // Headers definiálása
+      final headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Connection': 'keep-alive',
+      };
+
+      // Request body
+      final body = json.encode({
+        'email': email,
+        'password': password,
+        'device_name': deviceName,
+      });
+
+      print('Sending request to: $uri');
+      print('Headers: $headers');
+      print('Body: $body');
+
+      // Kérés küldése retry logikával
+      final response = await _retryRequest(() =>
+          client.post(
+            uri,
+            headers: headers,
+            body: body,
+          ).timeout(Duration(seconds: 15))
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Sikeres válasz feldolgozása
+        final responseData = json.decode(response.body);
+        return responseData;
+      } else {
+        throw HttpException('Server error: ${response.statusCode}');
+      }
+
+    } catch (e) {
+      print('Error during login: $e');
+      rethrow;
+    } finally {
+      client.close();
+    }
+  }
+
+  // Retry logika implementálása
+  static Future<T> _retryRequest<T>(Future<T> Function() request, {int maxAttempts = 3}) async {
+    int attempts = 0;
+    while (attempts < maxAttempts) {
+      try {
+        return await request();
+      } catch (e) {
+        attempts++;
+        if (attempts == maxAttempts) rethrow;
+
+        // Exponential backoff
+        await Future.delayed(Duration(seconds: attempts * 2));
+        print('Retrying request (attempt $attempts of $maxAttempts)');
+      }
+    }
+    throw Exception('All retry attempts failed');
+  }
+}
+
+// Használati példa
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  Future<void> _handleLogin() async {
+    try {
+      await LoginService.login(
+        'test@example.com',
+        'password',
+        'flutter_device',
+      );
+      // Sikeres bejelentkezés kezelése
+    } on SocketException catch (e) {
+      _showError('Nincs internetkapcsolat.');
+    } on HttpException catch (e) {
+      _showError('Szerver hiba történt.');
+    } on http.ClientException catch (e) {
+      _showError('Kapcsolódási hiba. Kérjük ellenőrizze az URL-t és próbálja újra.');
+    } on TimeoutException catch (e) {
+      _showError('A kérés időtúllépés miatt megszakadt.');
+    } catch (e) {
+      _showError('Váratlan hiba történt: $e');
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+}

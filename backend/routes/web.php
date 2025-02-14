@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
@@ -34,8 +36,7 @@ Route::controller(AuthController::class)->group(function () {
     // Kijelentkezés
     Route::get('/logout','logout')->name('logout');
 
-    // Hirdetés hozzáadása
-    Route::get('/add',   'add')->name('add');
+
 
     // Elfelejtett jelszó
         // Link kérés
@@ -48,9 +49,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/profil', 'profil')->name('profil');
     Route::post('/modifyprofile', 'modifyprofile')->name('modifyprofile')->middleware('auth');
 
-    // Felhasználók listázása
-    Route::get('/users', 'users')->name('users');
-    Route::get('/view/users', 'wiewUsers')->name('users');
+
 
 });
 
@@ -65,14 +64,22 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('p
 
 Route::controller(AutoController::class)->group(function () {
 
+    // Hirdetés hozzáadása
     Route::post('/add','addPost')->name('add.post');
+    Route::get('/add',   'add')->name('add');
+    // Hirdetések listázása
     Route::get('/list','List')->name('list');
+    //
     Route::get('/modify','getModify')->name('modify');
     Route::post('/modify','setModify')->name('modify.post');
+    // Saját hirdetések
     Route::get('/own','ownAds')->name('own');
     Route::delete('own/delete', 'delete')->name('own.delete');
+    // Konkrét autó
     Route::get('cars/{id}', 'show')->name('show');
+    // like, comment
     Route::post('/cars/{id}/comment', 'store')->name('comment');
+
     Route::get('/like/{id}', 'like')->name('like');
 
 
@@ -83,6 +90,10 @@ Route::controller(FriendsController::class)->group(function () {
     Route::get('/friend_req', 'friend_req')->name('friend_req');
     Route::post('/accept/{id}', 'accept')->name('accept');
 
+    // Felhasználók listázása
+    Route::get('/users', 'users')->name('users');
+    Route::get('/view/users', 'viewUsers')->name('users');
+
 });
 
 
@@ -92,4 +103,28 @@ Route::controller(FriendsController::class)->group(function () {
 
 Route::controller(testAPIxController::class)->group(function () {
     Route::get('/testapi','testAPI')->name('testapi');
+    Route::post('/testapi','postTest')->name('testapi.post');
+
+});
+
+
+Route::post('/test/login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required'
+    ]);
+
+    if (!Auth::attempt($credentials)) {
+        return response()->json([
+            'message' => 'Invalid credentials'
+        ], 401);
+    }
+
+    $user = User::where('email', $request->email)->first();
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'access_token' => $token,
+        'token_type' => 'Bearer',
+    ]);
 });
