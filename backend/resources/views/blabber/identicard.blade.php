@@ -481,13 +481,14 @@
 @section('scripts')
     <script>
         // Convert primary color hex to RGB for use in computed values
-        document.addEventListener('DOMContentLoaded', function() {
+
+        /*document.addEventListener('DOMContentLoaded', function() {
             const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
             const rgb = hexToRgb(primaryColor);
             if (rgb) {
                 document.documentElement.style.setProperty('--primary-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
             }
-        });
+        });*/
 
         function hexToRgb(hex) {
             // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
