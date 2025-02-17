@@ -51,6 +51,6 @@ class Identicard extends Model
     'theme_bg_color',
     'theme_text_color',
     'profile_visibility',
-        
+
     ];
 }

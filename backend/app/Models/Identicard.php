@@ -9,7 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 class Identicard extends Model
 {
 
-    protected $table = "users";
+    protected $table = "identicard";
     use HasApiTokens;
 
 
