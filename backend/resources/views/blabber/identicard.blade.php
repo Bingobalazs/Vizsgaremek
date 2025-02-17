@@ -614,8 +614,11 @@
                     <div class="info-label">Certifications</div>
                     <div class="info-value">
                         @foreach(explode(',', $user->certifications) as $cert)
-                            <div class="timeline-subtitle">{{ trim($cert) }}</div>
+                            @foreach($cert as $c)
+                            <div class="timeline-subtitle">{{ trim($c) }}</div>
+                            @endforeach
                         @endforeach
+
                     </div>
                 </div>
             @endif
