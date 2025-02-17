@@ -1,519 +1,663 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ $user->name}}</title>
-</head>
-<body>
-
-<style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $user->name }} | Profile</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
         :root {
-            --primary-color: {{ $user->theme_primary_color ?? '#3490dc' }};
-            --accent-color: {{ $user->theme_accent_color ?? '#9561e2' }};
-            --bg-color: {{ $user->theme_bg_color ?? '#f8fafc' }};
-            --text-color: {{ $user->theme_text_color ?? '#2d3748' }};
+            --primary: {{ $user->theme_primary_color ?? '#0ff' }};
+            --accent: {{ $user->theme_accent_color ?? '#f0f' }};
+            --background: {{ $user->theme_bg_color ?? '#121212' }};
+            --text: {{ $user->theme_text_color ?? '#eee' }};
+            --glow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        .identity-beam-profile {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            background: white;
-        }
-
-        .cover-container {
+        .glitch-container {
             position: relative;
-            height: 280px;
+        }
+
+        .glitch {
+            position: relative;
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-shadow: 0.05em 0 0 rgba(255, 0, 255, 0.75),
+            -0.025em -0.05em 0 rgba(0, 255, 255, 0.75),
+            0.025em 0.05em 0 rgba(255, 255, 0, 0.75);
+            animation: glitch 500ms infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 255, 0.75),
+                -0.025em -0.05em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(255, 255, 0, 0.75);
+            }
+            15% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 255, 0.75),
+                0.025em 0.025em 0 rgba(0, 255, 255, 0.75),
+                -0.05em -0.05em 0 rgba(255, 255, 0, 0.75);
+            }
+            30% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 255, 0.75),
+                0.05em 0 0 rgba(0, 255, 255, 0.75),
+                0 -0.05em 0 rgba(255, 255, 0, 0.75);
+            }
+            45% {
+                text-shadow: -0.025em 0 0 rgba(255, 0, 255, 0.75),
+                -0.025em -0.025em 0 rgba(0, 255, 255, 0.75),
+                -0.025em -0.05em 0 rgba(255, 255, 0, 0.75);
+            }
+            60% {
+                text-shadow: -0.025em 0.025em 0 rgba(255, 0, 255, 0.75),
+                -0.025em -0.025em 0 rgba(0, 255, 255, 0.75),
+                -0.025em -0.05em 0 rgba(255, 255, 0, 0.75);
+            }
+            75% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 255, 0.75),
+                0.05em 0 0 rgba(0, 255, 255, 0.75),
+                0 -0.05em 0 rgba(255, 255, 0, 0.75);
+            }
+            100% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 255, 0.75),
+                -0.025em -0.05em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(255, 255, 0, 0.75);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            position: relative;
+            height: 300px;
+            margin-bottom: 100px;
             overflow: hidden;
+            border-radius: 15px;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
         }
 
         .cover-photo {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-
-        .profile-header {
-            position: relative;
-            margin-top: -70px;
-            padding: 0 30px;
+            filter: brightness(0.7) contrast(1.2) saturate(1.2);
         }
 
         .profile-picture-container {
-            position: relative;
+            position: absolute;
+            bottom: -75px;
+            left: 50px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid var(--background);
+            overflow: hidden;
+            box-shadow: var(--glow);
         }
 
         .profile-picture {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 4px solid white;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
 
-        .user-info {
-            padding: 15px 30px 20px;
+        .profile-id {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: 'Share Tech Mono', monospace;
+            border: 1px solid var(--accent);
+            color: var(--accent);
         }
 
-        .name-container {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
+        .profile-details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
-        .user-name {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-right: 10px;
+        @media (min-width: 768px) {
+            .profile-details {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
-        .username {
-            color: #6b7280;
-            font-size: 1.1rem;
+        .card {
+            background: rgba(18, 18, 18, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            position: relative;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--primary);
+            overflow: hidden;
         }
 
-        .bio {
-            margin: 20px 0;
-            font-size: 1rem;
-            line-height: 1.6;
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            z-index: -1;
+            background: linear-gradient(45deg, var(--primary), var(--accent), var(--primary));
+            background-size: 200%;
+            animation: border-animation 3s linear infinite;
+            filter: blur(8px);
+            opacity: 0.7;
         }
 
-        .section {
-            border-top: 1px solid #e5e7eb;
-            padding: 25px 30px;
+        @keyframes border-animation {
+            0% { background-position: 0 0; }
+            50% { background-position: 100% 0; }
+            100% { background-position: 0 0; }
         }
 
         .section-title {
-            color: var(--primary-color);
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .detail-item {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
             display: flex;
-            margin-bottom: 12px;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            text-shadow: var(--glow);
         }
 
-        .detail-icon {
-            color: var(--accent-color);
-            width: 24px;
+        .section-title .material-icons {
             margin-right: 10px;
         }
 
-        .detail-content {
-            flex: 1;
+        .info-group {
+            margin-bottom: 15px;
         }
 
-        .detail-label {
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-
-        .detail-value {
-            color: #4b5563;
-        }
-
-        .pills-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .pill {
-            background-color: rgba(var(--primary-color-rgb), 0.1);
-            color: var(--primary-color);
-            padding: 5px 12px;
-            border-radius: 20px;
+        .info-label {
             font-size: 0.9rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            word-break: break-word;
         }
 
         .social-links {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .social-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f3f4f6;
+        .social-link {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            transition: all 0.2s;
+            gap: 5px;
+            text-decoration: none;
+            color: var(--text);
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid var(--primary);
         }
 
-        .social-icon:hover {
-            background-color: var(--primary-color);
-            color: white;
+        .social-link:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: var(--glow);
         }
 
-        .identity-beam-footer {
-            text-align: center;
-            padding: 15px;
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 20px;
             font-size: 0.9rem;
-            color: #6b7280;
+            border: 1px solid var(--primary);
         }
 
-        .privacy-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            background-color: #f3f4f6;
-            border-radius: 4px;
-            margin-left: 10px;
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+            left: -5px;
+            top: 10px;
+            border: 2px solid var(--background);
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .timeline-subtitle {
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .timeline-date {
             font-size: 0.8rem;
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Share Tech Mono', monospace;
         }
 
-        .privacy-icon {
-            margin-right: 4px;
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.1;
+            background:
+                linear-gradient(125deg,
+                var(--background) 0%,
+                var(--background) 40%,
+                var(--primary) 50%,
+                var(--background) 60%,
+                var(--background) 100%);
+            background-size: 400% 400%;
+            animation: gradientBg 15s ease infinite;
         }
 
-        @media (max-width: 640px) {
-            .profile-header {
-                padding: 0 20px;
-            }
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-            .user-info, .section {
-                padding: 15px 20px;
-            }
+        .grid-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(var(--primary) 1px, transparent 1px),
+            linear-gradient(90deg, var(--primary) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.05;
+        }
 
-            .profile-picture {
-                width: 120px;
-                height: 120px;
-            }
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .private-info {
+            font-style: italic;
+            opacity: 0.7;
         }
     </style>
+</head>
+<body>
+<div class="animated-background"></div>
+<div class="grid-line"></div>
 
+<div class="container">
+    <div class="profile-header">
+        @if($user->cover_photo)
+            <img src="{{ $user->cover_photo }}" alt="Cover" class="cover-photo">
+        @else
+            <div class="cover-photo" style="background: linear-gradient(45deg, var(--background), var(--accent))"></div>
+        @endif
 
-    <div style="color: red; font-size: 24px;">Teszt</div>
+        <div class="profile-id">#{{ $user->id }}</div>
 
-    <div class="container my-4">
-        <div class="identity-beam-profile">
-            <!-- Cover Photo -->
-            <div class="cover-container">
-                @if($user->cover_photo)
-                    <img src="{{ asset('storage/' . $user->cover_photo) }}" alt="Cover Photo" class="cover-photo">
-                @else
-                    <div class="cover-photo" style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color))"></div>
-                @endif
-            </div>
+        <div class="profile-picture-container">
+            @if($user->profile_picture)
+                <img src="{{ $user->profile_picture }}" alt="{{ $user->name }}" class="profile-picture">
+            @else
+                <div class="profile-picture" style="background: linear-gradient(135deg, var(--primary), var(--accent))"></div>
+            @endif
+        </div>
+    </div>
 
-            <!-- Profile Header -->
-            <div class="profile-header">
-                <div class="profile-picture-container">
-                    @if($user->profile_picture)
-                        <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="{{ $user->name }}" class="profile-picture">
-                    @else
-                        <div class="profile-picture" style="background: var(--primary-color); display: flex; align-items: center; justify-content: center;">
-                            <span style="color: white; font-size: 48px; font-weight: bold;">{{ substr($user->name, 0, 1) }}</span>
-                        </div>
-                    @endif
+    <div class="glitch-container">
+        <h1 class="glitch">{{ $user->name }}</h1>
+    </div>
+
+    <p style="margin-bottom: 40px; font-size: 1.2rem; color: var(--accent); font-family: 'Share Tech Mono', monospace;">
+        @if($user->pronouns){{ $user->pronouns }} • @endif
+        @if($user->location){{ $user->location }} • @endif
+        @if($user->job_title && $user->current_workplace){{ $user->job_title }} at {{ $user->current_workplace }}@endif
+    </p>
+
+    <div class="profile-details">
+        <!-- Bio and Personal Info -->
+        <div class="card">
+            <h2 class="section-title">
+                <span class="material-icons">person</span>
+                Personal Info
+            </h2>
+
+            @if($user->bio)
+                <div class="info-group">
+                    <p>{{ $user->bio }}</p>
                 </div>
-            </div>
+            @endif
 
-            <!-- User Info -->
-            <div class="user-info">
-                <div class="name-container">
-                    <h1 class="user-name">{{ $user->name }}</h1>
-                    <span class="username">@{{ $user->username }}</span>
-                    @if($user->profile_visibility == 'public')
-                        <span class="privacy-badge"><i class="fas fa-globe privacy-icon"></i> Public</span>
-                    @else
-                        <span class="privacy-badge"><i class="fas fa-lock privacy-icon"></i> Private</span>
-                    @endif
+            @if($user->username)
+                <div class="info-group">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ $user->username }}</div>
                 </div>
+            @endif
 
-                <div class="sub-info">
-                    @if($user->pronouns)
-                        <span class="pronouns">{{ $user->pronouns }}</span>
-                    @endif
-
-                    @if($user->relationship_status)
-                        <span class="relationship">• {{ $user->relationship_status }}</span>
-                    @endif
+            @if($user->birthday && $user->birthday_visibility !== 'private')
+                <div class="info-group">
+                    <div class="info-label">Birthday</div>
+                    <div class="info-value">{{ \Carbon\Carbon::parse($user->birthday)->format('M d, Y') }}</div>
                 </div>
+            @endif
 
-                @if($user->bio)
-                    <p class="bio">{{ $user->bio }}</p>
-                @endif
-
-                <div class="location-age">
-                    @if($user->location)
-                        <span><i class="fas fa-map-marker-alt mr-2" style="color: var(--accent-color);"></i> {{ $user->location }}</span>
-                    @endif
-
-                    @if($user->birthday && $user->birthday_visibility != 'hidden')
-                        <span class="ml-3">
-                        <i class="fas fa-birthday-cake mr-2" style="color: var(--accent-color);"></i>
-                        @if($user->birthday_visibility == 'age_only')
-                                {{ \Carbon\Carbon::parse($user->birthday)->age }} years old
-                            @else
-                                {{ \Carbon\Carbon::parse($user->birthday)->format('F j, Y') }}
-                            @endif
-                    </span>
-                    @endif
+            @if($user->relationship_status)
+                <div class="info-group">
+                    <div class="info-label">Relationship Status</div>
+                    <div class="info-value">{{ $user->relationship_status }}</div>
                 </div>
-            </div>
+            @endif
 
-            <!-- Contact Information -->
-            <div class="section">
-                <h2 class="section-title">Contact Information</h2>
-
-                @if($user->email_visibility != 'hidden')
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">{{ $user->email }}</div>
-                            @if($user->email_visibility == 'private')
-                                <small class="text-muted"><i class="fas fa-lock"></i> Only visible to connections</small>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->phone && $user->phone_visibility != 'hidden')
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Phone</div>
-                            <div class="detail-value">{{ $user->phone }}</div>
-                            @if($user->phone_visibility == 'private')
-                                <small class="text-muted"><i class="fas fa-lock"></i> Only visible to connections</small>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->messaging_apps)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-comment-dots"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Messaging Apps</div>
-                            @foreach(json_decode($user->messaging_apps) as $app => $username)
-                                <div class="detail-value">{{ ucfirst($app) }}: {{ $username }}</div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->website)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-globe"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Website</div>
-                            <div class="detail-value">
-                                <a href="{{ $user->website }}" target="_blank" class="text-blue-500 hover:underline">{{ $user->website }}</a>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->social_handles && count(json_decode($user->social_handles, true)) > 0)
-                    <div class="social-links">
-                        @foreach(json_decode($user->social_handles, true) as $platform => $handle)
-                            <a href="{{ $handle }}" target="_blank" class="social-icon">
-                                <i class="fab fa-{{ strtolower($platform) }}"></i>
-                            </a>
+            @if($user->hobbies)
+                <div class="info-group">
+                    <div class="info-label">Interests</div>
+                    <div class="skill-tags">
+                        @foreach(explode(',', $user->hobbies) as $hobby)
+                            <span class="skill-tag">{{ trim($hobby) }}</span>
                         @endforeach
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
+        </div>
 
-            <!-- Professional Information -->
-            <div class="section">
-                <h2 class="section-title">Professional Information</h2>
+        <!-- Contact Info -->
+        <div class="card">
+            <h2 class="section-title">
+                <span class="material-icons">contact_page</span>
+                Contact Info
+            </h2>
 
-                @if($user->current_workplace)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-building"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Current Workplace</div>
-                            <div class="detail-value">{{ $user->current_workplace }}</div>
-                            @if($user->job_title)
-                                <div class="detail-value text-gray-500">{{ $user->job_title }}</div>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->previous_workplaces && count(json_decode($user->previous_workplaces, true)) > 0)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-history"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Previous Experience</div>
-                            @foreach(json_decode($user->previous_workplaces, true) as $workplace)
-                                <div class="detail-value">{{ $workplace['position'] }} at {{ $workplace['company'] }}</div>
-                                <div class="detail-value text-gray-500 text-sm">{{ $workplace['duration'] }}</div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->education && count(json_decode($user->education, true)) > 0)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Education</div>
-                            @foreach(json_decode($user->education, true) as $edu)
-                                <div class="detail-value">{{ $edu['degree'] }} - {{ $edu['institution'] }}</div>
-                                <div class="detail-value text-gray-500 text-sm">{{ $edu['year'] }}</div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->skills && count(json_decode($user->skills, true)) > 0)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-tools"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Skills & Expertise</div>
-                            <div class="pills-container">
-                                @foreach(json_decode($user->skills, true) as $skill)
-                                    <span class="pill">{{ $skill }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->certifications && count(json_decode($user->certifications, true)) > 0)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-certificate"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Certifications</div>
-                            @foreach(json_decode($user->certifications, true) as $cert)
-                                <div class="detail-value">{{ $cert['name'] }}</div>
-                                <div class="detail-value text-gray-500 text-sm">{{ $cert['issuer'] }} - {{ $cert['year'] }}</div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->languages && count(json_decode($user->languages, true)) > 0)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-language"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Languages</div>
-                            <div class="pills-container">
-                                @foreach(json_decode($user->languages, true) as $language => $proficiency)
-                                    <span class="pill">{{ $language }} ({{ $proficiency }})</span>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                @if($user->portfolio_link)
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Portfolio</div>
-                            <div class="detail-value">
-                                <a href="{{ $user->portfolio_link }}" target="_blank" class="text-blue-500 hover:underline">View Portfolio</a>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-
-            <!-- Personal Interests -->
-            @if($user->hobbies && count(json_decode($user->hobbies, true)) > 0)
-                <div class="section">
-                    <h2 class="section-title">Personal Interests</h2>
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-heart"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Hobbies</div>
-                            <div class="pills-container">
-                                @foreach(json_decode($user->hobbies, true) as $hobby)
-                                    <span class="pill">{{ $hobby }}</span>
-                                @endforeach
-                            </div>
-                        </div>
+            @if($user->email && $user->email_visibility !== 'private')
+                <div class="info-group">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">
+                        <a href="mailto:{{ $user->email }}" style="color: var(--primary); text-decoration: none;">
+                            {{ $user->email }}
+                        </a>
                     </div>
                 </div>
             @endif
 
-            <!-- Footer -->
-            <div class="identity-beam-footer">
-                Shared via IdentityBeam |
-                <a href="{{ route('connect', $user->username) }}" class="text-primary hover:underline">
-                    Connect with {{ $user->name }}
-                </a>
-            </div>
+            @if($user->phone && $user->phone_visibility !== 'private')
+                <div class="info-group">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">
+                        <a href="tel:{{ $user->phone }}" style="color: var(--primary); text-decoration: none;">
+                            {{ $user->phone }}
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            @if($user->website)
+                <div class="info-group">
+                    <div class="info-label">Website</div>
+                    <div class="info-value">
+                        <a href="{{ $user->website }}" target="_blank" style="color: var(--primary); text-decoration: none;">
+                            {{ $user->website }}
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            @if($user->messaging_apps)
+                <div class="info-group">
+                    <div class="info-label">Messaging</div>
+                    <div class="info-value">
+                        @php
+                            $apps = json_decode($user->messaging_apps, true);
+                        @endphp
+                        @if(is_array($apps))
+                            @foreach($apps as $app => $handle)
+                                <div>{{ $app }}: {{ $handle }}</div>
+                            @endforeach
+                        @else
+                            {{ $user->messaging_apps }}
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            @if($user->social_handles)
+                <div class="info-group">
+                    <div class="info-label">Social Media</div>
+                    <div class="social-links">
+                        @php
+                            $socials = json_decode($user->social_handles, true);
+                        @endphp
+                        @if(is_array($socials))
+                            @foreach($socials as $platform => $handle)
+                                <a href="#" class="social-link">
+                                    <span class="material-icons">
+                                        @switch(strtolower($platform))
+                                            @case('twitter')
+                                                tag
+                                                @break
+                                            @case('instagram')
+                                                photo_camera
+                                                @break
+                                            @case('linkedin')
+                                                business
+                                                @break
+                                            @case('github')
+                                                code
+                                                @break
+                                            @case('facebook')
+                                                thumb_up
+                                                @break
+                                            @default
+                                                link
+                                        @endswitch
+                                    </span>
+                                    {{ $handle }}
+                                </a>
+                            @endforeach
+                        @else
+                            {{ $user->social_handles }}
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
+
+        <!-- Work Experience -->
+        <div class="card">
+            <h2 class="section-title">
+                <span class="material-icons">work</span>
+                Work Experience
+            </h2>
+
+            @if($user->current_workplace)
+                <div class="timeline-item">
+                    <div class="timeline-title">{{ $user->current_workplace }}</div>
+                    @if($user->job_title)
+                        <div class="timeline-subtitle">{{ $user->job_title }}</div>
+                    @endif
+                    <div class="timeline-date">Present</div>
+                </div>
+            @endif
+
+            @if($user->previous_workplaces)
+                @php
+                    $prevWorkplaces = json_decode($user->previous_workplaces, true);
+                @endphp
+
+                @if(is_array($prevWorkplaces))
+                    @foreach($prevWorkplaces as $job)
+                        <div class="timeline-item">
+                            <div class="timeline-title">{{ $job['company'] ?? '' }}</div>
+                            <div class="timeline-subtitle">{{ $job['title'] ?? '' }}</div>
+                            <div class="timeline-date">{{ $job['period'] ?? '' }}</div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="timeline-item">
+                        <div class="timeline-title">{{ $user->previous_workplaces }}</div>
+                    </div>
+                @endif
+            @endif
+        </div>
+
+        <!-- Education and Skills -->
+        <div class="card">
+            <h2 class="section-title">
+                <span class="material-icons">school</span>
+                Education & Skills
+            </h2>
+
+            @if($user->education)
+                @php
+                    $education = json_decode($user->education, true);
+                @endphp
+
+                @if(is_array($education))
+                    @foreach($education as $edu)
+                        <div class="timeline-item">
+                            <div class="timeline-title">{{ $edu['institution'] ?? '' }}</div>
+                            <div class="timeline-subtitle">{{ $edu['degree'] ?? '' }}</div>
+                            <div class="timeline-date">{{ $edu['year'] ?? '' }}</div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="timeline-item">
+                        <div class="timeline-title">{{ $user->education }}</div>
+                    </div>
+                @endif
+            @endif
+
+            @if($user->skills)
+                <div class="info-group">
+                    <div class="info-label">Skills</div>
+                    <div class="skill-tags">
+                        @foreach(explode(',', $user->skills) as $skill)
+                            <span class="skill-tag">{{ trim($skill) }}</span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if($user->certifications)
+                <div class="info-group">
+                    <div class="info-label">Certifications</div>
+                    <div class="info-value">
+                        @foreach(explode(',', $user->certifications) as $cert)
+                            <div class="timeline-subtitle">{{ trim($cert) }}</div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if($user->languages)
+                <div class="info-group">
+                    <div class="info-label">Languages</div>
+                    <div class="skill-tags">
+                        @foreach(explode(',', $user->languages) as $language)
+                            <span class="skill-tag">{{ trim($language) }}</span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        @if($user->portfolio_link)
+            <!-- Portfolio -->
+            <div class="card">
+                <h2 class="section-title">
+                    <span class="material-icons">collections</span>
+                    Portfolio
+                </h2>
+                <div class="info-group">
+                    <div class="info-value">
+                        <a href="{{ $user->portfolio_link }}" target="_blank" class="social-link" style="display: inline-block;">
+                            <span class="material-icons">visibility</span>
+                            View Portfolio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
+</div>
 
-
-    <script>
-        // Convert primary color hex to RGB for use in computed values
-
-        /*document.addEventListener('DOMContentLoaded', function() {
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-            const rgb = hexToRgb(primaryColor);
-            if (rgb) {
-                document.documentElement.style.setProperty('--primary-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
-            }
-        });*/
-
-        function hexToRgb(hex) {
-            // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-            const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-            hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-                return r + r + g + g + b + b;
-            });
-
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }
-    </script>
-
+<footer>
+    <p>Last updated: {{ $user->updated_at->diffForHumans() }}</p>
+    <p style="margin-top: 10px;">
+        <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">copyright</span>
+        {{ \Carbon\Carbon::now()->year }} {{ $user->name }}
+    </p>
+</footer>
 </body>
 </html>
