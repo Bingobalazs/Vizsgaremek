@@ -160,7 +160,7 @@
             overflow: hidden;
         }
 
-        .card::before {
+       /* .card::before {
             content: '';
             position: absolute;
             top: -5px;
@@ -173,7 +173,7 @@
             animation: border-animation 3s linear infinite;
             filter: blur(8px);
             opacity: 0.7;
-        }
+        }*/
 
         @keyframes border-animation {
             0% { background-position: 0 0; }
