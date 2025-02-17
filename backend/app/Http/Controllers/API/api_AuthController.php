@@ -24,7 +24,7 @@ use App\Models\User;
 class api_AuthController extends Controller
 {
 
-    public function login(LoginRequest $loginRequest, Request $request)
+    public function login(LoginRequest $loginRequest)
     {
 
         // Validate

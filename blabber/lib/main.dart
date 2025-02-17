@@ -1,6 +1,7 @@
 import 'package:blabber/screens/friend_suggestions.dart';
 import 'package:blabber/screens/user_profile_screen.dart';
 import 'package:blabber/screens/auth_screen.dart';
+import 'package:blabber/screens/styled_auth_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -36,7 +37,7 @@ class FirstRoute extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const UserProfileScreen()),
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
                 );
               },
             ),
@@ -49,6 +50,34 @@ class FirstRoute extends StatelessWidget {
                 );
               },
             ),
+              ElevatedButton(
+              child: const Text('Log In/Register'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  AuthWidget()),
+                );
+              },
+            ),
+              ElevatedButton(
+              child: const Text('Log In/Register'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  LoginPage()),
+                );
+              },
+            ),
+              ElevatedButton(
+              child: const Text('Log In/Register'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  LoginPage()),
+                );
+              },
+            ),
+
           ],
         ),
       ),
