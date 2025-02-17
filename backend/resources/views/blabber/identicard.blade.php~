@@ -1,4 +1,5 @@
 
+@dd($user)
 @section('styles')
     <style>
         :root {
