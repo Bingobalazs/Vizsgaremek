@@ -17,6 +17,6 @@ class IdentiController extends Controller
     public function share($username)
     {
         $user = Identicard::where('username', $username)->firstOrFail();
-        return view('profiles.identitybeam', compact('user'));
+        return view('blabber.identicard',  compact('user'));
     }
 }

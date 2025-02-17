@@ -139,6 +139,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Public profile routes
+Route::get('/profile/{username}', [IdentiController::class, 'show'])->name('profile.show');
 Route::get('/identicard/{username}', [IdentiController::class, 'share'])->name('profile.beam');
 
 // Connect with user
