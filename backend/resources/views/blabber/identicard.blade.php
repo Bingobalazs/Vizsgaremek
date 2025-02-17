@@ -13,8 +13,8 @@
             --primary: {{ $user->theme_primary_color ?? '#0ff' }};
             --accent: {{ $user->theme_accent_color ?? '#f0f' }};
             --background: {{ $user->theme_bg_color ?? '#121212' }};
-            --text: {{ $user->theme_text_color ?? '#eee' }};
-            --glow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+            --text: {{ $user->theme_text_color ?? '#fff' }};
+            --glow: 0 0 5px var(--primary), 0 0 10px var(--primary);
         }
 
         * {
@@ -140,11 +140,7 @@
             opacity: 0.7;
         }*/
 
-        @keyframes border-animation {
-            0% { background-position: 0 0; }
-            50% { background-position: 100% 0; }
-            100% { background-position: 0 0; }
-        }
+
 
         .section-title {
             font-size: 1.8rem;
@@ -154,7 +150,6 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--primary);
-            text-shadow: var(--glow);
         }
 
         .section-title .material-icons {
@@ -284,11 +279,7 @@
             animation: gradientBg 15s ease infinite;
         }
 
-        @keyframes gradientBg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+
 
         .grid-line {
             position: fixed;
@@ -320,7 +311,6 @@
 </head>
 <body>
 <div class="animated-background"></div>
-<div class="grid-line"></div>
 
 <div class="container">
     <div class="profile-header">
