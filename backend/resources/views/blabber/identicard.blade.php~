@@ -123,6 +123,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            z-index: ;
         }
 
         .profile-id {
@@ -614,7 +615,9 @@
                     <div class="info-label">Certifications</div>
                     <div class="info-value">
                         @foreach(explode(',', $user->certifications) as $cert)
-
+                            @php
+                                $c = json_decode($cert);
+                            @endphp
                             <div class="timeline-subtitle">{{ trim($c) }}</div>
 
                         @endforeach
