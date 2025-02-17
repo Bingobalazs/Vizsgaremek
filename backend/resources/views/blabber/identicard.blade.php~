@@ -1,5 +1,5 @@
 
-@section('styles')
+
     <style>
         :root {
             --primary-color: {{ $user->theme_primary_color ?? '#3490dc' }};
@@ -192,9 +192,10 @@
             }
         }
     </style>
-@endsection
+@
 
-@section('content')
+    <div style="color: red; font-size: 24px;">Teszt</div>
+
     <div class="container my-4">
         <div class="identity-beam-profile">
             <!-- Cover Photo -->
@@ -476,9 +477,8 @@
             </div>
         </div>
     </div>
-@endsection
 
-@section('scripts')
+
     <script>
         // Convert primary color hex to RGB for use in computed values
 
@@ -505,4 +505,3 @@
             } : null;
         }
     </script>
-@endsection

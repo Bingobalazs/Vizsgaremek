@@ -1,6 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ $user->name}}</title>
+</head>
+<body>
 
-@section('styles')
-    <style>
+<style>
         :root {
             --primary-color: {{ $user->theme_primary_color ?? '#3490dc' }};
             --accent-color: {{ $user->theme_accent_color ?? '#9561e2' }};
@@ -192,9 +201,8 @@
             }
         }
     </style>
-@endsection
 
-@section('content')
+
     <div style="color: red; font-size: 24px;">Teszt</div>
 
     <div class="container my-4">
@@ -478,9 +486,8 @@
             </div>
         </div>
     </div>
-@endsection
 
-@section('scripts')
+
     <script>
         // Convert primary color hex to RGB for use in computed values
 
@@ -507,4 +514,6 @@
             } : null;
         }
     </script>
-@endsection
+
+</body>
+</html>
