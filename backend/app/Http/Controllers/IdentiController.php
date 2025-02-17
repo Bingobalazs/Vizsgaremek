@@ -8,11 +8,7 @@ use App\Models\User;
 
 class IdentiController extends Controller
 {
-    public function show($username)
-    {
-        $user = Identicard::where('username', $username)->firstOrFail();
-        return view('profiles.show', compact('user'));
-    }
+
 
     public function share($username)
     {
