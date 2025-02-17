@@ -614,9 +614,11 @@
                     <div class="info-label">Certifications</div>
                     <div class="info-value">
                         @foreach(explode(',', $user->certifications) as $cert)
-                            @foreach($cert as $c)
+                            @php
+                                $c = json_decode($cert);
+                            @endphp
                             <div class="timeline-subtitle">{{ trim($c) }}</div>
-                            @endforeach
+
                         @endforeach
 
                     </div>
