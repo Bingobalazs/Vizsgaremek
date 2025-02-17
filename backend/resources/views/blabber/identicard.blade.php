@@ -46,43 +46,7 @@
             animation: glitch 500ms infinite;
         }
 
-        @keyframes glitch {
-            0% {
-                text-shadow: 0.05em 0 0 rgba(255, 0, 255, 0.75),
-                -0.025em -0.05em 0 rgba(0, 255, 255, 0.75),
-                0.025em 0.05em 0 rgba(255, 255, 0, 0.75);
-            }
-            15% {
-                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 255, 0.75),
-                0.025em 0.025em 0 rgba(0, 255, 255, 0.75),
-                -0.05em -0.05em 0 rgba(255, 255, 0, 0.75);
-            }
-            30% {
-                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 255, 0.75),
-                0.05em 0 0 rgba(0, 255, 255, 0.75),
-                0 -0.05em 0 rgba(255, 255, 0, 0.75);
-            }
-            45% {
-                text-shadow: -0.025em 0 0 rgba(255, 0, 255, 0.75),
-                -0.025em -0.025em 0 rgba(0, 255, 255, 0.75),
-                -0.025em -0.05em 0 rgba(255, 255, 0, 0.75);
-            }
-            60% {
-                text-shadow: -0.025em 0.025em 0 rgba(255, 0, 255, 0.75),
-                -0.025em -0.025em 0 rgba(0, 255, 255, 0.75),
-                -0.025em -0.05em 0 rgba(255, 255, 0, 0.75);
-            }
-            75% {
-                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 255, 0.75),
-                0.05em 0 0 rgba(0, 255, 255, 0.75),
-                0 -0.05em 0 rgba(255, 255, 0, 0.75);
-            }
-            100% {
-                text-shadow: 0.05em 0 0 rgba(255, 0, 255, 0.75),
-                -0.025em -0.05em 0 rgba(0, 255, 255, 0.75),
-                0.025em 0.05em 0 rgba(255, 255, 0, 0.75);
-            }
-        }
+
 
         .container {
             max-width: 1200px;
@@ -109,7 +73,7 @@
 
         .profile-picture-container {
             position: absolute;
-            bottom: -75px;
+            bottom: -20px;
             left: 50px;
             width: 150px;
             height: 150px;
