@@ -195,6 +195,8 @@
 @endsection
 
 @section('content')
+    <div style="color: red; font-size: 24px;">Teszt</div>
+
     <div class="container my-4">
         <div class="identity-beam-profile">
             <!-- Cover Photo -->
