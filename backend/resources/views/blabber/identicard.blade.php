@@ -320,7 +320,6 @@
             <div class="cover-photo" style="background: linear-gradient(45deg, var(--background), var(--accent))"></div>
         @endif
 
-        <div class="profile-id">#{{ $user->id }}</div>
 
         <div class="profile-picture-container">
             @if($user->profile_picture)
@@ -362,10 +361,10 @@
                 </div>
             @endif
 
-            @if($user->birthday && $user->birthday_visibility !== 'private')
+            @if($user->birthday)
                 <div class="info-group">
                     <div class="info-label">Birthday</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($user->birthday)->format('M d, Y') }}</div>
+                    <div class="info-value">{{ \Carbon\Carbon::parse($user->birthday)->format('Y, M d') }}</div>
                 </div>
             @endif
 
@@ -395,7 +394,7 @@
                 Contact Info
             </h2>
 
-            @if($user->email && $user->email_visibility !== 'private')
+            @if($user->email)
                 <div class="info-group">
                     <div class="info-label">Email</div>
                     <div class="info-value">
@@ -406,7 +405,7 @@
                 </div>
             @endif
 
-            @if($user->phone && $user->phone_visibility !== 'private')
+            @if($user->phone )
                 <div class="info-group">
                     <div class="info-label">Phone</div>
                     <div class="info-value">
