@@ -2,3 +2,6 @@
 config/secrets.json
 /.idea
 .github/workflows/main.yml
+blabber/.dart_tool/package_config.json
+blabber/.dart_tool/package_config_subset
+/blabber/.dart_tool
