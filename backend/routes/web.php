@@ -132,14 +132,9 @@ Route::post('/test/login', function (Request $request) {
 
 use App\Http\Controllers\IdentiController;
 
-// Profile routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [IdentiController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [IdentiController::class, 'update'])->name('profile.update');
-});
+
 
 // Public profile routes
-Route::get('/profile/{username}', [IdentiController::class, 'show'])->name('profile.show');
 Route::get('/identicard/{username}', [IdentiController::class, 'share'])->name('profile.beam');
 
 // Connect with user

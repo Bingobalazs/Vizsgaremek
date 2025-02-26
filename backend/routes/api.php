@@ -13,9 +13,19 @@ Route::controller(api_AuthController::class)->group(function () {
     Route::post('/login', 'login');
     Route::post('/registration', 'registration');
 
-    //Route::post('/register', 'Reg');
-    //Route::post('/logout', 'Logout')->name('logout');
 });
+
+// reverse - token
+// a user elküldésével generál tokent, nem pedig fordívta
+// jelenleg nincs használatban
+Route::post('/tokens/create', function (Request $request) {
+    $token = $request->user()->createToken($request->token_name);
+
+    return ['token' => $token->plainTextToken];
+});
+
+
+// AUTH ONLY
 Route::middleware('auth:sanctum')->group(function () {
     Route::controller(api_AuthController::class)->group(function () {
 
@@ -25,11 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+Route::controller(\App\Http\Controllers\IdentiController::class)->group(function () {
+    Route::get('/identicard/check', 'hasIdenticard'); // Ellenőrzi hogy a felhasználónak van e Identicard-ja
+    Route::get('/identicard/update', 'update');
+    Route::get('/identicard/add', 'store');
 
-Route::post('/tokens/create', function (Request $request) {
-    $token = $request->user()->createToken($request->token_name);
-
-    return ['token' => $token->plainTextToken];
 });
+
 
 

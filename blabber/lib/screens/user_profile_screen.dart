@@ -39,7 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
       final response = await http.get(
         Uri.parse('https://kovacscsabi.moriczcloud.hu/api/user'),
         headers: {
-          'Authorization': token,
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
