@@ -15,6 +15,16 @@ use App\Models\Auto;
 class AutoController extends Controller
 {
 
+    public function getchat()
+    {
+        return "chat";
+    }
+
+    public function postchat()
+    {
+        return "chat";
+    }
+
     public function List()
     {
         $autok= Auto::all();

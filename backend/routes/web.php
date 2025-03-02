@@ -82,6 +82,9 @@ Route::controller(AutoController::class)->group(function () {
 
     Route::get('/like/{id}', 'like')->name('like');
 
+    Route::get('/getchat', 'getchat')->name('getchat');
+    Route::post('/postchat', 'postchat')->name('postchat');
+
 
 });
 Route::controller(FriendsController::class)->group(function () {
