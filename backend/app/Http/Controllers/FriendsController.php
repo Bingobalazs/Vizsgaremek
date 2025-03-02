@@ -12,6 +12,17 @@ use App\Models\Auto;
 
 class FriendsController extends Controller
 {
+
+    public function friends($id)
+    {
+        $friends = DB::table('friends')
+            ->where('user_id', $id)
+            ->orWhere('othr_user_id', $id)
+            ->get();
+
+        return response()->json($friends);
+    }
+
     public function index()
     {
         return "friendscontroller works";

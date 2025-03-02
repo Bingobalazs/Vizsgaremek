@@ -85,7 +85,6 @@ Route::controller(AutoController::class)->group(function () {
     Route::get('/getchat', 'getchat')->name('getchat');
     Route::post('/postchat', 'postchat')->name('postchat');
 
-
 });
 Route::controller(FriendsController::class)->group(function () {
 
@@ -96,6 +95,8 @@ Route::controller(FriendsController::class)->group(function () {
     // Felhasználók listázása
     Route::get('/users', 'users')->name('users');
     Route::get('/view/users', 'viewUsers')->name('users');
+
+    Route::get('/friends', 'friends')->name('friends');
 
 });
 
