@@ -17,7 +17,7 @@ class FriendsController extends Controller
     {
         $friends = DB::table('friends')
             ->where('user_id', $id)
-            ->orWhere('othr_user_id', $id)
+            ->orWhere('other_user_id', $id)
             ->get();
 
         return response()->json($friends);
