@@ -2,7 +2,7 @@
 return [
     'paths' => ['api/*', '/PixelArtSpotlight/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['http://localhost:59964/', 'https://balgalazs.moriczcloud.hu', 'https://kovacscsabi.moriczcloud.hu'],
+    'allowed_origins' => ['http://localhost:55950/', 'http://localhost:59964/', 'https://balgalazs.moriczcloud.hu', 'https://kovacscsabi.moriczcloud.hu'],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
