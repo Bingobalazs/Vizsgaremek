@@ -4,52 +4,47 @@ import 'package:http/http.dart' as http;
 
 class Chats extends StatefulWidget {
   @override
-  _UserListPageState createState() => _UserListPageState();
+  _FriendsPageState createState() => _FriendsPageState();
 }
 
-class _UserListPageState extends State<Chats> {
-  List users = []; // Ebben tároljuk a felhasználókat
+class _FriendsPageState extends State<Chats> {
+  List friends = [];
 
   @override
   void initState() {
     super.initState();
-    fetchUsers(); // API hívás betöltéskor
+    fetchFriends();
   }
 
-  Future<void> fetchUsers() async {
-    final response = await http
-        .get(Uri.parse('https://kovacscsabi.moriczcloud.hu/friends/34'));
+  Future<void> fetchFriends() async {
+    final response = await http.get(Uri.parse(
+        'https://kovacscsabi.moriczcloud.hu/friends/34')); //Itt az id legyen a bejelentkezett felhasználó (34 az a tj id)
 
     if (response.statusCode == 200) {
       setState(() {
-        users = json.decode(response.body); // JSON konvertálása List-é
+        friends = json.decode(response.body);
       });
     } else {
-      throw Exception('Nem sikerült az adatok lekérése');
+      throw Exception('Hiba az adatok lekérésekor');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Felhasználók')),
-      body: users.isEmpty
-          ? Center(child: CircularProgressIndicator()) // Töltőképernyő
+      appBar: AppBar(title: Text('Barátok listája')),
+      body: friends.isEmpty
+          ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: users.length,
+              itemCount: friends.length,
               itemBuilder: (context, index) {
-                final user = users[index];
+                final friend = friends[index];
                 return ListTile(
-                  title: Text(user['id']), // Név kiírása
+                  title: Text('Felhasználó ID: ${friend['user_id']}'),
+                  subtitle: Text('Barát ID: ${friend['id']}'),
                 );
               },
             ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: Chats(),
-  ));
 }
