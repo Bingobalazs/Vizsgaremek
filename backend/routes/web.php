@@ -96,7 +96,7 @@ Route::controller(FriendsController::class)->group(function () {
     Route::get('/users', 'users')->name('users');
     Route::get('/view/users', 'viewUsers')->name('users');
 
-    Route::get('/friends', 'friends')->name('friends');
+    Route::get('/friends/{id}', 'friends')->name('friends');
 
 });
 
