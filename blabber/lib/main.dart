@@ -1,7 +1,7 @@
 import 'package:blabber/screens/friend_suggestions.dart';
 import 'package:blabber/screens/user_profile_screen.dart';
 import 'package:blabber/screens/auth_screen.dart';
-import 'package:blabber/screens/chat.dart';
+import 'package:blabber/screens/chats.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -57,7 +57,7 @@ class FirstRoute extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Chat()),
+                  MaterialPageRoute(builder: (context) => Chats()),
                 );
               },
             ),
