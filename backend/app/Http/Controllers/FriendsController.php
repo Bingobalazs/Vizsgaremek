@@ -20,7 +20,7 @@ class FriendsController extends Controller
             ->orWhere('other_user_id', $id)
             ->get();
 
-        return response()->json($friends);
+        return response()->json($friends, 200, ['Content-Type' => 'application/json']);
     }
 
     public function index()

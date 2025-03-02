@@ -386,11 +386,7 @@
       "languageVersion": "3.6"
     }
   ],
-<<<<<<< Updated upstream
-  "generated": "2025-03-02T17:06:30.725103Z",
-=======
-  "generated": "2025-03-02T09:42:51.063797Z",
->>>>>>> Stashed changes
+  "generated": "2025-03-02T17:42:08.131185Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///C:/flutter/src/flutter_windows_3.29.0-stable/flutter",
