@@ -29,8 +29,8 @@ class AutoController extends Controller
         ->orderBy('created_at', 'asc')
         ->get();
 
-        return response()->json($messages);
-        
+        return "response()->json()";
+
     }
 
     public function postchat($user_id, $friend_id)
