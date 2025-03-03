@@ -15,12 +15,25 @@ use App\Models\Auto;
 class AutoController extends Controller
 {
 
-    public function getchat()
+    public function getchat($user_id, $friend_id)
     {
-        return "chat";
+        $messages = DB::table('chats')
+        ->where(function ($query) use ($user_id, $friend_id) {
+            $query->where('from_id', $user_id)
+                  ->where('to_id', $friend_id);
+        })
+        ->orWhere(function ($query) use ($user_id, $friend_id) {
+            $query->where('from_id', $friend_id)
+                  ->where('to_id', $user_id);
+        })
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+        return response()->json($messages);
+        
     }
 
-    public function postchat()
+    public function postchat($user_id, $friend_id)
     {
         return "chat";
     }
