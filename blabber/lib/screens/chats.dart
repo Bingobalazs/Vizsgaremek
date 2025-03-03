@@ -47,7 +47,10 @@ class _UserListPageState extends State<Chats> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Chat()),
+                        MaterialPageRoute(
+                          builder: (context) => Chat(),
+                          settings: RouteSettings(arguments: {"id": user['user_id'], "name": user['name']}),
+                        ),
                       );
                     },
                   ),
