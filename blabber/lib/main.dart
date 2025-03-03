@@ -4,6 +4,7 @@ import 'package:blabber/screens/auth_screen.dart';
 import 'package:blabber/screens/identicard_form.dart';
 import 'package:blabber/screens/add_post_screen.dart';
 import 'package:blabber/screens/loading_screen.dart';
+import 'package:blabber/screens/chat.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -56,11 +57,12 @@ class FirstRoute extends StatelessWidget {
         child: new Column(
           children: [
             ElevatedButton(
-            child: const Text('Add friends'),
-            onPressed: () {
+              child: const Text('Add friends'),
+              onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const FriendSuggestionsScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const FriendSuggestionsScreen()),
                 );
               },
             ),
@@ -78,44 +80,53 @@ class FirstRoute extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  LoginPage()),
+                  MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
             ),
-              ElevatedButton(
+            ElevatedButton(
               child: const Text('my Identicard'),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  IdCardForm()),
+                  MaterialPageRoute(builder: (context) => IdCardForm()),
                 );
               },
             ),
-              ElevatedButton(
+            ElevatedButton(
               child: const Text('Log In/Register'),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  LoginPage()),
+                  MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
             ),
-              ElevatedButton(
+            ElevatedButton(
               child: const Text('Log In/Register'),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  LoginPage()),
+                  MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
             ),
-
+            ElevatedButton(
+              child: Text('Chat'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Chat()),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
 }
+
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -216,3 +227,4 @@ class _HomePageState extends State<HomePage> {
   }
 
 }
+

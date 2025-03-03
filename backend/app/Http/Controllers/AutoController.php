@@ -15,6 +15,19 @@ use App\Models\Auto;
 class AutoController extends Controller
 {
 
+    public function getchat($user_id, $friend_id)
+    {
+        
+
+        return "response()->json()";
+
+    }
+
+    public function postchat($user_id, $friend_id)
+    {
+        return "chat";
+    }
+
     public function List()
     {
         $autok= Auto::all();
