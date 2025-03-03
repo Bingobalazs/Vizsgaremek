@@ -15,11 +15,11 @@ use App\Models\Auto;
 class AutoController extends Controller
 {
 
-    public function getchat($user_id, $friend_id)
+    public function getchat()
     {
         
 
-        return "response()->json()";
+        return "string";
 
     }
 
