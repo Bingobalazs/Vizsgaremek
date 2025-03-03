@@ -16,9 +16,20 @@ class FriendsController extends Controller
     public function friends($id)
     {
         $friends = DB::table('friends')
-            ->where('user_id', $id)
-            ->orWhere('other_user_id', $id)
-            ->get();
+            ->join('users as u1', 'friends.user_id', '=', 'u1.id')
+            ->join('users as u2', 'friends.other_user_id', '=', 'u2.id')
+            ->where('friends.user_id', $id)
+            ->orWhere('friends.other_user_id', $id)
+            ->select(
+                'friends.id',
+                'friends.created_at',
+                'friends.updated_at',
+                DB::raw("CASE 
+                    WHEN friends.user_id = $id THEN u2.name
+                    ELSE u1.name 
+                END as friend_name")
+            )
+        ->get();
 
         return response()->json($friends, 200, ['Content-Type' => 'application/json']);
     }
