@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
         data: {
           'email': _emailController.text,
           'password': _passwordController.text,
-          'device_name': "flutter",
+          'device_name': "balabberFrontend",
         },
       );
 
@@ -87,10 +87,7 @@ class _LoginPageState extends State<LoginPage> {
               decoration: InputDecoration(labelText: 'Jelszó'),
               obscureText: true,
             ),
-            TextField(
-              controller: _deviceController,
-              decoration: InputDecoration(labelText: 'Eszköz neve'),
-            ),
+          
             SizedBox(height: 20),
             if (_errorMessage != null) Text(_errorMessage!, style: TextStyle(color: Colors.red)),
             if (_loading)
