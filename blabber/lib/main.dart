@@ -17,10 +17,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+          textTheme: TextTheme(
+    bodyLarge: TextStyle(color: Colors.white), // Beviteli szöveg színe
+    bodyMedium: TextStyle(color: Colors.white),
+    ), // Más szövegek színe is
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: Color.fromRGBO(255, 32, 78, 1), // Background color
-            foregroundColor: Color.fromRGBO(255, 255, 255, 1), // Text color
+            foregroundColor: Colors.white, // Text color
             padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(0), // Rounded corners
@@ -28,16 +32,31 @@ class MyApp extends StatelessWidget {
             elevation: 3, // Shadow effect
           ),
         ),
-
         primaryColor:  Color.fromRGBO(0, 34, 77, 1),
+        
         scaffoldBackgroundColor: Color.fromRGBO(0, 34, 77, 1), // Change this for app background
         appBarTheme: AppBarTheme(
           backgroundColor:  Color.fromRGBO(255, 32, 78, 1),
           foregroundColor: Colors.white
-        )
+        ),
+          inputDecorationTheme: InputDecorationTheme(
+    labelStyle: TextStyle(color: Colors.white), // Címke (label) színe
+    hintStyle: TextStyle(color: Colors.white70), // Placeholder szöveg (hint) színe
+    errorStyle: TextStyle(color: Colors.red), // Hibaüzenet színe
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 2.0),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 0.5),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.red, width: 2.0),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.red, width: 2.0),
+    ),
+  ),
 
-
-        
       ),
       home: const LoadingScreen(),
     );
