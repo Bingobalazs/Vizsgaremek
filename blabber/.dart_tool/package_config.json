@@ -45,7 +45,7 @@
     },
     {
       "name": "dio_web_adapter",
-      "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/dio_web_adapter-2.1.0",
+      "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/dio_web_adapter-2.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -369,9 +369,9 @@
     },
     {
       "name": "win32",
-      "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.10.1",
+      "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.11.0",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.7"
     },
     {
       "name": "xdg_directories",
@@ -386,8 +386,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-02-26T08:09:18.548274Z",
-
+  "generated": "2025-03-03T10:19:27.106047Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///C:/tools/flutter",
