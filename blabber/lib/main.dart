@@ -1,3 +1,4 @@
+import 'package:blabber/screens/chats.dart';
 import 'package:blabber/screens/friend_suggestions.dart';
 import 'package:blabber/screens/user_profile_screen.dart';
 import 'package:blabber/screens/auth_screen.dart';
@@ -143,7 +144,7 @@ class _HomePageState extends State<HomePage> {
      LoginPage(),
     const IdCardForm(),
     const AddPostScreen(),
-    const FriendSuggestionsScreen(),
+    Chats(),
     const ProfilePage(),
   ];
 
