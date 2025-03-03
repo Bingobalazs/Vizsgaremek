@@ -71,35 +71,84 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Bejelentkezés')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+  return Scaffold(
+    backgroundColor: Color.fromRGBO(0, 34, 77, 1), // Dark background
+  
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
+          mainAxisSize: MainAxisSize.min, // Minimize vertical space usage
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(
+              "Bejelentkezés",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 20),
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: TextStyle(color: Colors.white),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+              style: TextStyle(color: Colors.white),
               keyboardType: TextInputType.emailAddress,
             ),
+            SizedBox(height: 12),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Jelszó'),
+              decoration: InputDecoration(
+                labelText: 'Jelszó',
+                labelStyle: TextStyle(color: Colors.white),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+              style: TextStyle(color: Colors.white),
               obscureText: true,
             ),
-          
             SizedBox(height: 20),
-            if (_errorMessage != null) Text(_errorMessage!, style: TextStyle(color: Colors.red)),
+            if (_errorMessage != null)
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red),
+              ),
+            SizedBox(height: 10),
             if (_loading)
-              CircularProgressIndicator()
+              Center(child: CircularProgressIndicator())
             else
               ElevatedButton(
                 onPressed: _login,
-                child: Text('Bejelentkezés'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromRGBO(255, 32, 78, 1),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0),
+                  ),
+                ),
+                child: Text('Bejelentkezés', style: TextStyle(fontSize: 18)),
               ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
