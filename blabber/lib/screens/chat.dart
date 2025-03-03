@@ -6,7 +6,7 @@ class Chat extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Chat')),
       body: Center(
-        child: Text('Chat'),
+        child: Text(''),
       ),
     );
   }

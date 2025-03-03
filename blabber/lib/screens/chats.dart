@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:blabber/screens/chat.dart';
+
 
 class Chats extends StatefulWidget {
   @override
@@ -17,7 +19,7 @@ class _UserListPageState extends State<Chats> {
   }
 
   Future<void> fetchUsers() async {
-    final response = await http.get(Uri.parse('https://kovacscsabi.moriczcloud.hu/api/friends/34'));
+    final response = await http.get(Uri.parse('https://kovacscsabi.moriczcloud.hu/api/friends/34')); //34 az a tj id-ja, majd ki kell cserélni az auth-ra
 
     if (response.statusCode == 200) {
       setState(() {
@@ -39,8 +41,16 @@ class _UserListPageState extends State<Chats> {
               itemBuilder: (context, index) {
                 final user = users[index];
                 return ListTile(
-                  title: Text(user['id'].toString()), // Név kiírása
-                  subtitle: Text(user['user_id'].toString()), // Email kiírása
+                  title: Text(user['name']), // Név kiírása
+                  trailing: ElevatedButton(
+                    child: const Text('Dumcsi mumcsi'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Chat()),
+                      );
+                    },
+                  ),
                 );
               },
             ),
