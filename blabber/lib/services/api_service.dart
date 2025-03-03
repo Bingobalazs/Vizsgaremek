@@ -22,7 +22,7 @@ class GetSuggestedFriends {
   }
 }
 class GetUser {
-  static const String baseUrl = 'https://your-api.com/api';
+  static const String baseUrl = 'https://kovacscsabi.moriczcloud.hu/api';
 
   // Fetch user data
   static Future<User> fetchUserProfile() async {

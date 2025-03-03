@@ -82,6 +82,8 @@ Route::controller(AutoController::class)->group(function () {
 
     Route::get('/like/{id}', 'like')->name('like');
 
+    Route::get('/getchat/{$user_id}/{$friend_id}', 'getchat')->name('getchat');
+    Route::post('/postchat/{$user_id}/{$friend_id}', 'postchat')->name('postchat');
 
 });
 Route::controller(FriendsController::class)->group(function () {
@@ -94,6 +96,7 @@ Route::controller(FriendsController::class)->group(function () {
     Route::get('/users', 'users')->name('users');
     Route::get('/view/users', 'viewUsers')->name('users');
 
+    Route::get('/friends/{id}', 'friends')->name('friends');
 });
 
 
@@ -128,3 +131,14 @@ Route::post('/test/login', function (Request $request) {
         'token_type' => 'Bearer',
     ]);
 });
+
+
+use App\Http\Controllers\IdentiController;
+
+
+
+// Public profile routes
+Route::get('/identicard/{username}', [IdentiController::class, 'share'])->name('profile.beam');
+
+// Connect with user
+Route::get('/connect/{username}', [IdentiController::class, 'connect'])->name('connect');

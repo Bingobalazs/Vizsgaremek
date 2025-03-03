@@ -1,118 +1,108 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginService {
-  // Base URL konstansként definiálva
-  static const String baseUrl = 'https://kovacscsabi.moriczcloud.hu';
+void main() {
+  runApp(MyApp());
+}
 
-  static Future<void> login(String email, String password, String deviceName) async {
-    // HTTP Client létrehozása
-    final client = http.Client();
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Bejelentkezés',
+      home: LoginPage(),
+    );
+  }
+}
+
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _deviceController = TextEditingController();
+  bool _loading = false;
+  String? _errorMessage;
+
+  Future<void> _login() async {
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
 
     try {
-      // Explicit URI parsing
-      final uri = Uri.parse('$baseUrl/api/login');
-
-      // Headers definiálása
-      final headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Connection': 'keep-alive',
-      };
-
-      // Request body
-      final body = json.encode({
-        'email': email,
-        'password': password,
-        'device_name': deviceName,
-      });
-
-      print('Sending request to: $uri');
-      print('Headers: $headers');
-      print('Body: $body');
-
-      // Kérés küldése retry logikával
-      final response = await _retryRequest(() =>
-          client.post(
-            uri,
-            headers: headers,
-            body: body,
-          ).timeout(Duration(seconds: 15))
+      final response = await Dio().post(
+        'https://kovacscsabi.moriczcloud.hu/api/login',
+        data: {
+          'email': _emailController.text,
+          'password': _passwordController.text,
+          'device_name': _deviceController.text,
+        },
       );
-
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        // Sikeres válasz feldolgozása
-        final responseData = json.decode(response.body);
-        return responseData;
+        final data = response.data;
+        final String token = data['token'];
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sikeres bejelentkezés!')),
+        );
       } else {
-        throw HttpException('Server error: ${response.statusCode}');
+        setState(() {
+          _errorMessage = response.data['message'];
+        });
       }
-
     } catch (e) {
-      print('Error during login: $e');
-      rethrow;
+      setState(() {
+        _errorMessage = 'Hiba történt a bejelentkezés során';
+      });
     } finally {
-      client.close();
+      setState(() {
+        _loading = false;
+      });
     }
   }
 
-  // Retry logika implementálása
-  static Future<T> _retryRequest<T>(Future<T> Function() request, {int maxAttempts = 3}) async {
-    int attempts = 0;
-    while (attempts < maxAttempts) {
-      try {
-        return await request();
-      } catch (e) {
-        attempts++;
-        if (attempts == maxAttempts) rethrow;
-
-        // Exponential backoff
-        await Future.delayed(Duration(seconds: attempts * 2));
-        print('Retrying request (attempt $attempts of $maxAttempts)');
-      }
-    }
-    throw Exception('All retry attempts failed');
-  }
-}
-
-// Használati példa
-class LoginScreen extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  Future<void> _handleLogin() async {
-    try {
-      await LoginService.login(
-        'test@example.com',
-        'password',
-        'flutter_device',
-      );
-      // Sikeres bejelentkezés kezelése
-    } on SocketException catch (e) {
-      _showError('Nincs internetkapcsolat.');
-    } on HttpException catch (e) {
-      _showError('Szerver hiba történt.');
-    } on http.ClientException catch (e) {
-      _showError('Kapcsolódási hiba. Kérjük ellenőrizze az URL-t és próbálja újra.');
-    } on TimeoutException catch (e) {
-      _showError('A kérés időtúllépés miatt megszakadt.');
-    } catch (e) {
-      _showError('Váratlan hiba történt: $e');
-    }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Bejelentkezés')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Jelszó'),
+              obscureText: true,
+            ),
+            TextField(
+              controller: _deviceController,
+              decoration: InputDecoration(labelText: 'Eszköz neve'),
+            ),
+            SizedBox(height: 20),
+            if (_errorMessage != null) Text(_errorMessage!, style: TextStyle(color: Colors.red)),
+            if (_loading)
+              CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: _login,
+                child: Text('Bejelentkezés'),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
