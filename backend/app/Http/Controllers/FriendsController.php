@@ -28,11 +28,15 @@ class FriendsController extends Controller
                 'friends.created_at',
                 'friends.updated_at',
                 DB::raw("CASE 
+                    WHEN friends.user_id = $id THEN u2.id
+                    ELSE u1.id 
+                END as user_id"),
+                DB::raw("CASE 
                     WHEN friends.user_id = $id THEN u2.name
                     ELSE u1.name 
                 END as name")
             )
-        ->get();
+            ->get();
 
         return response()->json($friends, 200, ['Content-Type' => 'application/json']);
     }
