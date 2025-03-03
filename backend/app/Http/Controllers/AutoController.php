@@ -17,7 +17,7 @@ class AutoController extends Controller
 
     public function getchat($user_id, $friend_id)
     {
-        $messages = DB::table('chats')
+        $messages = DB::table('chat')
         ->where(function ($query) use ($user_id, $friend_id) {
             $query->where('from_id', $user_id)
                   ->where('to_id', $friend_id);
