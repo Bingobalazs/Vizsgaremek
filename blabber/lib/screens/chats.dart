@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:blabber/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:blabber/screens/chat.dart';
@@ -19,7 +20,7 @@ class _UserListPageState extends State<Chats> {
   }
 
   Future<void> fetchUsers() async {
-    final response = await http.get(Uri.parse('https://kovacscsabi.moriczcloud.hu/api/friends/34')); //34 az a tj id-ja, majd ki kell cserélni az auth-ra
+    final response = await http.get(Uri.parse('https://kovacscsabi.moriczcloud.hu/friends/34')); //34 az a tj id-ja, majd ki kell cserélni az auth-ra
 
     if (response.statusCode == 200) {
       setState(() {
@@ -49,7 +50,7 @@ class _UserListPageState extends State<Chats> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => Chat(),
-                          settings: RouteSettings(arguments: {"id": user['user_id'], "name": user['name']}),
+                          settings: RouteSettings(arguments: {"user_id": 34 /*Itt lesz az auth*/, "friend_id": user['user_id'], "name": user['name']}),
                         ),
                       );
                     },
