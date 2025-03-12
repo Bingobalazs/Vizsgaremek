@@ -34,7 +34,7 @@ class _UserListPageState extends State<Chats> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Felhasználók')),
+      appBar: AppBar(title: Text('Beszélgetések')),
       body: users.isEmpty
           ? Center(child: CircularProgressIndicator()) // Töltőképernyő
           : ListView.builder(
