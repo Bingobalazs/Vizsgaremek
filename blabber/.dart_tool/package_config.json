@@ -32,6 +32,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cross_file",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/cross_file-0.3.4+2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "cupertino_icons",
       "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/cupertino_icons-1.0.8",
       "packageUri": "lib/",
@@ -45,7 +51,8 @@
     },
     {
       "name": "dio_web_adapter",
-      "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/dio_web_adapter-2.1.1",
+
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/dio_web_adapter-2.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -68,6 +75,30 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "file_selector_linux",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/file_selector_linux-0.9.3+2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "file_selector_macos",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/file_selector_macos-0.9.4+2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "file_selector_platform_interface",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/file_selector_platform_interface-2.6.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "file_selector_windows",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/file_selector_windows-0.9.3+4",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "flutter",
       "rootUri": "file:///C:/tools/flutter/packages/flutter",
       "packageUri": "lib/",
@@ -84,6 +115,12 @@
       "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-5.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.5"
+    },
+    {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.27",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
     },
     {
       "name": "flutter_secure_storage",
@@ -152,6 +189,54 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "image_picker",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker-1.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "image_picker_android",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.12+22",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "image_picker_for_web",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_for_web-3.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "image_picker_ios",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_ios-0.8.12+2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "image_picker_linux",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_linux-0.2.1+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "image_picker_macos",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_macos-0.2.1+2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "image_picker_platform_interface",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_platform_interface-2.10.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "image_picker_windows",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_windows-0.2.1+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "intl",
       "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/intl-0.20.2",
       "packageUri": "lib/",
@@ -204,6 +289,12 @@
       "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.16.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "mime",
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/mime-2.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
     },
     {
       "name": "path",
@@ -369,7 +460,8 @@
     },
     {
       "name": "win32",
-      "rootUri": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.11.0",
+
+      "rootUri": "file:///C:/Users/0tac-galbal.MORICZREF/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.11.0",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -386,7 +478,8 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-03-03T11:46:27.160688Z",
+ "2025-03-03T11:46:27.160688Z",
+  "generated": "2025-03-10T09:45:47.742153Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///C:/tools/flutter",
