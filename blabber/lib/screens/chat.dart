@@ -58,11 +58,9 @@ class _ChatScreenState extends State<Chat> {
   }
 
   void _connectToWebSocket() {
-    // Websocket kapcsolat létrehozása a real-time frissítéshez
-    // Cseréld ki a megfelelő URL-re
     _channel = WebSocketChannel.connect(
-      Uri.parse(
-          'ws://your-api-url/chat?user_id=${widget.userId}&friend_id=${widget.friendId}'),
+      Uri.parse(//websocket
+          'ws://kovacscsabi.moriczcloud.hu/ws?user_id=${widget.userId}&friend_id=${widget.friendId}'),
     );
 
     _channel!.stream.listen((message) {
@@ -83,11 +81,9 @@ class _ChatScreenState extends State<Chat> {
     });
 
     try {
-      // API hívás a chat előzmények lekérdezéséhez
-      // Cseréld ki a megfelelő URL-re és paraméterekre
       final response = await http.get(
         Uri.parse(
-            'https://your-api-url/messages?user_id=${widget.userId}&friend_id=${widget.friendId}'),
+            'https://kovacscsabi.moriczcloud.hu/getchat/${widget.userId}/${widget.friendId}'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -98,7 +94,6 @@ class _ChatScreenState extends State<Chat> {
           _isLoading = false;
         });
 
-        // Kis késleltetéssel görgetünk az aljára, hogy biztosan betöltődjön minden
         Timer(Duration(milliseconds: 300), _scrollToBottom);
       } else {
         setState(() {
@@ -124,7 +119,6 @@ class _ChatScreenState extends State<Chat> {
     final messageText = _messageController.text;
     _messageController.clear();
 
-    // Optimista frissítés: azonnal megjelenik az üzenet az UI-on
     final optimisticMessage = ChatMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
       senderId: widget.userId,
@@ -138,9 +132,9 @@ class _ChatScreenState extends State<Chat> {
     _scrollToBottom();
 
     try {
-      // API hívás az üzenet elküldéséhez
       final response = await http.post(
-        Uri.parse('https://kovacscsabi.moriczcloud.hu/api/messages'),
+        Uri.parse(
+            'https://kovacscsabi.moriczcloud.hu/postchat/${widget.userId}/${widget.friendId}/${messageText}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'sender_id': widget.userId,
