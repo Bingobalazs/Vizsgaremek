@@ -478,11 +478,11 @@
       "languageVersion": "3.6"
     }
   ],
- "2025-03-03T11:46:27.160688Z",
-  "generated": "2025-03-10T09:45:47.742153Z",
+
+  "generated": "2025-03-12T07:45:01.642707Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///C:/tools/flutter",
-  "flutterVersion": "3.29.0",
+  "flutterVersion": "3.29.1",
   "pubCache": "file:///C:/Users/0tac-kovcsa.MORICZREF/AppData/Local/Pub/Cache"
 }
