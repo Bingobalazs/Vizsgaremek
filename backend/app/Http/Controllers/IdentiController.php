@@ -24,6 +24,14 @@ class IdentiController extends Controller
         return view('blabber.identicard',  compact('user'));
     }
 
+    public function get($username)
+    {
+        $user = auth()->user();
+
+        $info = Identicard::where('user_id', $user->id)->firstOrFail();
+        return response()->json($info);
+    }
+
     public function update(Request $request)
     {
         $user = auth()->user();

@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({Key? key}) : super(key: key);
@@ -12,6 +14,8 @@ class AddPostScreen extends StatefulWidget {
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }
+final accentColor = Color.fromRGBO(255, 32, 78, 1);
+final baseColor = Color.fromRGBO(0, 34, 77, 1);
 
 class _AddPostScreenState extends State<AddPostScreen> {
   final TextEditingController _contentController = TextEditingController();
@@ -21,8 +25,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
@@ -42,18 +47,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
     try {
       // API endpoint
       Uri uri = Uri.parse('https://your-api-endpoint.com/posts');
-      
+
       // Create multipart request
       var request = http.MultipartRequest('POST', uri);
-      
+
       // Add text field
       request.fields['content'] = _contentController.text;
-      
+
       // Add image if selected
       if (_imageFile != null) {
-        var fileExtension = path.extension(_imageFile!.path).replaceAll('.', '');
+        var fileExtension =
+            path.extension(_imageFile!.path).replaceAll('.', '');
         var contentType = 'image/$fileExtension';
-        
+
         request.files.add(
           await http.MultipartFile.fromPath(
             'image',
@@ -62,15 +68,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
           ),
         );
       }
-      
-       // Get token from SharedPreferences
+
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
-
+      bool _loading = false;
+      String? _errorMessage;
       if (token == null) {
         setState(() {
-          error = 'No authentication token found';
-          isLoading = false;
+          _errorMessage = 'Nem vagy bejelentkezve!';
+          _loading = false;
         });
         return;
       }
@@ -78,28 +84,30 @@ class _AddPostScreenState extends State<AddPostScreen> {
       request.headers.addAll({
         'Authorization': 'Bearer $token',
       });
-      
+
       // Send the request
       var response = await request.send();
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Success
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post uploaded successfully!')),
+          const SnackBar(content: Text('Poszt feltöltve!')),
         );
-        
+
         // Clear form
         _contentController.clear();
         setState(() {
           _imageFile = null;
         });
-        
+
         // Optionally navigate back or to feed
         Navigator.pop(context);
       } else {
         // Error
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload post. Status: ${response.statusCode}')),
+          SnackBar(
+              content: Text(
+                  'Nem sikerült feltölteni a posztat. Kód: ${response.statusCode}')),
         );
       }
     } catch (e) {
@@ -117,20 +125,20 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create New Post'),
+        title: const Text('Új poszt létrehozása'),
         actions: [
           TextButton(
             onPressed: _isLoading ? null : _submitPost,
-            child: _isLoading 
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Text('Post', style: TextStyle(color: Colors.white)),
+            child: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Text('Post', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -144,13 +152,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
               TextFormField(
                 controller: _contentController,
                 decoration: const InputDecoration(
-                  hintText: "What's on your mind?",
+                  hintText: "Milyen faszságon töröd a fejed??",
                   border: InputBorder.none,
                 ),
                 maxLines: 10,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter some content';
+                    return 'Azért valamit írj be, ha már mindenképp posztolni akarsz';
                   }
                   return null;
                 },
@@ -189,11 +197,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ],
               ElevatedButton.icon(
                 onPressed: _pickImage,
-                icon: const Icon(Icons.image),
-                label: const Text('Add Image'),
+                icon: const Icon(
+                    Icons.image,
+                    color: Colors.white,
+                ),
+                label: const Text('Fénykép'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.black,
+                  backgroundColor: accentColor,
+                  foregroundColor: Colors.white,
                 ),
               ),
             ],
