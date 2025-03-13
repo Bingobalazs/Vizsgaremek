@@ -7,6 +7,7 @@ import 'package:blabber/screens/add_post_screen.dart';
 import 'package:blabber/screens/loading_screen.dart';
 import 'package:blabber/screens/chat.dart';
 import 'package:flutter/material.dart';
+import 'package:blabber/screens/search_screen.dart';
 
 void main() {
   runApp( MyApp());
@@ -20,8 +21,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           textTheme: TextTheme(
     bodyLarge: TextStyle(color: Colors.white), // Beviteli szöveg színe
-    bodyMedium: TextStyle(color: Colors.white),
-    ), // Más szövegek színe is
+    bodyMedium: TextStyle(color: Colors.white), // Szöveg színe
+    bodySmall: TextStyle(color: Colors.white), // Szöveg színe
+    titleLarge: TextStyle(color: Colors.white), // Fejlec szöveg színe
+    titleMedium: TextStyle(color: Colors.white), // Fejlec szöveg színe
+    titleSmall: TextStyle(color: Colors.white), // Fejlec szöveg színe
+    
+    ), 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: Color.fromRGBO(255, 32, 78, 1), // Background color
@@ -161,7 +167,7 @@ class _HomePageState extends State<HomePage> {
   // List of pages to navigate to
   final List<Widget> _pages = [
      LoginPage(),
-    const IdCardForm(),
+     SearchScreen(),
     const AddPostScreen(),
     Chats(),
     const ProfilePage(),
