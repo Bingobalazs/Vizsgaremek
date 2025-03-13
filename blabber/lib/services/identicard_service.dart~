@@ -4,7 +4,7 @@ import 'package:blabber/models/identicard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class IdenticardService {
-  final String baseUrl = 'https://kovacscsabi.moriczcloud.hu/api/identicard'; 
+  final String baseUrl = 'https://kovacscsabi.moriczcloud.hu/api/identicard';
 
   Future<Map<String, String>> _getHeaders() async {
     final prefs = await SharedPreferences.getInstance();
