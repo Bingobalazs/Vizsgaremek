@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoadingScreen(),
+      home: HomePage(),
     );
   }
 }

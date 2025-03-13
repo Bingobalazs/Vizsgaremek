@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({Key? key}) : super(key: key);
@@ -12,6 +14,8 @@ class AddPostScreen extends StatefulWidget {
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }
+final accentColor = Color.fromRGBO(255, 32, 78, 1);
+final baseColor = Color.fromRGBO(0, 34, 77, 1);
 
 class _AddPostScreenState extends State<AddPostScreen> {
   final TextEditingController _contentController = TextEditingController();
@@ -67,11 +71,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
-
+      bool _loading = false;
+      String? _errorMessage;
       if (token == null) {
         setState(() {
-          error = 'No authentication token found';
-          isLoading = false;
+          _errorMessage = 'Nem vagy bejelentkezve!';
+          _loading = false;
         });
         return;
       }
@@ -86,7 +91,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Success
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post uploaded successfully!')),
+          const SnackBar(content: Text('Poszt feltöltve!')),
         );
 
         // Clear form
@@ -102,7 +107,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  'Failed to upload post. Status: ${response.statusCode}')),
+                  'Nem sikerült feltölteni a posztat. Kód: ${response.statusCode}')),
         );
       }
     } catch (e) {
@@ -120,7 +125,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create New Post'),
+        title: const Text('Új poszt létrehozása'),
         actions: [
           TextButton(
             onPressed: _isLoading ? null : _submitPost,
@@ -147,13 +152,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
               TextFormField(
                 controller: _contentController,
                 decoration: const InputDecoration(
-                  hintText: "What's on your mind?",
+                  hintText: "Milyen faszságon töröd a fejed??",
                   border: InputBorder.none,
                 ),
                 maxLines: 10,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter some content';
+                    return 'Azért valamit írj be, ha már mindenképp posztolni akarsz';
                   }
                   return null;
                 },
@@ -192,11 +197,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ],
               ElevatedButton.icon(
                 onPressed: _pickImage,
-                icon: const Icon(Icons.image),
-                label: const Text('Add Image'),
+                icon: const Icon(
+                    Icons.image,
+                    color: Colors.white,
+                ),
+                label: const Text('Fénykép'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.black,
+                  backgroundColor: accentColor,
+                  foregroundColor: Colors.white,
                 ),
               ),
             ],

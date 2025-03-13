@@ -43,7 +43,7 @@ dependencies:
   intl: ^0.20.2
   image_picker: ^1.1.2
   http_parser: ^4.1.2
-  path: ^1.9.1
+  path: 1.9.0
   web_socket_channel: ^3.0.2
 
 dev_dependencies:
