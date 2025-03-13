@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:blabber/screens/search_screen.dart';
 
 void main() {
-  runApp( MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -19,15 +19,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          textTheme: TextTheme(
-    bodyLarge: TextStyle(color: Colors.white), // Beviteli szöveg színe
-    bodyMedium: TextStyle(color: Colors.white), // Szöveg színe
-    bodySmall: TextStyle(color: Colors.white), // Szöveg színe
-    titleLarge: TextStyle(color: Colors.white), // Fejlec szöveg színe
-    titleMedium: TextStyle(color: Colors.white), // Fejlec szöveg színe
-    titleSmall: TextStyle(color: Colors.white), // Fejlec szöveg színe
-    
-    ), 
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(color: Colors.white), // Beviteli szöveg színe
+          bodyMedium: TextStyle(color: Colors.white), // Szöveg színe
+          bodySmall: TextStyle(color: Colors.white), // Szöveg színe
+          titleLarge: TextStyle(color: Colors.white), // Fejlec szöveg színe
+          titleMedium: TextStyle(color: Colors.white), // Fejlec szöveg színe
+          titleSmall: TextStyle(color: Colors.white), // Fejlec szöveg színe
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: Color.fromRGBO(255, 32, 78, 1), // Background color
@@ -39,31 +38,33 @@ class MyApp extends StatelessWidget {
             elevation: 3, // Shadow effect
           ),
         ),
-        primaryColor:  Color.fromRGBO(0, 34, 77, 1),
-        
-        scaffoldBackgroundColor: Color.fromRGBO(0, 34, 77, 1), // Change this for app background
-        appBarTheme: AppBarTheme(
-          backgroundColor:  Color.fromRGBO(255, 32, 78, 1),
-          foregroundColor: Colors.white
-        ),
-          inputDecorationTheme: InputDecorationTheme(
-    labelStyle: TextStyle(color: Colors.white), // Címke (label) színe
-    hintStyle: TextStyle(color: Colors.white70), // Placeholder szöveg (hint) színe
-    errorStyle: TextStyle(color: Colors.red), // Hibaüzenet színe
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 0.5),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.red, width: 2.0),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.red, width: 2.0),
-    ),
-  ),
+        primaryColor: Color.fromRGBO(0, 34, 77, 1),
 
+        scaffoldBackgroundColor:
+            Color.fromRGBO(0, 34, 77, 1), // Change this for app background
+        appBarTheme: AppBarTheme(
+            backgroundColor: Color.fromRGBO(255, 32, 78, 1),
+            foregroundColor: Colors.white),
+        inputDecorationTheme: InputDecorationTheme(
+          labelStyle: TextStyle(color: Colors.white), // Címke (label) színe
+          hintStyle: TextStyle(
+              color: Colors.white70), // Placeholder szöveg (hint) színe
+          errorStyle: TextStyle(color: Colors.red), // Hibaüzenet színe
+          focusedBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 2.0),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 0.5),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 2.0),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 2.0),
+          ),
+        ),
       ),
       home: const LoadingScreen(),
     );
@@ -142,7 +143,7 @@ class FirstRoute extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Chat()),
+                  MaterialPageRoute(builder: (context) => Chats()),
                 );
               },
             ),
@@ -152,7 +153,6 @@ class FirstRoute extends StatelessWidget {
     );
   }
 }
-
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -166,8 +166,8 @@ class _HomePageState extends State<HomePage> {
 
   // List of pages to navigate to
   final List<Widget> _pages = [
-     LoginPage(),
-     SearchScreen(),
+    LoginPage(),
+    SearchScreen(),
     const AddPostScreen(),
     Chats(),
     const ProfilePage(),
@@ -188,9 +188,9 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
+
   final selectedColor = Color.fromRGBO(255, 32, 78, 1);
-  final baseColor =  Color.fromRGBO(0, 34, 77, 1);
-  
+  final baseColor = Color.fromRGBO(0, 34, 77, 1);
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +198,6 @@ class _HomePageState extends State<HomePage> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomAppBar(
         color: baseColor,
-        
         child: Container(
           height: 60.0,
           child: Row(
@@ -248,9 +247,5 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
-  
-    
   }
-
 }
-
