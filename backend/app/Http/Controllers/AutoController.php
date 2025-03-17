@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-use App\Models\Chat;
 use App\Models\Auto;
+use App\Models\Chat;
 
 class AutoController extends Controller
 {
