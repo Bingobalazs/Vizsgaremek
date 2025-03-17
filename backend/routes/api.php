@@ -4,9 +4,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\api_AuthController;
+use App\Http\Controllers\AutoController;
 
 
 
+Route::post('/postchat/{user_id}/{friend_id}/{chat}', [AutoController::class, 'postChat']);
 
 Route::controller(api_AuthController::class)->group(function () {
 
