@@ -27,20 +27,26 @@ Route::post('/tokens/create', function (Request $request) {
 
 // AUTH ONLY
 Route::middleware('auth:sanctum')->group(function () {
+
+
     Route::controller(api_AuthController::class)->group(function () {
 
         Route::post('/logout', 'logout');
         Route::get('/user', 'user');
 
     });
+
+    // Identicard
+    Route::controller(\App\Http\Controllers\IdentiController::class)->group(function () {
+        Route::get('/identicard/check', 'hasIdenticard'); // Ellenőrzi hogy a felhasználónak van e Identicard-ja
+        Route::put('/identicard/update', 'update');
+        Route::post('/identicard/add', 'store');
+        Route::get('/identicard/get/{username}', 'get');
+
+    });
+
 });
 
-Route::controller(\App\Http\Controllers\IdentiController::class)->group(function () {
-    Route::get('/identicard/check', 'hasIdenticard'); // Ellenőrzi hogy a felhasználónak van e Identicard-ja
-    Route::get('/identicard/update', 'update');
-    Route::get('/identicard/add', 'store');
-
-});
 
 
 
