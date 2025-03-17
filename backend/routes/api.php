@@ -41,7 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/identicard/check', 'hasIdenticard'); // Ellenőrzi hogy a felhasználónak van e Identicard-ja
         Route::put('/identicard/update', 'update');
         Route::post('/identicard/add', 'store');
-        Route::get('/identicard/get/{username}', 'get');
+        Route::get('/identicard/get/', 'get');
+        Route::get('/identicard/get/{username}', 'getByUserName');
 
     });
 

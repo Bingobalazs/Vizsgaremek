@@ -12,9 +12,9 @@ final baseColor = Color.fromRGBO(0, 34, 77, 1);
 final textColor = Colors.white;
 
 class EditIdenticardScreen extends StatefulWidget {
-  final String username;
 
-  const EditIdenticardScreen({required this.username, super.key});
+
+  const EditIdenticardScreen();
 
   @override
   State<EditIdenticardScreen> createState() => _EditIdenticardScreenState();
@@ -67,7 +67,7 @@ class _EditIdenticardScreenState extends State<EditIdenticardScreen> {
       final exists = await _service.checkExists();
       setState(() => _exists = exists);
       if (exists) {
-        final identicard = await _service.getIdenticard(widget.username);
+        final identicard = await _service.getIdenticard();
         setState(() {
           _nameController.text = identicard.name ?? '';
           _profilePictureController.text = identicard.profilePicture ?? '';

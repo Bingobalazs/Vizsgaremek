@@ -14,8 +14,8 @@ class IdentiController extends Controller
         $user = auth()->user();
 
         if(Identicard::where('user_id', $user->id)->exists()){
-            return true;
-        } else return false;
+            return response()->json(['exists' => true]);
+        }return response()->json(['exists' => false]);
 
     }
     public function share($username)
