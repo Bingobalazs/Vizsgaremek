@@ -53,4 +53,9 @@ class Identicard extends Model
     'profile_visibility',
 
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
