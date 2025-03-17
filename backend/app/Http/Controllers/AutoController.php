@@ -38,9 +38,10 @@ class AutoController extends Controller
 
     }
 
+
     public function postChat($user_id, $friend_id, $chat)
     {
-        $chat = Chat::create([
+        $data = Chat::create([
             'from_id' => $user_id,
             'to_id' => $friend_id,
             'chat' => $chat,
@@ -48,7 +49,7 @@ class AutoController extends Controller
 
         return response()->json([
             'message' => 'Chat stored successfully!',
-            'chat' => $chat,
+            'chat' => $data,
         ], 201);
         return "hello";
     }
