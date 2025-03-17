@@ -15,6 +15,10 @@ use App\Models\Chat;
 
 class AutoController extends Controller
 {
+    public function p()
+    {
+        return "Hello";
+    }
 
     public function getchat($user_id, $friend_id)
     {
