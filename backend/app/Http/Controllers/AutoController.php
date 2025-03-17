@@ -34,16 +34,12 @@ class AutoController extends Controller
 
     }
 
-    public function postChat(Request $request, $user_id, $friend_id)
+    public function postChat($user_id, $friend_id, $chat)
     {
-        $request->validate([
-            'chat' => 'required|string',
-        ]);
-
         $chat = Chat::create([
             'user_id' => $user_id,
             'friend_id' => $friend_id,
-            'chat' => $request->input('chat'),
+            'chat' => $chat,
         ]);
 
         return response()->json([
