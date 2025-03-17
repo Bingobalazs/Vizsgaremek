@@ -13,8 +13,8 @@ class Chat extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'user_id',
-        'friend_id',
+        'from_id',
+        'to_id',
         'chat',
     ];
 }
