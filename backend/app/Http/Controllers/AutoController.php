@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 // Eloquent
 use App\Models\Auto;
-use App\Models\chat;
+use App\Models\Chat;
 
 class AutoController extends Controller
 {
@@ -41,6 +41,7 @@ class AutoController extends Controller
 
     public function postChat($user_id, $friend_id, $chat)
     {
+        $data = Chat::all();
         /*$data = Chat::create([
             'from_id' => $user_id,
             'to_id' => $friend_id,
@@ -51,7 +52,7 @@ class AutoController extends Controller
             'message' => 'Chat stored successfully!',
             'chat' => $data,
         ], 201);*/
-        return response()->json($chat);
+        return response()->json($data);
     }
 
     public function List()
