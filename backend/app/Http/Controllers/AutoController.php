@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-use App\Models\Auto;
 use App\Models\Chat;
+use App\Models\Auto;
 
 class AutoController extends Controller
 {
@@ -41,7 +41,7 @@ class AutoController extends Controller
 
     public function postChat($user_id, $friend_id, $chat)
     {
-        $data = chat::all();
+        $data = Chat::all();
         /*$data = Chat::create([
             'from_id' => $user_id,
             'to_id' => $friend_id,
