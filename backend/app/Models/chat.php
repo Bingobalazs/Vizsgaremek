@@ -17,6 +17,8 @@ class Chat extends Model
         'to_id',
         'chat',
     ];
+
+    protected $dates = ['created_at', 'updated_at'];
 }
 
 ?>
