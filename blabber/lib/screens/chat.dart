@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChatMessage {
   final String id;
@@ -51,32 +50,11 @@ class _ChatScreenState extends State<Chat> {
   final ScrollController _scrollController = ScrollController();
   List<ChatMessage> _messages = [];
   bool _isLoading = true;
-  WebSocketChannel? _channel;
 
   @override
   void initState() {
     super.initState();
     _loadMessages();
-    _connectToWebSocket();
-  }
-
-  void _connectToWebSocket() {
-    _channel = WebSocketChannel.connect(
-      Uri.parse(
-        'ws://kovacscsabi.moriczcloud.hu/ws?user_id=${widget.userId}&friend_id=${widget.friendId}',
-      ),
-    );
-
-    _channel!.stream.listen((message) {
-      final data = jsonDecode(message);
-      if (data['type'] == 'new_message') {
-        final newMessage = ChatMessage.fromJson(data['message']);
-        setState(() {
-          _messages.add(newMessage);
-        });
-        _scrollToBottom();
-      }
-    });
   }
 
   Future<void> _loadMessages() async {
@@ -100,7 +78,8 @@ class _ChatScreenState extends State<Chat> {
               .toList();
         });
       } else {
-        _showSnackBar('Hiba történt az üzenetek betöltésekor');
+        _showSnackBar(
+            'Hiba történt az üzenetek betöltésekor: ${response.body}');
       }
     } catch (e) {
       _showSnackBar('Hiba: $e');
@@ -114,15 +93,14 @@ class _ChatScreenState extends State<Chat> {
 
   void _sendMessage() async {
     if (_messageController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nem küldhetsz üres üzenetet!')),
-      );
+      _showSnackBar('Nem küldhetsz üres üzenetet!');
       return;
     }
 
     final messageText = _messageController.text.trim();
     _messageController.clear();
 
+    // Create optimistic UI update
     final optimisticMessage = ChatMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
       senderId: widget.userId,
@@ -139,21 +117,24 @@ class _ChatScreenState extends State<Chat> {
     try {
       final response = await http.post(
         Uri.parse(
-          'https://kovacscsabi.moriczcloud.hu/postchat',
+          'https://kovacscsabi.moriczcloud.hu/postchat/${widget.userId}/${widget.friendId}/$messageText',
         ),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'sender_id': widget.userId,
-          'receiver_id': widget.friendId,
-          'message': messageText,
-        }),
       );
 
       if (response.statusCode != 201 && response.statusCode != 200) {
-        _showSnackBar('Nem sikerült elküldeni az üzenetet');
+        _showSnackBar(
+          'Nem sikerült elküldeni az üzenetet: ${response.body}',
+        );
+        setState(() {
+          _messages.remove(optimisticMessage); // Remove message if send fails
+        });
       }
     } catch (e) {
       _showSnackBar('Hiba: $e');
+      setState(() {
+        _messages.remove(optimisticMessage); // Rollback optimistic update
+      });
     }
   }
 
@@ -178,7 +159,6 @@ class _ChatScreenState extends State<Chat> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
-    _channel?.sink.close();
     super.dispose();
   }
 
