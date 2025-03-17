@@ -45,6 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     });
 
+    Route::controller(\App\Http\Controllers\FriendsController::class)->group(function () {
+       Route::get('/friends/{query}', 'search');
+
+    });
+
 });
 
 

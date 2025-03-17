@@ -38,7 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       // Replace with your actual API endpoint
       final response = await http.get(
-        Uri.parse('https://api.example.com/search?q=${Uri.encodeComponent(query)}'),
+        Uri.parse('https://kovacscsabi.moriczcloud.hu/api/search/${Uri.encodeComponent(query)}'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
