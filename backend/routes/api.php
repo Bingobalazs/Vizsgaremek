@@ -6,9 +6,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\api_AuthController;
+use App\Http\Controllers\AutoController;
 
 
 
+Route::get('/p', [AutoController::class, 'p']);
 
 Route::controller(api_AuthController::class)->group(function () {
 
