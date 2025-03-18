@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\PostController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -28,7 +30,7 @@ Route::post('/tokens/create', function (Request $request) {
 // AUTH ONLY
 Route::middleware('auth:sanctum')->group(function () {
 
-
+    // AUTH
     Route::controller(api_AuthController::class)->group(function () {
 
         Route::post('/logout', 'logout');
@@ -36,12 +38,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     });
 
+    // Posztok CRUD
+    Route::apiResource('posts', PostController::class);
+    
+
     // Identicard
     Route::controller(\App\Http\Controllers\IdentiController::class)->group(function () {
         Route::get('/identicard/check', 'hasIdenticard'); // Ellenőrzi hogy a felhasználónak van e Identicard-ja
         Route::put('/identicard/update', 'update');
         Route::post('/identicard/add', 'store');
-        Route::get('/identicard/get/{username}', 'get');
+        Route::get('/identicard/get/', 'get');
+        Route::get('/identicard/get/{username}', 'getByUserName');
+
+    });
+
+    Route::controller(\App\Http\Controllers\FriendsController::class)->group(function () {
+       Route::get('/friends/{query}', 'search');
 
     });
 
