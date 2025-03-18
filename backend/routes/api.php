@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\PostController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -30,13 +32,23 @@ Route::post('/tokens/create', function (Request $request) {
 // AUTH ONLY
 Route::middleware('auth:sanctum')->group(function () {
 
-
+    // AUTH
     Route::controller(api_AuthController::class)->group(function () {
 
         Route::post('/logout', 'logout');
         Route::get('/user', 'user');
 
     });
+
+    // Posztok CRUD
+    Route::apiResource('posts', PostController::class);
+        /*
+         * GET /api/posts - List posts
+         * POST /api/posts - Create a post
+         * GET /api/posts/{id} - Show a post
+         * PUT /api/posts/{id} - Update a post
+         * DELETE /api/posts/{id} - Delete a post
+         */
 
     // Identicard
     Route::controller(\App\Http\Controllers\IdentiController::class)->group(function () {
