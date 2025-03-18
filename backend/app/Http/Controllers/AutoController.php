@@ -15,10 +15,7 @@ use App\Models\Chat;
 
 class AutoController extends Controller
 {
-    public function test()
-    {
-        return response ()->json(Chat::all());
-    }
+
     public function p()
     {
         return "Hello";
