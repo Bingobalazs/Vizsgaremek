@@ -81,6 +81,7 @@ Route::controller(AutoController::class)->group(function () {
     Route::post('/cars/{id}/comment', 'store')->name('comment');
 
     Route::get('/like/{id}', 'like')->name('like');
+    Route::get('/test', 'test');
 
     Route::get('/getchat/{user_id}/{friend_id}', 'getchat')->name('getchat');
     Route::get('/postchat/{user_id}/{friend_id}/{chat}', 'postchat')->name('postchat');
