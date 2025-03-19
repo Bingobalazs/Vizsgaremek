@@ -80,6 +80,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     });
 
+    // Like
+    Route::get('like/{post}', [LikeController::class, 'checkLike']); // Ellenőrzi hogy a felhasználó likeolta-e a posztot
+    Route::post('like/{post}', [LikeController::class, 'toggleLike']); // Átállítja a like-ot
+
+
+    /*  Nincs még commentcontroller
+    Route::get('count/comment/{post}', [CommentController::class, 'countComments']);
+         // Megszámolja a kommenteket egy adott poszt alatt (frontend like counter badge-hez kell
+    */
+
 });
 
 
