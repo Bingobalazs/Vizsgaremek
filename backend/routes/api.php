@@ -12,7 +12,7 @@ use App\Http\Controllers\ChatController;
 
 Route::get('/p', [AutoController::class, 'p']);
 
-Route::controller(CathController::class)->group(function () {
+Route::controller(ChatController::class)->group(function () {
     
     Route::post('/postchat/{user_id}/{friend_id}/{chat}', 'postchat')->name('postchat');
 
