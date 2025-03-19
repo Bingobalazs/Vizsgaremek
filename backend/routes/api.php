@@ -9,8 +9,8 @@ use App\Http\Controllers\API\api_AuthController;
 use App\Http\Controllers\AutoController;
 
 
-
 Route::get('/p', [AutoController::class, 'p']);
+Route::post('/postchat/{user_id}/{friend_id}/{chat}', 'postchat')->name('postchat');
 
 Route::controller(api_AuthController::class)->group(function () {
 

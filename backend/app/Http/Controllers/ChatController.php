@@ -26,5 +26,20 @@ class ChatController extends Controller
         return response()->json($messages);
 
     }
+
+    public function postChat($user_id, $friend_id, $chat)
+    {
+        $data = Chat::create([
+            'from_id' => $user_id,
+            'to_id' => $friend_id,
+            'chat' => $chat,
+        ]);
+
+        return response()->json([
+            'message' => 'Chat stored successfully!',
+            'chat' => $data,
+        ], 201);
+        return response()->json($data);
+    }
    
 }
