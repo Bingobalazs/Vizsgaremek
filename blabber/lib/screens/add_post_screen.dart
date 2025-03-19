@@ -69,7 +69,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         );
       }
 
-      final prefs = await SharedPreferences.getInstance();
+      /*final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
       bool _loading = false;
       String? _errorMessage;
@@ -83,7 +83,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       // Add any headers if needed
       request.headers.addAll({
         'Authorization': 'Bearer $token',
-      });
+      });*/
 
       // Send the request
       var response = await request.send();
