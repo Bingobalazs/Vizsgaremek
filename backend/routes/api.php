@@ -50,7 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::controller(FriendsController::class)->group(function () {
 
-        Route::get('/friends/{id}', 'friends')->name('friends');
+        Route::get('/friends', 'friends')->name('friends');
 
     });
 
