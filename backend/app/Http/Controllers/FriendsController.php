@@ -15,11 +15,12 @@ use App\Models\Auto;
 class FriendsController extends Controller
 {
 
-    public function friends($id)
+    public function friends()
     {
+        $user = auth()->user();
+        $id = $user->id;
 
         //Kilistázza az adott felhasználó barátait
-        //Ne próbáld meg kisilabizálni, én sem értem
         $friends = DB::table('friends')
             ->join('users as u1', 'friends.user_id', '=', 'u1.id')
             ->join('users as u2', 'friends.other_user_id', '=', 'u2.id')
