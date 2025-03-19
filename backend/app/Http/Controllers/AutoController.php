@@ -15,35 +15,15 @@ use App\Models\Chat;
 
 class AutoController extends Controller
 {
+
     public function p()
     {
         return "Hello";
     }
 
-    public function getchat($user_id, $friend_id)
-    {
-        $messages = DB::table('chat')
-        ->where(function ($query) use ($user_id, $friend_id) {
-            $query->where('from_id', $user_id)
-                  ->where('to_id', $friend_id);
-        })
-        ->orWhere(function ($query) use ($user_id, $friend_id) {
-            $query->where('from_id', $friend_id)
-                  ->where('to_id', $user_id);
-        })
-        ->orderBy('created_at', 'asc')
-        ->get();
-
-        return response()->json($messages);
-
-    }
-
-
     public function postChat($user_id, $friend_id, $chat)
     {
-        $data = Chat::all();
-        //nnnnnnnnnnn
-        /*$data = Chat::create([
+        $data = Chat::create([
             'from_id' => $user_id,
             'to_id' => $friend_id,
             'chat' => $chat,
@@ -52,7 +32,7 @@ class AutoController extends Controller
         return response()->json([
             'message' => 'Chat stored successfully!',
             'chat' => $data,
-        ], 201);*/
+        ], 201);
         return response()->json($data);
     }
 
