@@ -1,0 +1,117 @@
+# Posztok API Dokumentáció
+
+## Bevezető
+Ez az API a bejegyzések (posts) kezelésére szolgál, lehetővé teszi bejegyzések listázását, létrehozását, megtekintését, frissítését és törlését.
+
+## Autentikáció
+Az API végpontok autentikációt igényelnek. A kéréseket egy hitelesített felhasználó neviében kell elküldeni.
+
+## Végpontok
+
+### 1. Bejegyzések listázása
+**GET** `/api/posts`
+
+#### Leírás
+A bejelentkezett felhasználó számára visszaadja azokat a bejegyzéseket, amelyeket még nem látott, vagy ha ezekből nincs elég, akkor a már megtekintettekből is visszaadja a legfrissebbeket.
+
+#### Válasz {id="v-lasz_1"}
+
+```json
+{
+  "posts": [
+    {
+      "id": 1,
+      "user_id": 2,
+      "content": "Ez egy példa bejegyzés.",
+      "media_url": null,
+      "created_at": "2024-03-18T12:00:00Z",
+      "updated_at": "2024-03-18T12:00:00Z",
+      "is_unseen": true
+    }
+  ],
+  "has_more": true
+}
+```
+
+### 2. Bejegyzés létrehozása
+**POST** `/api/posts`
+
+#### Kérés {id="k-r-s_1"}
+```json
+{
+  "content": "Ez egy új bejegyzés.",
+  "media_url": "https://example.com/image.jpg"
+}
+```
+
+#### Válasz (201 - Létrehozva)
+```json
+{
+  "id": 2,
+  "user_id": 1,
+  "content": "Ez egy új bejegyzés.",
+  "media_url": "https://example.com/image.jpg",
+  "created_at": "2024-03-18T12:05:00Z",
+  "updated_at": "2024-03-18T12:05:00Z"
+}
+```
+
+### 3. Egy adott bejegyzés lekérése
+**GET** `/api/posts/{id}`
+
+#### Válasz {id="v-lasz_2"}
+```json
+{
+  "id": 2,
+  "user": {
+    "id": 1,
+    "name": "Felhasználó Név"
+  },
+  "content": "Ez egy új bejegyzés.",
+  "media_url": "https://example.com/image.jpg",
+  "created_at": "2024-03-18T12:05:00Z",
+  "updated_at": "2024-03-18T12:05:00Z"
+}
+```
+
+### 4. Bejegyzés módosítása
+**PUT** `/api/posts/{id}`
+
+#### Kérés
+```json
+{
+  "content": "Módosított tartalom.",
+  "media_url": "https://example.com/new-image.jpg"
+}
+```
+
+#### Válasz {id="v-lasz_3"}
+```json
+{
+  "id": 2,
+  "user_id": 1,
+  "content": "Módosított tartalom.",
+  "media_url": "https://example.com/new-image.jpg",
+  "created_at": "2024-03-18T12:05:00Z",
+  "updated_at": "2024-03-18T12:10:00Z"
+}
+```
+
+### 5. Bejegyzés törlése
+**DELETE** `/api/posts/{id}`
+
+#### Válasz
+```json
+{
+  "message": "Post deleted"
+}
+```
+
+### Hibakezelés
+A rendszer az alábbi hibakódokat adhatja vissza:
+- **400 Bad Request**: Hiányzó vagy érvénytelen adatok.
+- **401 Unauthorized**: Bejelentkezés szükséges.
+- **403 Forbidden**: A felhasználó nem jogosult a művelet végrehajtására.
+- **404 Not Found**: Nem található bejegyzés.
+- **500 Internal Server Error**: Szerverhiba.
+

@@ -25,9 +25,9 @@ class IdenticardService {
     }
   }
 
-  Future<Identicard> getIdenticard(String username) async {
+  Future<Identicard> getIdenticard() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/get/$username'), headers: headers);
+    final response = await http.get(Uri.parse('$baseUrl/get'), headers: headers);
     if (response.statusCode == 200) {
       return Identicard.fromJson(jsonDecode(response.body));
     } else {

@@ -23,4 +23,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'other_user_id')
+            ->union(
+                $this->belongsToMany(User::class, 'friends', 'other_user_id', 'user_id')
+            );
+    }
 }

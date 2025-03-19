@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,11 +15,12 @@ use App\Models\Auto;
 class FriendsController extends Controller
 {
 
-    public function friends($id)
+    public function friends()
     {
+        $user = auth()->user();
+        $id = $user->id;
 
         //Kilistázza az adott felhasználó barátait
-        //Ne próbáld meg kisilabizálni, én sem értem
         $friends = DB::table('friends')
             ->join('users as u1', 'friends.user_id', '=', 'u1.id')
             ->join('users as u2', 'friends.other_user_id', '=', 'u2.id')
@@ -27,13 +30,13 @@ class FriendsController extends Controller
                 'friends.id',
                 'friends.created_at',
                 'friends.updated_at',
-                DB::raw("CASE 
+                DB::raw("CASE
                     WHEN friends.user_id = $id THEN u2.id
-                    ELSE u1.id 
+                    ELSE u1.id
                 END as user_id"),
-                DB::raw("CASE 
+                DB::raw("CASE
                     WHEN friends.user_id = $id THEN u2.name
-                    ELSE u1.name 
+                    ELSE u1.name
                 END as name")
             )
             ->get();
@@ -160,5 +163,15 @@ class FriendsController extends Controller
 
         return view('users', compact('users'));
     }
+
+    public function search($query)
+    {
+        $result = User::where('name', 'like', "%$query")
+            ->orWhere('email', 'like', "%$query")
+            ->get();
+        return response()-> json($result, 200, ['Content-Type' => 'application/json']);
+
+    }
+
 
 }

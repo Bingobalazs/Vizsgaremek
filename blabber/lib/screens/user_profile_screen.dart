@@ -141,7 +141,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>  EditIdenticardScreen(username: 'johndoe',)
+                        builder: (context) =>  EditIdenticardScreen()
                         )
                       );
                 },
