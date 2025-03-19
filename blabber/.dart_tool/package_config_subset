@@ -195,9 +195,9 @@ path_provider
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider-2.1.5/
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider-2.1.5/lib/
 path_provider_android
-3.5
-file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.15/
-file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.15/lib/
+3.6
+file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.16/
+file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.16/lib/
 path_provider_foundation
 3.3
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_foundation-2.4.1/
@@ -227,9 +227,9 @@ shared_preferences
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences-2.5.2/
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences-2.5.2/lib/
 shared_preferences_android
-3.5
-file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.4.6/
-file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.4.6/lib/
+3.6
+file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.4.8/
+file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.4.8/lib/
 shared_preferences_foundation
 3.4
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_foundation-2.5.4/
@@ -288,8 +288,8 @@ file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/vm_service-14.3.1/
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/vm_service-14.3.1/lib/
 web
 3.4
-file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/web-1.1.0/
-file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/web-1.1.0/lib/
+file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/web-1.1.1/
+file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/web-1.1.1/lib/
 web_socket
 3.3
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/web_socket-0.1.6/
@@ -300,8 +300,8 @@ file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/web_socket_channel-
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/web_socket_channel-3.0.2/lib/
 win32
 3.7
-file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.11.0/
-file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.11.0/lib/
+file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.12.0/
+file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.12.0/lib/
 xdg_directories
 3.3
 file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/xdg_directories-1.1.0/

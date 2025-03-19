@@ -1,8 +1,8 @@
 import 'package:blabber/screens/chats.dart';
 import 'package:blabber/screens/friend_suggestions.dart';
+import 'package:blabber/screens/identicard_edit_screen.dart';
 import 'package:blabber/screens/user_profile_screen.dart';
 import 'package:blabber/screens/auth_screen.dart';
-import 'package:blabber/screens/identicard_form.dart';
 import 'package:blabber/screens/add_post_screen.dart';
 import 'package:blabber/screens/loading_screen.dart';
 import 'package:blabber/screens/chat.dart';
@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoadingScreen(),
+      home: HomePage(),
     );
   }
 }
@@ -116,7 +116,7 @@ class FirstRoute extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => IdCardForm()),
+                  MaterialPageRoute(builder: (context) => EditIdenticardScreen()),
                 );
               },
             ),

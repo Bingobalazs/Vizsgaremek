@@ -14,14 +14,22 @@ class IdentiController extends Controller
         $user = auth()->user();
 
         if(Identicard::where('user_id', $user->id)->exists()){
-            return true;
-        } else return false;
+            return response()->json(['exists' => true]);
+        }return response()->json(['exists' => false]);
 
     }
     public function share($username)
     {
         $user = Identicard::where('username', $username)->firstOrFail();
         return view('blabber.identicard',  compact('user'));
+    }
+
+    public function get($username)
+    {
+        $user = auth()->user();
+
+        $info = Identicard::where('user_id', $user->id)->firstOrFail();
+        return response()->json($info);
     }
 
     public function update(Request $request)

@@ -9,11 +9,16 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-// Eloquent
+
 use App\Models\Auto;
+use App\Models\Chat;
 
 class AutoController extends Controller
 {
+    public function p()
+    {
+        return "Hello";
+    }
 
     public function getchat($user_id, $friend_id)
     {
@@ -33,9 +38,22 @@ class AutoController extends Controller
 
     }
 
-    public function postchat($user_id, $friend_id)
+
+    public function postChat($user_id, $friend_id, $chat)
     {
-        return "chat";
+        $data = Chat::all();
+        //nnnnnnnnnnn
+        /*$data = Chat::create([
+            'from_id' => $user_id,
+            'to_id' => $friend_id,
+            'chat' => $chat,
+        ]);
+
+        return response()->json([
+            'message' => 'Chat stored successfully!',
+            'chat' => $data,
+        ], 201);*/
+        return response()->json($data);
     }
 
     public function List()
