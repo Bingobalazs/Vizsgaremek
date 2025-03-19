@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\api_AuthController;
 use App\Http\Controllers\AutoController;
+use App\Http\Controllers\ChatController;
 
 
 Route::get('/p', [AutoController::class, 'p']);
-Route::post('/postchat/{user_id}/{friend_id}/{chat}', 'postchat')->name('postchat');
+Route::post('/postchat/{user_id}/{friend_id}/{chat}', ChatController::class)->name('postchat');
 
 Route::controller(api_AuthController::class)->group(function () {
 
