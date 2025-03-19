@@ -9,6 +9,7 @@ use App\Http\Controllers\API\api_AuthController;
 use App\Http\Controllers\AutoController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendsController;
+use App\Http\Controllers\LikeController;
 
 
 Route::get('/p', [AutoController::class, 'p']);
@@ -79,6 +80,16 @@ Route::middleware('auth:sanctum')->group(function () {
        Route::get('/friends/{query}', 'search');
 
     });
+
+    // Like
+    Route::get('like/{post}', [LikeController::class, 'checkLike']); // Ellenőrzi hogy a felhasználó likeolta-e a posztot
+    Route::post('like/{post}', [LikeController::class, 'toggleLike']); // Átállítja a like-ot
+
+
+    /*  Nincs még commentcontroller
+    Route::get('count/comment/{post}', [CommentController::class, 'countComments']);
+         // Megszámolja a kommenteket egy adott poszt alatt (frontend like counter badge-hez kell
+    */
 
 });
 
