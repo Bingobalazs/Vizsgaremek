@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\api_AuthController;
 use App\Http\Controllers\AutoController;
-
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\FriendsController;
 
 
 Route::get('/p', [AutoController::class, 'p']);
@@ -39,6 +40,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', 'user');
 
     });
+
+    Route::controller(ChatController::class)->group(function () {
+
+        Route::post('/postchat/{user_id}/{friend_id}/{chat}', 'postchat')->name('postchat');
+        Route::post('/getchat/{friend_id}', 'getchat')->name('getchat');
+
+    });
+
+    Route::controller(FriendsController::class)->group(function () {
+
+        Route::get('/friends', 'friends')->name('friends');
+
+    });
+
 
     // Posztok CRUD
     Route::apiResource('posts', PostController::class);

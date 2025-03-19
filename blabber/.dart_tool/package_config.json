@@ -494,7 +494,9 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-03-19T11:32:18.283975Z",
+ "generated": "2025-03-17T18:54:56.404193Z",
+
+
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///C:/tools/flutter",
