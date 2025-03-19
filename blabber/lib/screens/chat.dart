@@ -117,7 +117,7 @@ class _ChatScreenState extends State<Chat> {
     try {
       final response = await http.post(
         Uri.parse(
-          'https://kovacscsabi.moriczcloud.hu/postchat/${widget.userId}/${widget.friendId}/$messageText',
+          'https://kovacscsabi.moriczcloud.hu/api/postchat/${widget.userId}/${widget.friendId}/$messageText',
         ),
         headers: {'Content-Type': 'application/json'},
       );
