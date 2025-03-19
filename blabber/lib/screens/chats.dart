@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:blabber/main.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:blabber/screens/chat.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Chats extends StatefulWidget {
   @override
@@ -10,6 +12,7 @@ class Chats extends StatefulWidget {
 }
 
 class _UserListPageState extends State<Chats> {
+  
   List users = []; // Ebben tároljuk a felhasználókat
 
   @override
@@ -19,8 +22,12 @@ class _UserListPageState extends State<Chats> {
   }
 
   Future<void> fetchUsers() async {
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
     final response = await http.get(Uri.parse(
-        'https://kovacscsabi.moriczcloud.hu/friends/34')); //34 az a tj id-ja, majd ki kell cserélni az auth-ra
+        'https://kovacscsabi.moriczcloud.hu/api/friends'), headers: {'Authorization': 'Bearer $token'}); /* //34 az a tj id-ja, majd ki kell cserélni az auth-ra*/
 
     if (response.statusCode == 200) {
       setState(() {
