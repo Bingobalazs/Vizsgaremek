@@ -9,6 +9,7 @@ use App\Http\Controllers\API\api_AuthController;
 use App\Http\Controllers\AutoController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendsController;
+use App\Http\Controllers\LikeController;
 
 
 Route::get('/p', [AutoController::class, 'p']);
