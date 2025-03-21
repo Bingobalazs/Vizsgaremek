@@ -88,7 +88,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /*  Nincs még commentcontroller
     Route::get('count/comment/{post}', [CommentController::class, 'countComments']);
-         // Megszámolja a kommenteket egy adott poszt alatt (frontend like counter badge-hez kell
+    Route::get('count/like/{post}', [LikeController::class, 'countComments']);
+         // Megszámolja a kommenteket egy adott poszt alatt (frontend like és komment counter badge-hez kell
     */
 
 });

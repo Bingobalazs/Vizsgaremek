@@ -38,9 +38,13 @@ class PostController extends Controller
             $posts = $unseenPosts->merge($seenPosts);
         }
 
-        // Add an 'is_unseen' flag to each post
         $posts = $posts->map(function ($post) use ($seenPostIds) {
             $post->is_unseen = !$seenPostIds->contains($post->id);
+            $post->is_liked = $post->isLikedByUser;
+            $post->like_count = $post->likes()->count();
+            $post->comment_count = $post->comments()->count();
+            $post->view_count = $post->views()->count();
+            $post->username = $post->user->name;
             return $post;
         });
 
@@ -48,6 +52,7 @@ class PostController extends Controller
         return response()->json([
             'posts' => $posts,
             'has_more' => $posts->count() == 10 // True if 10 posts returned, suggesting more may exist
+
         ]);
     }
 
