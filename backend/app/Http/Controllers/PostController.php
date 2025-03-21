@@ -53,7 +53,6 @@ class PostController extends Controller
             $post->view_count = $post->views()->count();
             */
 
-            $post->username = $post->user->name;
             return $post;
         });
 
