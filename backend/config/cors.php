@@ -5,6 +5,8 @@ return [
     'allowed_origins' => [
         'http://localhost',
         'https://localhost', 
+        'http://localhost:1011',
+        'https://localhost:1011', 
         'https://balgalazs.moriczcloud.hu',
         'https://kovacscsabi.moriczcloud.hu',
     ],
