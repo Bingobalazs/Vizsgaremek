@@ -20,7 +20,10 @@ class PostController extends Controller
         $seenPostIds = View::where('user_id', $user->id)->pluck('post_id');
 
         // Fetch up to 10 latest unseen posts
-        $unseenPosts = Post::whereNotIn('id', $seenPostIds)
+        $unseenPosts = Post::with(['user' => function($query) {
+            $query->select('id', 'name');
+        }])
+            ->whereNotIn('id', $seenPostIds)
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
@@ -31,7 +34,9 @@ class PostController extends Controller
         // If fewer than 10 unseen posts, fetch seen posts to reach 10 total
         if ($unseenPosts->count() < 10) {
             $remaining = 10 - $unseenPosts->count();
-            $seenPosts = Post::whereIn('id', $seenPostIds)
+            $seenPosts = Post::with(['user' => function($query) {
+                $query->select('id', 'name');
+            }])
                 ->orderBy('created_at', 'desc')
                 ->take($remaining)
                 ->get();
