@@ -40,7 +40,7 @@ class PostController extends Controller
 
         $posts = $posts->map(function ($post) use ($seenPostIds) {
             $post->is_unseen = !$seenPostIds->contains($post->id);
-            $post->is_liked = $post->isLikedByUser(Auth::id());
+            $post->is_liked = $post->isLikedByUser;
             $post->like_count = $post->likes()->count();
             $post->comment_count = $post->comments()->count();
             $post->view_count = $post->views()->count();
