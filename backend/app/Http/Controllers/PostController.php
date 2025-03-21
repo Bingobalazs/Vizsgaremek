@@ -42,9 +42,13 @@ class PostController extends Controller
             $post->is_unseen = !$seenPostIds->contains($post->id);
             $post->is_liked = $post->isLikedByUser(Auth::id());
             $post->like_count = $post->likes()->count();
+
+            /* EZ MAJD HA MEG LESZ CSINÁLVA
             $post->comment_count = $post->comments()->count();
             $post->view_count = $post->views()->count();
-            $post->username = $post->user->name;
+            */
+
+            $post->username = $post->user()->name;
             return $post;
         });
 
