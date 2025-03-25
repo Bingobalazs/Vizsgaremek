@@ -8,6 +8,7 @@ import 'package:blabber/screens/loading_screen.dart';
 import 'package:blabber/screens/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:blabber/screens/search_screen.dart';
+import 'package:blabber/screens/feed_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -71,88 +72,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class FirstRoute extends StatelessWidget {
-  const FirstRoute({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('First Route'),
-      ),
-      body: Center(
-        child: new Column(
-          children: [
-            ElevatedButton(
-              child: const Text('Add friends'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const FriendSuggestionsScreen()),
-                );
-              },
-            ),
-            ElevatedButton(
-              child: const Text('My profile'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()),
-                );
-              },
-            ),
-            ElevatedButton(
-              child: const Text('Log In/Register'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-            ),
-            ElevatedButton(
-              child: const Text('my Identicard'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditIdenticardScreen()),
-                );
-              },
-            ),
-            ElevatedButton(
-              child: const Text('Log In/Register'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-            ),
-            ElevatedButton(
-              child: const Text('Log In/Register'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-            ),
-            ElevatedButton(
-              child: Text('Chat'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Chats()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -166,7 +85,7 @@ class _HomePageState extends State<HomePage> {
 
   // List of pages to navigate to
   final List<Widget> _pages = [
-    LoginPage(),
+    FeedScreen(),
     SearchScreen(),
     const AddPostScreen(),
     Chats(),
@@ -195,6 +114,19 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.login),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomAppBar(
         color: baseColor,
@@ -248,4 +180,5 @@ class _HomePageState extends State<HomePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
+
 }
