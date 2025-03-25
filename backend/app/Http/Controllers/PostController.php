@@ -20,7 +20,10 @@ class PostController extends Controller
         $seenPostIds = View::where('user_id', $user->id)->pluck('post_id');
 
         // Fetch up to 10 latest unseen posts
-        $unseenPosts = Post::whereNotIn('id', $seenPostIds)
+        $unseenPosts = Post::with(['user' => function($query) {
+            $query->select('id', 'name');
+        }])
+            ->whereNotIn('id', $seenPostIds)
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
@@ -31,16 +34,25 @@ class PostController extends Controller
         // If fewer than 10 unseen posts, fetch seen posts to reach 10 total
         if ($unseenPosts->count() < 10) {
             $remaining = 10 - $unseenPosts->count();
-            $seenPosts = Post::whereIn('id', $seenPostIds)
+            $seenPosts = Post::with(['user' => function($query) {
+                $query->select('id', 'name');
+            }])
                 ->orderBy('created_at', 'desc')
                 ->take($remaining)
                 ->get();
             $posts = $unseenPosts->merge($seenPosts);
         }
 
-        // Add an 'is_unseen' flag to each post
         $posts = $posts->map(function ($post) use ($seenPostIds) {
             $post->is_unseen = !$seenPostIds->contains($post->id);
+            $post->is_liked = $post->isLikedByUser(Auth::id());
+            $post->like_count = $post->likes()->count();
+
+            /* EZ MAJD HA MEG LESZ CSINÁLVA
+            $post->comment_count = $post->comments()->count();
+            $post->view_count = $post->views()->count();
+            */
+
             return $post;
         });
 
@@ -48,6 +60,7 @@ class PostController extends Controller
         return response()->json([
             'posts' => $posts,
             'has_more' => $posts->count() == 10 // True if 10 posts returned, suggesting more may exist
+
         ]);
     }
 
