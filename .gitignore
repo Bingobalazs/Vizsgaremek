@@ -46,6 +46,44 @@ linked_*.ds
 unlinked.ds
 unlinked_spec.ds
 
+# Flutter repo-specific
+blabber/bin/cache/
+blabber/bin/internal/bootstrap.bat
+blabber/bin/internal/bootstrap.sh
+blabber/bin/mingit/
+blabber/dev/benchmarks/mega_gallery/
+blabber/dev/bots/.recipe_deps
+blabber/dev/bots/android_tools/
+blabber/dev/devicelab/ABresults*.json
+blabber/dev/docs/doc/
+blabber/dev/docs/flutter.docs.zip
+blabber/dev/docs/lib/
+blabber/dev/docs/pubspec.yaml
+blabber/dev/integration_tests/**/xcuserdata
+blabber/dev/integration_tests/**/Pods
+blabber/packages/flutter/coverage/
+blabber/version
+blabber/analysis_benchmark.json
+
+# packages file containing multi-root paths
+blabber/.packages.generated
+
+# Flutter/Dart/Pub related
+blabber/**/doc/api/
+blabber/.dart_tool/
+blabber/.flutter-plugins
+blabber/.flutter-plugins-dependencies
+blabber/**/generated_plugin_registrant.dart
+blabber/.packages
+blabber/.pub-preload-cache/
+blabber/.pub/
+blabber/build/
+blabber/flutter_*.png
+blabber/linked_*.ds
+blabber/unlinked.ds
+blabber/unlinked_spec.ds
+
+
 # Android related
 **/android/**/gradle-wrapper.jar
 .gradle/
