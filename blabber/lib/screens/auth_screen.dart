@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../main.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -58,6 +60,11 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sikeres bejelentkezés!')),
         );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+
       } else {
         setState(() {
           _errorMessage = response.data['message'];
