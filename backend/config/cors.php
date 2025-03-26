@@ -4,7 +4,7 @@ return [
     'allowed_methods' => ['*'],
     'allowed_origins' => [
 
-        'http://localhost:1011',
+        'http://localhost:56100',
         'https://balgalazs.moriczcloud.hu',
         'https://kovacscsabi.moriczcloud.hu',
     ],
