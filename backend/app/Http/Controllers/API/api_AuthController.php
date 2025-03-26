@@ -109,6 +109,44 @@ class api_AuthController extends Controller
 
 
 
-        return view('code', compact('data'));
+        return response()->json($data);
+    }
+
+    public function confirm(Request $request)
+    {
+        // Validate the incoming request data
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string',
+        ]);
+
+        // Extract email and code from the request
+        $email = $request->input('email');
+        $code = $request->input('code');
+
+        // Find the user by email
+        $user = User::where('email', $email)->first();
+
+        // Check if user exists
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Check if account is already confirmed (code is null)
+        if ($user->code === null) {
+            return response()->json(['message' => 'Account already confirmed'], 200);
+        }
+
+        // Verify the provided code matches the stored code
+        if ($user->code !== $code) {
+            return response()->json(['message' => 'Invalid confirmation code'], 400);
+        }
+
+        // Confirm the account by clearing the code
+        $user->code = null;
+        $user->save();
+
+        // Return success response
+        return response()->json(['message' => 'Account confirmed successfully'], 200);
     }
 }

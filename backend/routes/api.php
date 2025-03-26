@@ -18,6 +18,7 @@ Route::controller(api_AuthController::class)->group(function () {
 
     Route::post('/login', 'login');
     Route::post('/registration', 'registration');
+    Route::post('/registration/confirm', 'comfirm');
 
 });
 

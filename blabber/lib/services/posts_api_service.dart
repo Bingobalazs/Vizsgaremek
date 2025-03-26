@@ -4,6 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:blabber/models/Post.dart';
 
+class FeedResponse {
+  final List<Post> posts;
+  final bool hasMore;
+
+  FeedResponse({required this.posts, required this.hasMore});
+}
 class PostsApiService {
   static const String baseUrl = 'https://kovacscsabi.moriczcloud.hu/api'; // Replace with your API URL
 
@@ -14,16 +20,19 @@ class PostsApiService {
     return token;
   }
 
-  // Fetch feed posts
-  Future<List<Post>> fetchFeed() async {
+  // Fetch feed posts with pagination support
+  Future<FeedResponse> fetchFeed({int page = 1}) async {
     String token = await _getToken();
     final response = await http.get(
-      Uri.parse('$baseUrl/posts'),
+      Uri.parse('$baseUrl/posts?page=$page'),
       headers: {'Authorization': 'Bearer $token'},
     );
     if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body)['posts'];
-      return jsonResponse.map((post) => Post.fromJson(post)).toList();
+      final body = json.decode(response.body);
+      List jsonResponse = body['posts'];
+      bool hasMore = body['has_more'];
+      List<Post> posts = jsonResponse.map((post) => Post.fromJson(post)).toList();
+      return FeedResponse(posts: posts, hasMore: hasMore);
     } else {
       throw Exception('Failed to load feed');
     }
