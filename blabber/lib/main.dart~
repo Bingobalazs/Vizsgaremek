@@ -8,6 +8,7 @@ import 'package:blabber/screens/loading_screen.dart';
 import 'package:blabber/screens/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:blabber/screens/search_screen.dart';
+import 'package:blabber/screens/feed_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -84,7 +85,7 @@ class _HomePageState extends State<HomePage> {
 
   // List of pages to navigate to
   final List<Widget> _pages = [
-    LoginPage(),
+    FeedScreen(),
     SearchScreen(),
     const AddPostScreen(),
     Chats(),
@@ -114,7 +115,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text('Feed'),
+
         actions: <Widget>[
+
           IconButton(
             icon: Icon(Icons.login),
             onPressed: () {

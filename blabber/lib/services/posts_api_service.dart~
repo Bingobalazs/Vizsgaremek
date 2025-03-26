@@ -14,7 +14,7 @@ class PostsApiService {
     return token;
   }
 
-  // Fetch feed posts (assuming this exists)
+  // Fetch feed posts
   Future<List<Post>> fetchFeed() async {
     String token = await _getToken();
     final response = await http.get(

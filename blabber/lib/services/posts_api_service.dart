@@ -80,20 +80,18 @@ class PostsApiService {
     }
   }
 
-  // Get like count
-  Future<int> getLikeCount(int postId) async {
+  // Mark that a post was viewed
+  Future<void> markView(int postId) async {
     String token = await _getToken();
-    final response = await http.get(
-      Uri.parse('$baseUrl/count/like/$postId'),
+    final response = await http.post(
+      Uri.parse('$baseUrl/view/$postId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
     );
-    if (response.statusCode == 200) {
-      return json.decode(response.body)['count'];
-    } else {
-      throw Exception('Failed to get like count');
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark post view');
     }
   }
 }
