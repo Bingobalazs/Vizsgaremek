@@ -4,7 +4,6 @@ return [
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'https://balgalazs.moriczcloud.hu',
-        'https://kovacscsabi.moriczcloud.hu',
     ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
