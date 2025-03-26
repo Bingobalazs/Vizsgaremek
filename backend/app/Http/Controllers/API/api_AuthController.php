@@ -107,7 +107,7 @@ class api_AuthController extends Controller
 
         mail($to, $subject, $message, $headers);
 
-
+        User::create($data);
 
         return response()->json($data);
     }
