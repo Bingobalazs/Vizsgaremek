@@ -73,7 +73,7 @@ class FriendsController extends Controller
             ]);
         }
 
-        return redirect()->back()->with(compact('users'));
+        return response()->json($users);
     }
 
     public function friend_req()
