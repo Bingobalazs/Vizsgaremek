@@ -90,7 +90,7 @@ class FriendsController extends Controller
             ->select('users.*')
             ->get();
 
-        return view('keresek', compact('users'));
+        return response()->json($users);
 
     }
 
