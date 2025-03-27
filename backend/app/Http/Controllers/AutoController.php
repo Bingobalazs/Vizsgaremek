@@ -140,7 +140,6 @@ class AutoController extends Controller
         return view('modify', compact('auto'));
     }// view return
 
-
     public function ownAds()
     {
         $userId = Auth::id();
