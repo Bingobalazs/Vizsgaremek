@@ -5,6 +5,8 @@ import 'package:blabber/services/posts_api_service.dart';
 
 import 'package:visibility_detector/visibility_detector.dart';
 
+
+
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
 
@@ -13,60 +15,109 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
-  late Future<List<Post>> futurePosts;
+  final ScrollController _scrollController = ScrollController();
+  List<Post> _posts = [];
+  bool _hasMore = true;
+  int _page = 1;
+  bool _isLoading = false;
+  final PostsApiService _apiService = PostsApiService();
 
   @override
   void initState() {
     super.initState();
-    futurePosts = PostsApiService().fetchFeed();
+    _loadPosts();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Detect if we've scrolled close to the bottom
+  void _scrollListener() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading && _hasMore) {
+      _loadPosts();
+    }
+  }
+
+  // Load posts from the API and update our list
+  Future<void> _loadPosts() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final feedResponse = await _apiService.fetchFeed(page: _page);
+      setState(() {
+        _page++;
+        _posts.addAll(feedResponse.posts);
+        _hasMore = feedResponse.hasMore;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading posts: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Allow pull-to-refresh
+  Future<void> _refreshPosts() async {
+    setState(() {
+      _posts.clear();
+      _page = 1;
+      _hasMore = true;
+    });
+    await _loadPosts();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<Post>>(
-        future: futurePosts,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No posts available'));
-          }
-
-          final posts = snapshot.data!;
-          return ListView.separated(
-            padding: const EdgeInsets.all(10.0),
-            itemCount: posts.length,
-            itemBuilder: (context, index) {
-              return PostWidget(post: posts[index]);
-            },
-            // Insert a separator when transitioning from unseen posts to seen posts
-            separatorBuilder: (context, index) {
-              // If current post is unseen and next is seen, add separator
-              if (posts[index].isUnseen && index + 1 < posts.length && !posts[index + 1].isUnseen) {
+      body: RefreshIndicator(
+        onRefresh: _refreshPosts,
+        child: ListView.separated(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(10.0),
+          itemCount: _posts.length + (_hasMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index < _posts.length) {
+              return PostWidget(post: _posts[index]);
+            } else {
+              // Display a loading indicator at the bottom
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+          },
+          separatorBuilder: (context, index) {
+            // Insert a separator if transitioning from unseen to seen posts
+            if (index < _posts.length - 1) {
+              if (_posts[index].isUnseen && !_posts[index + 1].isUnseen) {
                 return Column(
                   children: const [
                     SizedBox(height: 10),
-                    Divider(color: Colors.white),
-                    Text(
-                      "Older posts",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    Divider(color: Color(0xFFFF204E)),
+                    Text("Older posts", style: TextStyle(color: Colors.white)),
                     SizedBox(height: 10),
                   ],
                 );
               }
-              // Otherwise just add a little space
-              return const SizedBox(height: 10);
-            },
-          );
-        },
+            }
+            return const SizedBox(height: 10);
+          },
+        ),
       ),
     );
   }
 }
+
 
 class PostWidget extends StatefulWidget {
   final Post post;
@@ -133,7 +184,13 @@ class _PostWidgetState extends State<PostWidget> {
                 children: [
                   // Top bar with poster's name and post age
                   Container(
-                    color: accentColor,
+                    decoration: BoxDecoration(
+                      color: widget.post.isUnseen? accentColor : darkColor,
+                      border: Border(
+                      bottom: BorderSide(color: accentColor),
+                      ),
+                    ),
+
                     padding: const EdgeInsets.all(8.0),
                     width: double.infinity,
                     child: Text(
