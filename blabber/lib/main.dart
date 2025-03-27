@@ -9,11 +9,16 @@ import 'package:blabber/screens/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:blabber/screens/search_screen.dart';
 import 'package:blabber/screens/feed_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
 }
-
+Future<bool> isLoggedIn() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+  return token != null;
+}
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -67,7 +72,21 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: HomePage(),
+      home: FutureBuilder<bool>(
+        future: isLoggedIn(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+
+          if (snapshot.hasError) {
+            return Scaffold(body: Center(child: Text('Error checking auth status')));
+          }
+
+          final isLoggedIn = snapshot.data ?? false;
+          return isLoggedIn ? HomePage() : LoginPage();
+        },
+      ),
     );
   }
 }
@@ -114,19 +133,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.login),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            },
-          ),
-        ],
-      ),
+
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomAppBar(
         color: baseColor,

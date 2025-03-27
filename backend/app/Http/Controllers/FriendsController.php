@@ -73,7 +73,7 @@ class FriendsController extends Controller
             ]);
         }
 
-        return redirect()->back()->with(compact('users'));
+        return response()->json($users);
     }
 
     public function friend_req()
@@ -90,7 +90,7 @@ class FriendsController extends Controller
             ->select('users.*')
             ->get();
 
-        return view('keresek', compact('users'));
+        return response()->json($users);
 
     }
 
@@ -137,7 +137,7 @@ class FriendsController extends Controller
             ]);
         }
 
-        return redirect()->back();
+        return response()->json($userId);
 
     }
 

@@ -120,4 +120,22 @@ class PostController extends Controller
 
         return response()->json(['message' => 'Post deleted']);
     }
+
+    public function markSeen($post)
+    {
+
+        $user = Auth::user();
+
+        View::create([
+            'user_id' => $user->id,
+            'post_id' => $post,
+        ]);
+
+        return response()->json([
+            'post_id' => $post,
+            'user_id' => $user->id,
+        ]);
+
+
+    }
 }

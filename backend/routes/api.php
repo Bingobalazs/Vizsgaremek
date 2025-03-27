@@ -18,6 +18,7 @@ Route::controller(api_AuthController::class)->group(function () {
 
     Route::post('/login', 'login');
     Route::post('/registration', 'registration');
+    Route::post('/registration/confirm', 'confirm');
 
 });
 
@@ -52,6 +53,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::controller(FriendsController::class)->group(function () {
 
         Route::get('/friends', 'friends')->name('friends');
+        Route::post('/jeloles/{id}', 'jeloles')->name('jeloles');
+        Route::get('/friend_req', 'friend_req')->name('friend_req');
+        Route::post('/accept/{id}', 'accept')->name('accept');
 
     });
 
@@ -65,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
          * PUT /api/posts/{id} - Update a post
          * DELETE /api/posts/{id} - Delete a post
          */
+    Route::post('view/{post}', [PostController::class, 'markSeen']);
 
     // Identicard
     Route::controller(\App\Http\Controllers\IdentiController::class)->group(function () {

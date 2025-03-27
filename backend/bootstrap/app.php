@@ -23,10 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(
             except: ['PixelArtSpotlight/*',  'api/*', 'login', 'register']
         );
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
-header('Access-Control-Allow-Origin: localhost:4200');
-header('Access-Control-Allow-Methods: *');
-header('Access-Control-Allow-Headers: *');
+
