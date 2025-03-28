@@ -137,7 +137,7 @@ class FriendsController extends Controller
             ]);
         }
 
-        return redirect()->back();
+        return response()->json($userId);
 
     }
 
