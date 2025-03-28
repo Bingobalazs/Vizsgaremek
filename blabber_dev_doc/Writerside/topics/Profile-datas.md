@@ -1,47 +1,50 @@
 # IdentiShare
 
-## Customize your info, share your link, get in touch
-With this function, you can have your own url endpoint, which can be opened by anyone. 
-There they can see the info you added, 
-and can also add you as a new contact to their mobile contacts, and can also add you as a friend
+## Személyre szabott profil, megosztható link, egyszerű kapcsolatfelvétel
+Ezzel a funkcióval létrehozhatod saját egyedi URL-edet, amelyet bárki megnyithat.  
+Az oldalon megjelenik az általad megadott információ,  
+valamint a látogatók egyszerűen elmenthetnek téged mobiljuk névjegyzékébe,  
+vagy akár ismerősnek is jelölhetnek.
 
-### Basic Information
+### 🔹 Alapvető információk
+- **Teljes név**
+- **Felhasználónév**
+- **Profilkép**
+- **Borítókép/banner**
+- **Rólam / Bemutatkozás**
+- **Helyszín** (város, ország)
+- **Születésnap/Életkor**
+- **Kapcsolati státusz**
 
-- Full name  
-- Username
-- Profile picture
-- Cover photo/banner
-- Bio/About me section
-- Location (city, country)
-- Birthday/Age 
-- Pronouns
-- Relationship status 
+### 📞 Kapcsolati adatok
+- **E-mail cím** 
+- **Telefonszám**
+- **Alternatív üzenetküldő alkalmazások** (WhatsApp, Telegram stb.)
+- **Személyes weboldal/portfólió**
+- **Egyéb közösségi média profilok**
 
-### Contact Information
+### 💼 Szakmai információk
+- **Jelenlegi munkahely/cég**
+- **Munkakör/pozíció**
+- **Korábbi munkahelyek**
+- **Tanulmányok**
+- **Készségek és szakértelem**
+- **Szakmai minősítések**
+- **Beszélt nyelvek**
+- **Portfóliómunkák/minták** *(link)*
 
-- Email address (with privacy options)
-- Phone number (with privacy options)
-- Alternative messaging apps (WhatsApp, Telegram, etc.)
-- Personal website/portfolio
-- Other social media handles
+### 🎯 Személyes érdeklődési körök
+- **Hobbi**
 
-### Professional Information
+### 🎨 Testreszabási lehetőségek
+- **Megosztott oldal témája és színsémája**
+- **Profil láthatósági beállításai** *(nyilvános/magán)*
 
-- Current workplace/company
-- Job title/position
-- Previous workplaces
-- Education
-- Skills/expertise
-- Professional certifications
-- Languages spoken
-- Portfolio samples/work examples (link)
+---
 
-### Personal Interests
-Hobbies
+🔗 **Megosztható link formátuma:**  
+**`kovacscsabi.moriczcloud.hu/identicard/felhasználónév`**
 
-### Customization Options
-
-- Shared page's theme/color scheme preferences
-- Profile visibility options (public/private)
-
-
+Ezzel az egyedi névjegykártyával könnyedén megoszthatod magadról a legfontosabb információkat,  
+legyen szó szakmai kapcsolatok építéséről, új barátok szerzéséről, vagy egyszerű elérhetőségi megosztásról.  
+A profilodat teljes mértékben testre szabhatod, és eldöntheted, hogy mely adatokat osztod meg másokkal!
