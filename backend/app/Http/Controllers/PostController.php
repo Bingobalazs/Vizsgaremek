@@ -148,8 +148,15 @@ class PostController extends Controller
 
     }
 
-    public function ownPosts()
+    public function ownPosts(Request $request)
     {
+
+        // Get the page number from the request (default to 1 if not provided)
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 10; // Number of posts per page
+        $offset = ($page - 1) * $perPage;
+
+
         $user = Auth::user();
         $user_id = $user->id;
         $posts = Post::with(['user' => function($query) {
@@ -157,20 +164,45 @@ class PostController extends Controller
         }])
             ->where('user_id', $user_id)
             ->orderBy('created_at', 'desc')
-            ->take(10)
+            ->skip($offset)
+            ->take($perPage)
             ->get();
+        $hasMore = Post::count() > $page * $perPage;
+
+        return response()->json([
+            'posts' => $posts,
+            'page' => $page, // Return the current page for tracking
+           'has_more' => $hasMore, // True if there are more posts to load
 
 
+        ]);
     }
-    public function FriendPosts($user_id)
+    public function FriendPosts(Request $request, $user_id)
     {
+        // Get the page number from the request (default to 1 if not provided)
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 10; // Number of posts per page
+        $offset = ($page - 1) * $perPage;
+
+
+        $user = Auth::user();
         $posts = Post::with(['user' => function($query) {
             $query->select('id', 'name');
         }])
             ->where('user_id', $user_id)
             ->orderBy('created_at', 'desc')
-            ->take(10)
+            ->skip($offset)
+            ->take($perPage)
             ->get();
+        $hasMore = Post::count() > $page * $perPage;
+
+        return response()->json([
+            'posts' => $posts,
+            'page' => $page, // Return the current page for tracking
+            'has_more' => $hasMore, // True if there are more posts to load
+
+
+        ]);
 
 
     }
