@@ -13,35 +13,38 @@ class PostController extends Controller
     // Get a paginated list of posts (e.g., a feed)
     public function index(Request $request)
     {
+
         // Get the authenticated user
         $user = Auth::user();
 
-        // Get the page number from the request (default to 1 if not provided)
+        // Get the page number from the request (default to 1)
         $page = max(1, (int) $request->input('page', 1));
         $perPage = 10; // Number of posts per page
         $offset = ($page - 1) * $perPage;
 
-        // Fetch the IDs of posts the user has seen from the views table
+        // Fetch seen post IDs
         $seenPostIds = View::where('user_id', $user->id)->pluck('post_id');
 
-        // Fetch unseen posts first, limited by pagination
-        $unseenPosts = Post::with(['user' => function($query) {
-            $query->select('id', 'name');
-        }])
+        // Fetch unseen posts first
+        $unseenPosts = Post::with('user:id,name')
             ->whereNotIn('id', $seenPostIds)
             ->orderBy('created_at', 'desc')
             ->skip($offset)
             ->take($perPage)
             ->get();
 
-        // If there aren't enough unseen posts, fetch seen posts to fill the remaining slots
-        if ($unseenPosts->count() < $perPage) {
-            $remaining = $perPage - $unseenPosts->count();
-            $seenPosts = Post::with(['user' => function($query) {
-                $query->select('id', 'name');
-            }])
+        // If we don't have enough unseen posts, fetch seen posts to fill the remaining
+        $unseenCount = $unseenPosts->count();
+        if ($unseenCount < $perPage) {
+            $remaining = $perPage - $unseenCount;
+
+            // **Fix: Correct offset for seen posts**
+            $seenOffset = max(0, $offset - Post::whereNotIn('id', $seenPostIds)->count());
+
+            $seenPosts = Post::with('user:id,name')
+                ->whereIn('id', $seenPostIds)
                 ->orderBy('created_at', 'desc')
-                ->skip($offset)
+                ->skip($seenOffset)
                 ->take($remaining)
                 ->get();
 
@@ -50,27 +53,27 @@ class PostController extends Controller
             $posts = $unseenPosts;
         }
 
+        // Map additional properties
         $posts = $posts->map(function ($post) use ($seenPostIds) {
             $post->is_unseen = !$seenPostIds->contains($post->id);
             $post->is_liked = $post->isLikedByUser(Auth::id());
             $post->like_count = $post->likes()->count();
 
-            // Uncomment when comments and views are implemented
-            // $post->comment_count = $post->comments()->count();
-            // $post->view_count = $post->views()->count();
-
             return $post;
         });
 
-        // Check if there are more posts to fetch
-        $hasMore = Post::count() > $page * $perPage;
+        // Check if more posts exist
+        $totalPosts = Post::count();
+        $hasMore = ($offset + $perPage) < $totalPosts;
 
         return response()->json([
             'posts' => $posts,
-            'page' => $page, // Return the current page for tracking
-            'has_more' => $hasMore, // True if there are more posts to load
+            'page' => $page,
+            'has_more' => $hasMore
         ]);
     }
+
+
 
 
     // Create a new post
