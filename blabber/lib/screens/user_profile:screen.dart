@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+class Profile08Widget extends StatefulWidget {
+  const Profile08Widget({Key? key}) : super(key: key);
 
   static String routeName = 'Profile08';
   static String routePath = '/profile08';
 
   @override
-  State<ProfilePage> createState() => ProfilePageState();
+  State<Profile08Widget> createState() => _Profile08WidgetState();
 }
 
-class ProfilePageState extends State<ProfilePage> {
+class _Profile08WidgetState extends State<Profile08Widget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -162,3 +162,53 @@ class ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+
+
+
+/*
+
+
+  Future<void> fetchUserProfile() async {
+    try {
+      // Get token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        setState(() {
+          error = 'No authentication token found';
+          isLoading = false;
+        });
+        return;
+      }
+
+      // Make API request
+      final response = await http.get(
+        Uri.parse('https://kovacscsabi.moriczcloud.hu/api/user'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          userData = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          error = 'Failed to load profile: ${response.statusCode}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        error = 'Error: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+
+*/

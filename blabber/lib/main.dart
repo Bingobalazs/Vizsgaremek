@@ -11,6 +11,7 @@ import 'package:blabber/screens/search_screen.dart';
 import 'package:blabber/screens/feed_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 void main() {
   runApp(MyApp());
 }
