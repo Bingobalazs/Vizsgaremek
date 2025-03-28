@@ -4,6 +4,7 @@ return [
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'https://balgalazs.moriczcloud.hu',
+        'http://localhost:1000'
     ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],

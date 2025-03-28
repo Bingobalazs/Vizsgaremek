@@ -65,7 +65,7 @@ class _ChatScreenState extends State<Chat> {
     try {
       final response = await http.get(
         Uri.parse(
-          'https://kovacscsabi.moriczcloud.hu/getchat/${widget.userId}/${widget.friendId}',
+          'https://kovacscsabi.moriczcloud.hu/getchat/${widget.friendId}',
         ),
         headers: {'Content-Type': 'application/json'},
       );
