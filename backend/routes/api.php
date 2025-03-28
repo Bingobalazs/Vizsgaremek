@@ -69,6 +69,9 @@ Route::middleware('auth:sanctum')->group(function () {
          * PUT /api/posts/{id} - Update a post
          * DELETE /api/posts/{id} - Delete a post
          */
+    Route::get('posts/own', [PostController::class, 'ownPosts']);
+    Route::get('posts/friend/{user_id}', [PostController::class, 'FriendPosts']);
+
     Route::post('view/{post}', [PostController::class, 'markSeen']);
 
     // Identicard

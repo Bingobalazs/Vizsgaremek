@@ -16,31 +16,38 @@ class PostController extends Controller
         // Get the authenticated user
         $user = Auth::user();
 
+        // Get the page number from the request (default to 1 if not provided)
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 10; // Number of posts per page
+        $offset = ($page - 1) * $perPage;
+
         // Fetch the IDs of posts the user has seen from the views table
         $seenPostIds = View::where('user_id', $user->id)->pluck('post_id');
 
-        // Fetch up to 10 latest unseen posts
+        // Fetch unseen posts first, limited by pagination
         $unseenPosts = Post::with(['user' => function($query) {
             $query->select('id', 'name');
         }])
             ->whereNotIn('id', $seenPostIds)
             ->orderBy('created_at', 'desc')
-            ->take(10)
+            ->skip($offset)
+            ->take($perPage)
             ->get();
 
-        // Initialize the posts collection with unseen posts
-        $posts = $unseenPosts;
-
-        // If fewer than 10 unseen posts, fetch seen posts to reach 10 total
-        if ($unseenPosts->count() < 10) {
-            $remaining = 10 - $unseenPosts->count();
+        // If there aren't enough unseen posts, fetch seen posts to fill the remaining slots
+        if ($unseenPosts->count() < $perPage) {
+            $remaining = $perPage - $unseenPosts->count();
             $seenPosts = Post::with(['user' => function($query) {
                 $query->select('id', 'name');
             }])
                 ->orderBy('created_at', 'desc')
+                ->skip($offset)
                 ->take($remaining)
                 ->get();
+
             $posts = $unseenPosts->merge($seenPosts);
+        } else {
+            $posts = $unseenPosts;
         }
 
         $posts = $posts->map(function ($post) use ($seenPostIds) {
@@ -48,21 +55,23 @@ class PostController extends Controller
             $post->is_liked = $post->isLikedByUser(Auth::id());
             $post->like_count = $post->likes()->count();
 
-            /* EZ MAJD HA MEG LESZ CSINÁLVA
-            $post->comment_count = $post->comments()->count();
-            $post->view_count = $post->views()->count();
-            */
+            // Uncomment when comments and views are implemented
+            // $post->comment_count = $post->comments()->count();
+            // $post->view_count = $post->views()->count();
 
             return $post;
         });
 
-        // Prepare the JSON response with posts and a field for the frontend
+        // Check if there are more posts to fetch
+        $hasMore = Post::count() > $page * $perPage;
+
         return response()->json([
             'posts' => $posts,
-            'has_more' => $posts->count() == 10 // True if 10 posts returned, suggesting more may exist
-
+            'page' => $page, // Return the current page for tracking
+            'has_more' => $hasMore, // True if there are more posts to load
         ]);
     }
+
 
     // Create a new post
     public function store(Request $request)
@@ -138,4 +147,32 @@ class PostController extends Controller
 
 
     }
+
+    public function ownPosts()
+    {
+        $user = Auth::user();
+        $user_id = $user->id;
+        $posts = Post::with(['user' => function($query) {
+            $query->select('id', 'name');
+        }])
+            ->where('user_id', $user_id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+
+    }
+    public function FriendPosts($user_id)
+    {
+        $posts = Post::with(['user' => function($query) {
+            $query->select('id', 'name');
+        }])
+            ->where('user_id', $user_id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+
+    }
+
 }
