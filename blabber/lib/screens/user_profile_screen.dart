@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'identicard_edit_screen.dart';
+import '../main.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -9,6 +11,60 @@ class ProfilePage extends StatefulWidget {
   @override
   State<ProfilePage> createState() => ProfilePageState();
 }
+// TODO: implement user profile
+// TODO:  Edit colors to global theme colors
+// TODO: replace HomeScreen() to actual screens when készen vannak
+
+// fetch user info
+/*
+
+
+
+  Future<void> fetchUserProfile() async {
+    try {
+      // Get token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        setState(() {
+          error = 'No authentication token found';
+          isLoading = false;
+        });
+        return;
+      }
+
+      // Make API request
+      final response = await http.get(
+        Uri.parse('https://kovacscsabi.moriczcloud.hu/api/user'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          userData = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          error = 'Failed to load profile: ${response.statusCode}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        error = 'Error: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+
+*/
+
 
 class ProfilePageState extends State<ProfilePage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -95,8 +151,8 @@ class ProfilePageState extends State<ProfilePage> {
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _buildActionButton(Icons.edit_note_rounded, 'edit', () {}),
-                              _buildActionButton(Icons.qr_code, 'share', () {}),
+                              _buildActionButton(Icons.edit_note_rounded, 'edit', EditIdenticardScreen()),
+                              _buildActionButton(Icons.qr_code, 'share', HomePage()),
                             ],
                           ),
                         ),
@@ -111,9 +167,9 @@ class ProfilePageState extends State<ProfilePage> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildActionButton(Icons.people_sharp, 'friends', () {}),
-                    _buildActionButton(Icons.grid_on_sharp, 'my posts', () {}),
-                    _buildActionButton(Icons.settings_sharp, 'settings', () {}),
+                    _buildActionButton(Icons.people_sharp, 'friends', HomePage()),
+                    _buildActionButton(Icons.grid_on_sharp, 'my posts', HomePage()),
+                    _buildActionButton(Icons.settings_sharp, 'settings', HomePage()),
                   ],
                 ),
               ),
@@ -124,10 +180,15 @@ class ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, VoidCallback onTap) {
+  Widget _buildActionButton(IconData icon, String label, Widget targetScreen) {
     return Expanded(
       child: InkWell(
-        onTap: onTap,
+         onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => targetScreen),
+        );
+      },
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
