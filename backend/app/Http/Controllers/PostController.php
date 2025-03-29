@@ -170,8 +170,9 @@ class PostController extends Controller
             ->skip($offset)
             ->take($perPage)
             ->get();
-        $hasMore = Post::count() > $page * $perPage;
-
+        // Check if more posts exist
+        $totalPosts = Post::count();
+        $hasMore = ($offset + $perPage) < $totalPosts;
         return response()->json([
             'posts' => $posts,
             'page' => $page, // Return the current page for tracking
@@ -197,8 +198,9 @@ class PostController extends Controller
             ->skip($offset)
             ->take($perPage)
             ->get();
-        $hasMore = Post::count() > $page * $perPage;
-
+        // Check if more posts exist
+        $totalPosts = Post::count();
+        $hasMore = ($offset + $perPage) < $totalPosts;
         return response()->json([
             'posts' => $posts,
             'page' => $page, // Return the current page for tracking
