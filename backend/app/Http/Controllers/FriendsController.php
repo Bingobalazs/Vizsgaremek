@@ -90,7 +90,7 @@ class FriendsController extends Controller
             ->select('users.*')
             ->get();
 
-            return json_encode($users);
+            return response()->json($users);
 
     }
 
