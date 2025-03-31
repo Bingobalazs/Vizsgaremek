@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatMessage {
   final String id;
@@ -28,6 +29,13 @@ class ChatMessage {
     );
   }
 }
+
+Future<String> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    if (token == null) throw Exception('No token found');
+    return token;
+  }
 
 class Chat extends StatefulWidget {
   final String userId;
@@ -58,6 +66,7 @@ class _ChatScreenState extends State<Chat> {
   }
 
   Future<void> _loadMessages() async {
+     String token = await _getToken();
     setState(() {
       _isLoading = true;
     });
@@ -65,9 +74,10 @@ class _ChatScreenState extends State<Chat> {
     try {
       final response = await http.get(
         Uri.parse(
-          'https://kovacscsabi.moriczcloud.hu/getchat/${widget.friendId}',
+
+          'https://kovacscsabi.moriczcloud.hu/api/getchat/${widget.friendId}',
         ),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
@@ -92,6 +102,8 @@ class _ChatScreenState extends State<Chat> {
   }
 
   void _sendMessage() async {
+    String token = await _getToken();
+
     if (_messageController.text.trim().isEmpty) {
       _showSnackBar('Nem küldhetsz üres üzenetet!');
       return;
@@ -119,7 +131,7 @@ class _ChatScreenState extends State<Chat> {
         Uri.parse(
           'https://kovacscsabi.moriczcloud.hu/api/postchat/${widget.userId}/${widget.friendId}/$messageText',
         ),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode != 201 && response.statusCode != 200) {
