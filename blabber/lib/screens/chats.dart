@@ -72,7 +72,7 @@ class _UserListPageState extends State<Chats> {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'Requests',
+                      'Ezek az mf-ek akarnak téged 🔥🔥🔥',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
