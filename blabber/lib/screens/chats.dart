@@ -65,18 +65,61 @@ class _UserListPageState extends State<Chats> {
       body: users.isEmpty && requests.isEmpty
           ? Center(child: CircularProgressIndicator()) // Töltőképernyő
           : ListView.builder(
-              itemCount: requests.length + users.length,
+              itemCount: requests.length + users.length + 2,
               itemBuilder: (context, index) {
-                if (index < requests.length) {
-                  final request = requests[index];
+                if (index == 0) {
+                  // Cím a requests szegmenshez
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Requests',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                } else if (index <= requests.length) {
+                  final request = requests[index - 1];
                   return ListTile(
-                    title: Text('Request: ${request['name']}'),
-                    subtitle: Text('Request ID: ${request['request_id']}'),
+                    title: Text('${request['name']}',
+                        style: TextStyle(color: Colors.white)),
+                    trailing: ElevatedButton(
+                      child: const Text('Elfogadás'),
+                      onPressed: () async {
+                        final requestId = request['id'];
+                        final response = await http.post(
+                          Uri.parse(
+                              'https://kovacscsabi.moriczcloud.hu/api/accept/$requestId'),
+                        );
+                        if (response.statusCode == 200) {
+                          // Sikeres válasz
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Request accepted!')),
+                          );
+                        } else {
+                          // Hibakezelés
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Failed to accept request.')),
+                          );
+                        }
+                      },
+                    ),
+                  );
+                } else if (index == requests.length + 1) {
+                  // Divider a requests és a users között
+                  return Divider(
+                    color: Colors.grey,
+                    thickness: 1,
+                    height: 20,
                   );
                 } else {
-                  final user = users[index - requests.length];
+                  final user = users[index - requests.length - 2];
                   return ListTile(
-                    title: Text(user['name']),
+                    title: Text(user['name'],
+                        style: TextStyle(color: Colors.white)),
                     trailing: ElevatedButton(
                       child: const Text('Dumcsi mumcsi'),
                       onPressed: () {
