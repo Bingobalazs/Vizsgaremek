@@ -88,22 +88,18 @@ class _UserListPageState extends State<Chats> {
                     trailing: ElevatedButton(
                       child: const Text('Elfogadás'),
                       onPressed: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        final token = prefs.getString('auth_token');
+
                         final requestId = request['id'];
                         final response = await http.post(
-                          Uri.parse(
-                              'https://kovacscsabi.moriczcloud.hu/api/accept/$requestId'),
-                        );
+                            Uri.parse(
+                                'https://kovacscsabi.moriczcloud.hu/api/accept/$requestId'),
+                            headers: {'Authorization': 'Bearer $token'});
+
                         if (response.statusCode == 200) {
-                          // Sikeres válasz
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Request accepted!')),
-                          );
-                        } else {
-                          // Hibakezelés
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Failed to accept request.')),
-                          );
+                          await fetchUsers();
+                          await fetchRequests();
                         }
                       },
                     ),
