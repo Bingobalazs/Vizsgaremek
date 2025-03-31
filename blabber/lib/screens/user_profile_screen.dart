@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:blabber/screens/identicard_edit_screen.dart';
+import 'identicard_edit_screen.dart';
+import '../main.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({Key? key}) : super(key: key);
+
+  static String routeName = 'Profile08';
+  static String routePath = '/profile08';
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ProfilePage> createState() => ProfilePageState();
 }
+// TODO: implement user profile
+// TODO:  Edit colors to global theme colors
+// TODO: replace HomeScreen() to actual screens when készen vannak
 
-class _ProfilePageState extends State<ProfilePage> {
-  Map<String, dynamic>? userData;
-  bool isLoading = true;
-  String? error;
+// fetch user info
+/*
 
-  @override
-  void initState() {
-    super.initState();
-    fetchUserProfile();
-  }
+
 
   Future<void> fetchUserProfile() async {
     try {
@@ -64,88 +62,116 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+
+*/
+
+
+class ProfilePageState extends State<ProfilePage> {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        elevation: 2,
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : error != null
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              error!,
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  isLoading = true;
-                  error = null;
-                });
-                fetchUserProfile();
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      )
-          : RefreshIndicator(
-        onRefresh: fetchUserProfile,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        key: scaffoldKey,
+        backgroundColor: Colors.grey[200], // Replace with your desired background color
+        body: Align(
+          alignment: Alignment.center,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
             children: [
-              // Profile Image
-              Center(
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: userData?['profile_image'] != null
-                      ? NetworkImage(userData!['profile_image'])
-                      : null,
-                  child: userData?['profile_image'] == null
-                      ? const Icon(Icons.person, size: 50)
-                      : null,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // User Info Cards
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInfoRow('Name', userData?['name'] ?? 'N/A'),
-                      const Divider(),
-                      _buildInfoRow('Email', userData?['email'] ?? 'N/A'),
-                      if (userData?['phone'] != null) ...[
-                        const Divider(),
-                        _buildInfoRow('Phone', userData!['phone']),
-                      ],
-                    ],
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.blueAccent, // Replace with your desired color
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Image.network(
+                      'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>  EditIdenticardScreen()
-                        )
-                      );
-                },
-                child: const Text('Edit Identicard'),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  'David Jerome',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Roboto Mono',
+                    fontSize: 24,
+                    color: Colors.blue, // Replace with your desired color
+                  ),
+                ),
+              ),
+              Text(
+                'David.j@gmail.com',
+                style: TextStyle(
+                  fontFamily: 'Roboto Mono',
+                  fontSize: 16,
+                  color: Colors.grey[600], // Replace with your desired color
+                ),
+              ),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 50),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent, // Replace with your desired color
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(
+                            'IDenticard',
+                            style: TextStyle(
+                              fontFamily: 'Roboto Mono',
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildActionButton(Icons.edit_note_rounded, 'edit', EditIdenticardScreen()),
+                              _buildActionButton(Icons.qr_code, 'share', HomePage()),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildActionButton(Icons.people_sharp, 'friends', HomePage()),
+                    _buildActionButton(Icons.grid_on_sharp, 'my posts', HomePage()),
+                    _buildActionButton(Icons.settings_sharp, 'settings', HomePage()),
+                  ],
+                ),
               ),
             ],
           ),
@@ -154,29 +180,46 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
+  Widget _buildActionButton(IconData icon, String label, Widget targetScreen) {
+    return Expanded(
+      child: InkWell(
+         onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => targetScreen),
+        );
+      },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300], // Replace with your desired color
+                  shape: BoxShape.rectangle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  icon,
+                  color: Colors.blueAccent, // Replace with your desired color
+                  size: 24,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Roboto Mono',
+                fontSize: 16,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-}  
+}

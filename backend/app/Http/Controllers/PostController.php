@@ -13,56 +13,68 @@ class PostController extends Controller
     // Get a paginated list of posts (e.g., a feed)
     public function index(Request $request)
     {
+
         // Get the authenticated user
         $user = Auth::user();
 
-        // Fetch the IDs of posts the user has seen from the views table
+        // Get the page number from the request (default to 1)
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 10; // Number of posts per page
+        $offset = ($page - 1) * $perPage;
+
+        // Fetch seen post IDs
         $seenPostIds = View::where('user_id', $user->id)->pluck('post_id');
 
-        // Fetch up to 10 latest unseen posts
-        $unseenPosts = Post::with(['user' => function($query) {
-            $query->select('id', 'name');
-        }])
+        // Fetch unseen posts first
+        $unseenPosts = Post::with('user:id,name')
             ->whereNotIn('id', $seenPostIds)
             ->orderBy('created_at', 'desc')
-            ->take(10)
+            ->skip($offset)
+            ->take($perPage)
             ->get();
 
-        // Initialize the posts collection with unseen posts
-        $posts = $unseenPosts;
+        // If we don't have enough unseen posts, fetch seen posts to fill the remaining
+        $unseenCount = $unseenPosts->count();
+        if ($unseenCount < $perPage) {
+            $remaining = $perPage - $unseenCount;
 
-        // If fewer than 10 unseen posts, fetch seen posts to reach 10 total
-        if ($unseenPosts->count() < 10) {
-            $remaining = 10 - $unseenPosts->count();
-            $seenPosts = Post::with(['user' => function($query) {
-                $query->select('id', 'name');
-            }])
+            // **Fix: Correct offset for seen posts**
+            $seenOffset = max(0, $offset - Post::whereNotIn('id', $seenPostIds)->count());
+
+            $seenPosts = Post::with('user:id,name')
+                ->whereIn('id', $seenPostIds)
                 ->orderBy('created_at', 'desc')
+                ->skip($seenOffset)
                 ->take($remaining)
                 ->get();
+
             $posts = $unseenPosts->merge($seenPosts);
+        } else {
+            $posts = $unseenPosts;
         }
 
+        // Map additional properties
         $posts = $posts->map(function ($post) use ($seenPostIds) {
             $post->is_unseen = !$seenPostIds->contains($post->id);
             $post->is_liked = $post->isLikedByUser(Auth::id());
             $post->like_count = $post->likes()->count();
 
-            /* EZ MAJD HA MEG LESZ CSINÁLVA
-            $post->comment_count = $post->comments()->count();
-            $post->view_count = $post->views()->count();
-            */
-
             return $post;
         });
 
-        // Prepare the JSON response with posts and a field for the frontend
+        // Check if more posts exist
+        $totalPosts = Post::count();
+        $hasMore = ($offset + $perPage) < $totalPosts;
+
         return response()->json([
             'posts' => $posts,
-            'has_more' => $posts->count() == 10 // True if 10 posts returned, suggesting more may exist
-
+            'page' => $page,
+            'has_more' => $hasMore
         ]);
     }
+
+
+
 
     // Create a new post
     public function store(Request $request)
@@ -138,4 +150,66 @@ class PostController extends Controller
 
 
     }
+
+    public function ownPosts(Request $request)
+    {
+
+        // Get the page number from the request (default to 1 if not provided)
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 10; // Number of posts per page
+        $offset = ($page - 1) * $perPage;
+
+
+        $user = Auth::user();
+        $user_id = $user->id;
+        $posts = Post::with(['user' => function($query) {
+            $query->select('id', 'name');
+        }])
+            ->where('user_id', $user_id)
+            ->orderBy('created_at', 'desc')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+        // Check if more posts exist
+        $totalPosts = Post::count();
+        $hasMore = ($offset + $perPage) < $totalPosts;
+        return response()->json([
+            'posts' => $posts,
+            'page' => $page, // Return the current page for tracking
+           'has_more' => $hasMore, // True if there are more posts to load
+
+
+        ]);
+    }
+    public function FriendPosts(Request $request, $user_id)
+    {
+        // Get the page number from the request (default to 1 if not provided)
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 10; // Number of posts per page
+        $offset = ($page - 1) * $perPage;
+
+
+        $user = Auth::user();
+        $posts = Post::with(['user' => function($query) {
+            $query->select('id', 'name');
+        }])
+            ->where('user_id', $user_id)
+            ->orderBy('created_at', 'desc')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+        // Check if more posts exist
+        $totalPosts = Post::count();
+        $hasMore = ($offset + $perPage) < $totalPosts;
+        return response()->json([
+            'posts' => $posts,
+            'page' => $page, // Return the current page for tracking
+            'has_more' => $hasMore, // True if there are more posts to load
+
+
+        ]);
+
+
+    }
+
 }
