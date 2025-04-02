@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:blabber/main.dart';
+import 'package:blabber/screens/identicard_edit_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -67,6 +68,7 @@ class _UserListPageState extends State<Chats> {
           : ListView.builder(
               itemCount: requests.length + users.length + 2,
               itemBuilder: (context, index) {
+<<<<<<< Updated upstream
                 if (index == 0) {
                   // Cím a requests szegmenshez
                   return Padding(
@@ -132,6 +134,26 @@ class _UserListPageState extends State<Chats> {
                     ),
                   );
                 }
+=======
+                final user = users[index];
+                return ListTile(
+                  title: Text(user['name'], style: TextStyle(color: Colors.white)), // Név kiírása
+                  trailing: ElevatedButton(
+                    child: const Text('Dumcsi mumcsi'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Chat(
+                              userId: '34',
+                              friendId: user['user_id'].toString(),
+                              friendName: user['name']),
+                        ),
+                      );
+                    },
+                  ),
+                );
+>>>>>>> Stashed changes
               },
             ),
     );
