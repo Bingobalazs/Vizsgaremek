@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Identicard;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -80,7 +81,7 @@ class IdentiController extends Controller
 
     public function store(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $validatedData = $request->validate([
             'username' => 'nullable|string|max:255',
