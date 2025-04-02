@@ -24,7 +24,7 @@ class IdentiController extends Controller
         return view('blabber.identicard',  compact('user'));
     }
 
-    public function get($username)
+    public function get()
     {
         $user = auth()->user();
 
