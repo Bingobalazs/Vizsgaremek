@@ -1,25 +1,47 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'identicard_edit_screen.dart';
 import '../main.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
-  static String routeName = 'Profile08';
-  static String routePath = '/profile08';
+  static String routeName = 'profile';
+  static String routePath = '/profile';
+  static const accentColor = Color.fromRGBO(255, 32, 78, 1);
+  static const baseColor = Color.fromRGBO(0, 34, 77, 1);
 
   @override
   State<ProfilePage> createState() => ProfilePageState();
+
 }
 // TODO: implement user profile
 // TODO:  Edit colors to global theme colors
 // TODO: replace HomeScreen() to actual screens when készen vannak
 
 // fetch user info
-/*
 
 
 
+
+
+
+
+
+
+class ProfilePageState extends State<ProfilePage> {
+  bool isLoading = true;
+  String? error;
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserProfile();
+  }
   Future<void> fetchUserProfile() async {
     try {
       // Get token from SharedPreferences
@@ -62,22 +84,18 @@ class ProfilePage extends StatefulWidget {
     }
   }
 
-
-*/
-
-
-class ProfilePageState extends State<ProfilePage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Colors.grey[200], // Replace with your desired background color
+        backgroundColor: baseColor, // Replace with your desired background color
         body: Align(
           alignment: Alignment.center,
           child: Column(
@@ -90,13 +108,13 @@ class ProfilePageState extends State<ProfilePage> {
                   height: 100,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.blueAccent, // Replace with your desired color
+                      color: baseColor,
                     ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(5),
                     child: Image.network(
-                      'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                      userData?['image_url'] ?? 'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
@@ -107,21 +125,21 @@ class ProfilePageState extends State<ProfilePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'David Jerome',
+                  userData?['name'] ?? 'Please log in',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Roboto Mono',
                     fontSize: 24,
-                    color: Colors.blue, // Replace with your desired color
+                    color: accentColor,
                   ),
                 ),
               ),
               Text(
-                'David.j@gmail.com',
+                userData?['email']?? 'Please log in',
                 style: TextStyle(
                   fontFamily: 'Roboto Mono',
                   fontSize: 16,
-                  color: Colors.grey[600], // Replace with your desired color
+                  color: Colors.grey[600],
                 ),
               ),
               Flexible(
@@ -130,7 +148,7 @@ class ProfilePageState extends State<ProfilePage> {
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent, // Replace with your desired color
+                      color: accentColor,
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -151,8 +169,16 @@ class ProfilePageState extends State<ProfilePage> {
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _buildActionButton(Icons.edit_note_rounded, 'edit', EditIdenticardScreen()),
-                              _buildActionButton(Icons.qr_code, 'share', HomePage()),
+                              _buildActionButton(icon: Icons.edit_note_rounded,
+                                 label:  'edit',
+                                  targetScreen:
+                                  EditIdenticardScreen()
+                              ),
+                              _buildActionButton(
+                                  icon: Icons.qr_code,
+                                  label:  'share',
+                                  targetScreen:  HomePage()
+                              ),
                             ],
                           ),
                         ),
@@ -167,9 +193,21 @@ class ProfilePageState extends State<ProfilePage> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildActionButton(Icons.people_sharp, 'friends', HomePage()),
-                    _buildActionButton(Icons.grid_on_sharp, 'my posts', HomePage()),
-                    _buildActionButton(Icons.settings_sharp, 'settings', HomePage()),
+                    _buildActionButton(icon: Icons.people_sharp,
+                        label: 'friends',
+                        targetScreen:  HomePage(),
+                        backgroundColor: accentColor,
+                        iconColor: baseColor),
+                    _buildActionButton(icon: Icons.grid_on_sharp,
+                        label: 'my posts',
+                        targetScreen:  HomePage(),
+                        backgroundColor: accentColor,
+                        iconColor: baseColor),
+                    _buildActionButton(icon: Icons.settings_sharp,
+                        label: 'settings',
+                        targetScreen:  HomePage(),
+                        backgroundColor: accentColor,
+                        iconColor: baseColor),
                   ],
                 ),
               ),
@@ -180,7 +218,13 @@ class ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, Widget targetScreen) {
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required Widget targetScreen,
+    Color? iconColor,
+    Color? backgroundColor
+  }) {
     return Expanded(
       child: InkWell(
          onTap: () {
@@ -198,13 +242,13 @@ class ProfilePageState extends State<ProfilePage> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300], // Replace with your desired color
+                  color: backgroundColor ?? baseColor,
                   shape: BoxShape.rectangle,
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   icon,
-                  color: Colors.blueAccent, // Replace with your desired color
+                  color: iconColor ?? accentColor,
                   size: 24,
                 ),
               ),

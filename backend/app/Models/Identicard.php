@@ -14,7 +14,8 @@ class Identicard extends Model
 
 
     protected $fillable = [
-
+    'user_id',
+        
     'name',
     'username',
     'email',
