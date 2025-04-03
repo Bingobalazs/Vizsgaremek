@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'identicard_edit_screen.dart';
 import '../main.dart';
+import 'own_posts_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -19,17 +20,7 @@ class ProfilePage extends StatefulWidget {
 
 }
 // TODO: implement user profile
-// TODO:  Edit colors to global theme colors
 // TODO: replace HomeScreen() to actual screens when készen vannak
-
-// fetch user info
-
-
-
-
-
-
-
 
 
 class ProfilePageState extends State<ProfilePage> {
@@ -200,7 +191,7 @@ class ProfilePageState extends State<ProfilePage> {
                         iconColor: baseColor),
                     _buildActionButton(icon: Icons.grid_on_sharp,
                         label: 'my posts',
-                        targetScreen:  HomePage(),
+                        targetScreen:  OwnPostsScreen(),
                         backgroundColor: accentColor,
                         iconColor: baseColor),
                     _buildActionButton(icon: Icons.settings_sharp,
