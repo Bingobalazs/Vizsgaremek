@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Identicard;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -11,7 +12,7 @@ class IdentiController extends Controller
 
 
     public function hasIdenticard(Request $request){
-        $user = auth()->user();
+        $user = Auth::user();
 
         if(Identicard::where('user_id', $user->id)->exists()){
             return response()->json(['exists' => true]);
@@ -24,9 +25,9 @@ class IdentiController extends Controller
         return view('blabber.identicard',  compact('user'));
     }
 
-    public function get($username)
+    public function get()
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $info = Identicard::where('user_id', $user->id)->firstOrFail();
         return response()->json($info);
@@ -34,7 +35,7 @@ class IdentiController extends Controller
 
     public function update(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $validatedData = $request->validate([
             'username' => 'nullable|string|max:255',
@@ -80,7 +81,7 @@ class IdentiController extends Controller
 
     public function store(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $validatedData = $request->validate([
             'username' => 'nullable|string|max:255',
