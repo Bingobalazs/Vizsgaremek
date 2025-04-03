@@ -79,7 +79,7 @@ class _ChatScreenState extends State<Chat> {
     // A saját környezetednek megfelelő URI-t add meg itt!
     _channel = WebSocketChannel.connect(
       Uri.parse(
-        'wss://yourdomain.com:6001/app/YOUR_APP_KEY?protocol=7&client=js&version=4.4.7&flash=false',
+        'wss://kovacscsabi.moriczcloud.hu/app/?protocol=7&client=js&version=4.4.7&flash=false',
       ),
     );
 
