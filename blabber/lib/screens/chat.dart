@@ -3,7 +3,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
 
+// ChatMessage modell
 class ChatMessage {
   final String id;
   final String senderId;
@@ -30,13 +33,15 @@ class ChatMessage {
   }
 }
 
+// Segédfüggvény a token lekéréséhez
 Future<String> _getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-    if (token == null) throw Exception('No token found');
-    return token;
-  }
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+  if (token == null) throw Exception('No token found');
+  return token;
+}
 
+// Chat widget
 class Chat extends StatefulWidget {
   final String userId;
   final String friendId;
@@ -59,14 +64,54 @@ class _ChatScreenState extends State<Chat> {
   List<ChatMessage> _messages = [];
   bool _isLoading = true;
 
+  // WebSocket kapcsolat a reálidejű értesítésekhez.
+  late WebSocketChannel _channel;
+
   @override
   void initState() {
     super.initState();
+    _connectWebSocket();
     _loadMessages();
   }
 
+  // Kapcsolódás a WebSocket szerverhez.
+  void _connectWebSocket() {
+    // A saját környezetednek megfelelő URI-t add meg itt!
+    _channel = WebSocketChannel.connect(
+      Uri.parse(
+        'wss://yourdomain.com:6001/app/YOUR_APP_KEY?protocol=7&client=js&version=4.4.7&flash=false',
+      ),
+    );
+
+    _channel.stream.listen((data) {
+      print('Received via WebSocket: $data');
+      try {
+        final decoded = jsonDecode(data);
+        // Amennyiben az esemény adatai egy "chat" kulcs alatt érkeznek, azt használd,
+        // különben a decoded objektumot használd közvetlenül.
+        final chatData = decoded['chat'] ?? decoded;
+        final newMessage = ChatMessage.fromJson(chatData);
+        // Csak akkor adjuk hozzá, ha az üzenet a két adott felhasználó között van.
+        if (newMessage.senderId == widget.friendId ||
+            newMessage.senderId == widget.userId) {
+          setState(() {
+            _messages.add(newMessage);
+          });
+          _scrollToBottom();
+        }
+      } catch (e) {
+        print('Error decoding WebSocket data: $e');
+      }
+    }, onError: (error) {
+      print('WebSocket error: $error');
+    }, onDone: () {
+      print('WebSocket connection closed');
+    });
+  }
+
+  // Előző üzenetek betöltése (HTTP)
   Future<void> _loadMessages() async {
-     String token = await _getToken();
+    String token = await _getToken();
     setState(() {
       _isLoading = true;
     });
@@ -74,9 +119,7 @@ class _ChatScreenState extends State<Chat> {
     try {
       final response = await http.get(
         Uri.parse(
-
-          'https://kovacscsabi.moriczcloud.hu/api/getchat/${widget.friendId}',
-        ),
+            'https://kovacscsabi.moriczcloud.hu/api/getchat/${widget.friendId}'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -101,6 +144,7 @@ class _ChatScreenState extends State<Chat> {
     }
   }
 
+  // Üzenet küldése
   void _sendMessage() async {
     String token = await _getToken();
 
@@ -112,7 +156,7 @@ class _ChatScreenState extends State<Chat> {
     final messageText = _messageController.text.trim();
     _messageController.clear();
 
-    // Create optimistic UI update
+    // Optimista frissítés: az üzenet azonnal megjelenik a felületen.
     final optimisticMessage = ChatMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
       senderId: widget.userId,
@@ -127,6 +171,7 @@ class _ChatScreenState extends State<Chat> {
     _scrollToBottom();
 
     try {
+      // A backenden történik az adatbázisba mentés és a WebSocket-en keresztüli broadcast.
       final response = await http.post(
         Uri.parse(
           'https://kovacscsabi.moriczcloud.hu/api/postchat/${widget.userId}/${widget.friendId}/$messageText',
@@ -135,21 +180,20 @@ class _ChatScreenState extends State<Chat> {
       );
 
       if (response.statusCode != 201 && response.statusCode != 200) {
-        _showSnackBar(
-          'Nem sikerült elküldeni az üzenetet: ${response.body}',
-        );
+        _showSnackBar('Nem sikerült elküldeni az üzenetet: ${response.body}');
         setState(() {
-          _messages.remove(optimisticMessage); // Remove message if send fails
+          _messages.remove(optimisticMessage);
         });
       }
     } catch (e) {
       _showSnackBar('Hiba: $e');
       setState(() {
-        _messages.remove(optimisticMessage); // Rollback optimistic update
+        _messages.remove(optimisticMessage);
       });
     }
   }
 
+  // Üzenetlista görgetése az aljára
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -162,6 +206,7 @@ class _ChatScreenState extends State<Chat> {
     });
   }
 
+  // Hibaüzenet megjelenítése SnackBar-ban
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
@@ -171,6 +216,7 @@ class _ChatScreenState extends State<Chat> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _channel.sink.close(status.goingAway);
     super.dispose();
   }
 
@@ -274,7 +320,7 @@ class _ChatScreenState extends State<Chat> {
 
 void main() {
   runApp(MaterialApp(
-    title: 'Chat App',
+    title: 'Real-time Chat App',
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
