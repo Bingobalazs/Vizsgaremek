@@ -64,7 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/getcomments/{postId}', 'getPostComments')->name('getPostComments');
         Route::get('/getcommentcomments/{commentId}', 'getCommentReplies')->name('getCommentReplies');
-        Route::post('/addComment', 'addComment')->name('addComment');
+        Route::post('/addcomment', 'addComment')->name('addComment');
 
     });
 
