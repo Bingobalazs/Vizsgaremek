@@ -44,7 +44,7 @@ class CommentController extends Controller
             'user_id'  => 'required|integer',
         ]);
 
-        $comment = Comment::create($validated);
+        $comment = ":(";
 
         return response()->json($comment, 201);
     }
