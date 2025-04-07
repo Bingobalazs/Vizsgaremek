@@ -12,7 +12,7 @@ class SearchController extends Controller
 
     public function search($query)
     {
-        $query = $request->input('query');
+        //$query = $request->input('query');
 
         $posts = $query
             ? Post::where('content', 'like', "%{$query}%")->paginate(10)
