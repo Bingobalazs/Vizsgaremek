@@ -11,6 +11,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\SearchController;
 
 
 Route::get('/p', [AutoController::class, 'p']);
@@ -32,7 +33,10 @@ Route::post('/tokens/create', function (Request $request) {
     return ['token' => $token->plainTextToken];
 });
 
+Route::controller(SearchController::class)->group(function () {
 
+    Route::get('/search/{query}', 'search');
+});
 // AUTH ONLY
 Route::middleware('auth:sanctum')->group(function () {
 
