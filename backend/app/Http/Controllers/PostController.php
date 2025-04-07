@@ -173,6 +173,13 @@ class PostController extends Controller
         // Check if more posts exist
         $totalPosts = Post::count();
         $hasMore = ($offset + $perPage) < $totalPosts;
+        $posts = $posts->map(function ($post) {
+
+            $post->is_liked = $post->isLikedByUser(Auth::id());
+            $post->like_count = $post->likes()->count();
+
+            return $post;
+        });
         return response()->json([
             'posts' => $posts,
             'page' => $page, // Return the current page for tracking
