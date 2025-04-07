@@ -10,16 +10,16 @@ namespace App\Http\Controllers;
 class SearchController extends Controller
 {
 
-    public function search(Request $request)
+    public function search($query)
     {
-        $queryTerm = $request->input('query');
+        $query = $request->input('query');
 
-        $posts = $queryTerm
-            ? Post::where('content', 'like', "%{$queryTerm}%")->paginate(10)
+        $posts = $query
+            ? Post::where('content', 'like', "%{$query}%")->paginate(10)
             : Post::paginate(10);
 
-        $users = $queryTerm
-            ? User::where('name', 'like', "%{$queryTerm}%")->paginate(10)
+        $users = $query
+            ? User::where('name', 'like', "%{$query}%")->paginate(10)
             : User::paginate(10);
 
         return response()->json([
