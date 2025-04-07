@@ -29,7 +29,7 @@ class Post {
       userName: json['user']['name'],
       isLiked: json['is_liked'],
       likeCount: json['like_count'],
-      isUnseen: json['is_unseen'],
+      isUnseen: json['is_unseen'] ?? false,
     );
   }
 }

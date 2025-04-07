@@ -2,27 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/Post.dart';
 
-// A Post modell, amelyet a API visszaad
-class Post {
-  final int id;
-  final String content;
-  final String createdAt;
 
-  Post({
-    required this.id,
-    required this.content,
-    required this.createdAt,
-  });
 
-  factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
-      id: json['id'],
-      content: json['content'],
-      createdAt: json['createdAt'] ?? 'ismeretlen időpont',
-    );
-  }
-}
 Future<String> _getToken() async {
   
 final prefs = await SharedPreferences.getInstance();
@@ -65,8 +48,11 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
         },
       );
     if (response.statusCode == 200) {
-      List<dynamic> jsonData = jsonDecode(response.body);
-      return jsonData.map((json) => Post.fromJson(json)).toList();
+      final body = json.decode(response.body);
+      List jsonResponse = body['posts'];
+      //bool hasMore = body['has_more'];
+      List<Post> posts = jsonResponse.map((post) => Post.fromJson(post)).toList();
+      return posts;
     } else {
       throw Exception('Nem sikerült a posztok betöltése');
     }
@@ -85,6 +71,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
   }
 
   // Módosítja a posztot a post/{postid} végponton keresztül
+  
   Future<void> updatePost(int postId, String newContent) async {
     final response = await http.put(
       Uri.parse('${baseUrl}post/$postId'),
@@ -99,6 +86,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
       throw Exception('Nem sikerült a poszt módosítása');
     }
   }
+  
 
   // Egy egyszerű dialógus, ahol módosítható a poszt tartalma
   void _showUpdateDialog(Post post) {
@@ -128,7 +116,9 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
       ),
     );
   }
-
+  final accentColor = const Color(0xFFFF204E);
+  final darkColor = const Color(0xFF00224D);
+  final whiteColor = Colors.white;
   // Egy poszt widgetjének megjelenítése
   Widget _buildPostItem(Post post) {
     return Container(
@@ -136,14 +126,14 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.grey[200],
-        border: Border.all(color: Colors.blueAccent),
+        border: Border.all(color: accentColor),
       ),
       child: Column(
         children: [
           Container(
             width: double.infinity,
             height: 20,
-            color: Colors.blueAccent,
+            color: accentColor,
             child: Row(
               children: [
                 Padding(
@@ -152,7 +142,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
                     'ÉN',
                     style: TextStyle(
                       fontFamily: 'Roboto Mono',
-                      color: Colors.black,
+                      color: whiteColor,
                       fontSize: 12,
                     ),
                   ),
@@ -163,7 +153,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
                     post.createdAt,
                     style: TextStyle(
                       fontFamily: 'Ubuntu',
-                      color: Colors.black54,
+                      color: whiteColor,
                     ),
                   ),
                 ),
@@ -177,7 +167,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Ubuntu',
-                color: Colors.blueAccent,
+                color: accentColor,
                 fontSize: 20,
               ),
             ),
@@ -193,9 +183,9 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
                 icon: Icon(Icons.comment_sharp, size: 15),
                 label: Text('Szólj hozzá...'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[200],
-                  foregroundColor: Colors.black,
-                  side: BorderSide(color: Colors.blueAccent),
+                  backgroundColor: darkColor,
+                  foregroundColor: whiteColor,
+                  side: BorderSide(color: accentColor),
                 ),
               ),
               Row(
@@ -206,8 +196,8 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
                     icon: Icon(Icons.edit_sharp, size: 15),
                     label: Text('MÓDOSÍTÁS'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
+                      backgroundColor: accentColor,
+                      foregroundColor: whiteColor,
                     ),
                   ),
                   SizedBox(width: 8),
@@ -217,8 +207,8 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
                     icon: Icon(Icons.delete_sharp, size: 15),
                     label: Text('TÖRLÉS'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
+                      backgroundColor: accentColor,
+                      foregroundColor: whiteColor,
                     ),
                   ),
                 ],
