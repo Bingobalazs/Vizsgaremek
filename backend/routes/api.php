@@ -10,6 +10,7 @@ use App\Http\Controllers\AutoController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\CommentController;
 
 
 Route::get('/p', [AutoController::class, 'p']);
@@ -47,8 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/postchat/{user_id}/{friend_id}/{chat}', 'postchat')->name('postchat');
         Route::get('/getchat/{friend_id}', 'getchat')->name('getchat');
-
     });
+    Route::get('stream-chat/{friend_id}/{lastMessageId}', [ChatController::class, 'streamChat']);
 
     Route::controller(FriendsController::class)->group(function () {
 
@@ -56,6 +57,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/jeloles/{id}', 'jeloles')->name('jeloles');
         Route::get('/friend_req', 'friend_req')->name('friend_req');
         Route::post('/accept/{id}', 'accept')->name('accept');
+
+    });
+
+    Route::controller(CommentController::class)->group(function () {
+
+        Route::get('/getcomments/{postId}', 'getPostComments')->name('getPostComments');
+        Route::get('/getcommentcomments/{commentId}', 'getCommentReplies')->name('getCommentReplies');
+        Route::post('/addcomment', 'addComment')->name('addComment');
 
     });
 
