@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/Post.dart';
 
 // A Post modell, amelyet a API visszaad
 class Post {
@@ -65,8 +66,11 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
         },
       );
     if (response.statusCode == 200) {
-      List<dynamic> jsonData = jsonDecode(response.body);
-      return jsonData.map((json) => Post.fromJson(json)).toList();
+      final body = json.decode(response.body);
+      List jsonResponse = body['posts'];
+      bool hasMore = body['has_more'];
+      List<Post> posts = jsonResponse.map((post) => Post.fromJson(post)).toList();
+      return posts;
     } else {
       throw Exception('Nem sikerült a posztok betöltése');
     }
@@ -85,6 +89,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
   }
 
   // Módosítja a posztot a post/{postid} végponton keresztül
+  
   Future<void> updatePost(int postId, String newContent) async {
     final response = await http.put(
       Uri.parse('${baseUrl}post/$postId'),
@@ -99,6 +104,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
       throw Exception('Nem sikerült a poszt módosítása');
     }
   }
+  
 
   // Egy egyszerű dialógus, ahol módosítható a poszt tartalma
   void _showUpdateDialog(Post post) {

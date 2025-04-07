@@ -4,11 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 
-
-// UNSED
-
-
-
 class IdCardForm extends StatefulWidget {
   const IdCardForm({Key? key}) : super(key: key);
 
@@ -33,16 +28,16 @@ class _IdCardFormState extends State<IdCardForm> {
     'pronouns': '',
     'relationship_status': '',
     'phone': '',
-    'messaging_apps': '{}',
+    'messaging_apps': {}, // default as Map
     'website': '',
-    'social_handles': '{}',
+    'social_handles': {}, // default as Map
     'current_workplace': '',
     'job_title': '',
-    'previous_workplaces': '{}',
-    'education': '{}',
+    'previous_workplaces': [], // default as List
+    'education': {}, // default as Map
     'skills': <String>[],
-    'certifications': '{}',
-    'languages': '{}',
+    'certifications': {}, // default as Map
+    'languages': {}, // default as Map
     'portfolio_link': '',
     'hobbies': <String>[],
     'theme_primary_color': '#000000',
@@ -71,14 +66,133 @@ class _IdCardFormState extends State<IdCardForm> {
           Uri.parse('https://kovacscsabi.moriczcloud.hu/api/identicard/json')
         );
         final cardData = json.decode(dataResponse.body);
-        
-        setState(() {
-          _formData.addAll(cardData);
-          if (cardData['skills'] != null) {
-            _formData['skills'] = List<String>.from(cardData['skills']);
+
+        // Process problematic fields individually:
+
+        // messaging_apps should be a Map
+        if (cardData['messaging_apps'] == null ||
+            cardData['messaging_apps'] == "null") {
+          _formData['messaging_apps'] = {};
+        } else {
+          try {
+            _formData['messaging_apps'] = jsonDecode(cardData['messaging_apps']);
+          } catch (e) {
+            _formData['messaging_apps'] = cardData['messaging_apps'];
           }
-          if (cardData['hobbies'] != null) {
-            _formData['hobbies'] = List<String>.from(cardData['hobbies']);
+        }
+
+        // social_handles should be a Map
+        if (cardData['social_handles'] == null ||
+            cardData['social_handles'] == "null") {
+          _formData['social_handles'] = {};
+        } else {
+          try {
+            _formData['social_handles'] = jsonDecode(cardData['social_handles']);
+          } catch (e) {
+            _formData['social_handles'] = cardData['social_handles'];
+          }
+        }
+
+        // skills should be a List<String>
+        if (cardData['skills'] == null || cardData['skills'] == "null") {
+          _formData['skills'] = <String>[];
+        } else if (cardData['skills'] is List) {
+          _formData['skills'] = List<String>.from(cardData['skills']);
+        } else if (cardData['skills'] is String) {
+          try {
+            _formData['skills'] = List<String>.from(jsonDecode(cardData['skills']));
+          } catch (e) {
+            _formData['skills'] =
+                cardData['skills'].toString().split(',').map((e) => e.trim()).toList();
+          }
+        }
+
+        // hobbies should be a List<String>
+        if (cardData['hobbies'] == null || cardData['hobbies'] == "null") {
+          _formData['hobbies'] = <String>[];
+        } else if (cardData['hobbies'] is List) {
+          _formData['hobbies'] = List<String>.from(cardData['hobbies']);
+        } else if (cardData['hobbies'] is String) {
+          try {
+            _formData['hobbies'] = List<String>.from(jsonDecode(cardData['hobbies']));
+          } catch (e) {
+            _formData['hobbies'] =
+                cardData['hobbies'].toString().split(',').map((e) => e.trim()).toList();
+          }
+        }
+
+        // previous_workplaces should be a List (e.g., list of maps)
+        if (cardData['previous_workplaces'] == null ||
+            cardData['previous_workplaces'] == "null") {
+          _formData['previous_workplaces'] = [];
+        } else if (cardData['previous_workplaces'] is String) {
+          try {
+            _formData['previous_workplaces'] =
+                jsonDecode(cardData['previous_workplaces']);
+          } catch (e) {
+            _formData['previous_workplaces'] = cardData['previous_workplaces'];
+          }
+        } else {
+          _formData['previous_workplaces'] = cardData['previous_workplaces'];
+        }
+
+        // education should be a Map
+        if (cardData['education'] == null || cardData['education'] == "null") {
+          _formData['education'] = {};
+        } else if (cardData['education'] is String) {
+          try {
+            _formData['education'] = jsonDecode(cardData['education']);
+          } catch (e) {
+            _formData['education'] = cardData['education'];
+          }
+        } else {
+          _formData['education'] = cardData['education'];
+        }
+
+        // certifications should be a Map
+        if (cardData['certifications'] == null ||
+            cardData['certifications'] == "null") {
+          _formData['certifications'] = {};
+        } else if (cardData['certifications'] is String) {
+          try {
+            _formData['certifications'] = jsonDecode(cardData['certifications']);
+          } catch (e) {
+            _formData['certifications'] = cardData['certifications'];
+          }
+        } else {
+          _formData['certifications'] = cardData['certifications'];
+        }
+
+        // languages should be a Map
+        if (cardData['languages'] == null || cardData['languages'] == "null") {
+          _formData['languages'] = {};
+        } else if (cardData['languages'] is String) {
+          try {
+            _formData['languages'] = jsonDecode(cardData['languages']);
+          } catch (e) {
+            _formData['languages'] = cardData['languages'];
+          }
+        } else {
+          _formData['languages'] = cardData['languages'];
+        }
+
+        // For all other fields not specifically processed, update only if valid.
+        final specialKeys = {
+          'messaging_apps',
+          'social_handles',
+          'skills',
+          'hobbies',
+          'previous_workplaces',
+          'education',
+          'certifications',
+          'languages'
+        };
+
+        cardData.forEach((key, value) {
+          if (!specialKeys.contains(key)) {
+            if (value != null && value != "null") {
+              _formData[key] = value;
+            }
           }
         });
       }
@@ -147,7 +261,8 @@ class _IdCardFormState extends State<IdCardForm> {
               child: const Text('OK'),
               onPressed: () {
                 setState(() {
-                  _formData[field] = '#${selectedColor.value.toRadixString(16).substring(2)}';
+                  _formData[field] =
+                      '#${selectedColor.value.toRadixString(16).substring(2)}';
                 });
                 Navigator.of(context).pop();
               },
@@ -208,12 +323,15 @@ class _IdCardFormState extends State<IdCardForm> {
               const SizedBox(height: 16),
               
               TextFormField(
-                initialValue: _formData['skills'].join(', '),
+                initialValue: (_formData['skills'] is List)
+                    ? _formData['skills'].join(', ')
+                    : '',
                 decoration: const InputDecoration(
                   labelText: 'Skills (comma-separated)',
                   border: OutlineInputBorder(),
                 ),
-                onSaved: (value) => _formData['skills'] = value?.split(',')
+                onSaved: (value) => _formData['skills'] = value
+                    ?.split(',')
                     .map((e) => e.trim())
                     .where((e) => e.isNotEmpty)
                     .toList() ?? [],
@@ -226,12 +344,12 @@ class _IdCardFormState extends State<IdCardForm> {
                     child: ElevatedButton(
                       onPressed: () => _showColorPicker(
                         'theme_primary_color',
-                        Color(int.parse('0xFF${_formData['theme_primary_color'].substring(1)}'))
+                        Color(int.parse(
+                            '0xFF${_formData['theme_primary_color'].substring(1)}')),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(
-                          int.parse('0xFF${_formData['theme_primary_color'].substring(1)}')
-                        )
+                        backgroundColor: Color(int.parse(
+                            '0xFF${_formData['theme_primary_color'].substring(1)}'))
                       ),
                       child: const Text('Primary Color'),
                     ),
@@ -241,12 +359,12 @@ class _IdCardFormState extends State<IdCardForm> {
                     child: ElevatedButton(
                       onPressed: () => _showColorPicker(
                         'theme_accent_color',
-                        Color(int.parse('0xFF${_formData['theme_accent_color'].substring(1)}'))
+                        Color(int.parse(
+                            '0xFF${_formData['theme_accent_color'].substring(1)}')),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(
-                          int.parse('0xFF${_formData['theme_accent_color'].substring(1)}')
-                        )
+                        backgroundColor: Color(int.parse(
+                            '0xFF${_formData['theme_accent_color'].substring(1)}'))
                       ),
                       child: const Text('Accent Color'),
                     ),
@@ -282,3 +400,4 @@ class _IdCardFormState extends State<IdCardForm> {
     );
   }
 }
+r
