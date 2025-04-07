@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 // A Post modell, amelyet a API visszaad
 class Post {
@@ -22,19 +23,29 @@ class Post {
     );
   }
 }
-
-class PostsScreen extends StatefulWidget {
-  const PostsScreen({Key? key}) : super(key: key);
-
-  @override
-  State<PostsScreen> createState() => _PostsScreenState();
+Future<String> _getToken() async {
+  
+final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) throw Exception('No token found');
+      return token;
 }
 
-class _PostsScreenState extends State<PostsScreen> {
+     
+
+class OwnPostsScreen extends StatefulWidget {
+  const OwnPostsScreen({Key? key}) : super(key: key);
+
+  @override
+  State<OwnPostsScreen> createState() => _OwnPostsScreenState();
+}
+
+class _OwnPostsScreenState extends State<OwnPostsScreen> {
   late Future<List<Post>> _postsFuture;
 
   // Állítsd be a saját API URL-edet itt!
-  final String baseUrl = 'https://yourapi.com/';
+  final String baseUrl = 'https://kovacscsabi.moriczcloud.hu/api/';
+   
 
   @override
   void initState() {
@@ -42,9 +53,17 @@ class _PostsScreenState extends State<PostsScreen> {
     _postsFuture = fetchPosts();
   }
 
+
   // Lekéri a posztokat az own/posts végpontról
   Future<List<Post>> fetchPosts() async {
-    final response = await http.get(Uri.parse('${baseUrl}own/posts'));
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('${baseUrl}own/posts'),
+       headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
     if (response.statusCode == 200) {
       List<dynamic> jsonData = jsonDecode(response.body);
       return jsonData.map((json) => Post.fromJson(json)).toList();
