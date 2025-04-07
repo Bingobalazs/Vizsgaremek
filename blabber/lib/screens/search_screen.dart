@@ -193,7 +193,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 if (_isLoading)
                   const Center(child: CircularProgressIndicator()),
                 if (!_isLoading && _users.isNotEmpty) ...[
-                  Text('Emberek', style: titleMediumStyle),
+                  Text('Felhasználók', style: titleMediumStyle),
                   const SizedBox(height: 12),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
