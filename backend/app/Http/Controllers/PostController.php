@@ -89,13 +89,13 @@ class PostController extends Controller
         \Log::info('Attempting to save to table: ' . $postModel->getTable()); // Check Laravel log
         dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
 
-        if ($request->hasFile('media_url')) {
+    /*    if ($request->hasFile('media_url')) {
             $file = $request->file('media_url');
             $filename = time().'_'.$file->getClientOriginalName();
             $imagePath = $file->storeAs('uploads', $filename);
 
 
-        } else $imagePath=null;
+        } else $imagePath=null;*/
 
 
 
