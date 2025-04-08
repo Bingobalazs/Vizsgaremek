@@ -82,7 +82,7 @@ class PostController extends Controller
 
         $validated = $request->validate([
             'content' => 'required|string',
-            'media_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
+            'media_url' => 'image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
         ]);
 
         $postModel = new Post();
