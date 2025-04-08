@@ -97,7 +97,7 @@ class PostController extends Controller
 
         $postModel = new Post();
         \Log::info('Attempting to save to table: ' . $postModel->getTable()); // Check Laravel log
-        // dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
+        dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
 
 
 
