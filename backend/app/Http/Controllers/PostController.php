@@ -80,6 +80,7 @@ class PostController extends Controller
     public function store(Request $request)
     {
 
+        /*
         $validated = $request->validate([
             'content' => 'required|string',
             'media_url' => 'image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
@@ -89,13 +90,13 @@ class PostController extends Controller
         \Log::info('Attempting to save to table: ' . $postModel->getTable()); // Check Laravel log
         dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
 
-    /*    if ($request->hasFile('media_url')) {
+        if ($request->hasFile('media_url')) {
             $file = $request->file('media_url');
             $filename = time().'_'.$file->getClientOriginalName();
             $imagePath = $file->storeAs('uploads', $filename);
 
 
-        } else $imagePath=null;*/
+        } else $imagePath=null;
 
 
 
@@ -108,6 +109,9 @@ class PostController extends Controller
         ]);
 
         return response()->json($post, 201);
+
+        */
+        
     }
 
     // Show a specific post
