@@ -93,6 +93,10 @@ class PostController extends Controller
 
 
         } else $imagePath=null;
+
+
+
+
         $post = Post::create([
             'user_id' => Auth::id(),
             'content' => $validated['content'],
