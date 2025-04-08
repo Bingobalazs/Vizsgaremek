@@ -79,15 +79,24 @@ class PostController extends Controller
     // Create a new post
     public function store(Request $request)
     {
+
         $validated = $request->validate([
             'content' => 'required|string',
-            'media_url' => 'nullable|string',
+            'media_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
         ]);
 
+
+        if ($request->hasFile('media_url')) {
+            $file = $request->file('media_url');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $imagePath = $file->storeAs('uploads', $filename, 'my_files');
+
+
+        } else $imagePath=null;
         $post = Post::create([
             'user_id' => Auth::id(),
             'content' => $validated['content'],
-            'media_url' => $validated['media_url'] ?? null,
+            'media_url' => $imagePath,
         ]);
 
         return response()->json($post, 201);
