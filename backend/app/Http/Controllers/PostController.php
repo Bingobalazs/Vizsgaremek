@@ -89,7 +89,7 @@ class PostController extends Controller
         if ($request->hasFile('media_url')) {
             $file = $request->file('media_url');
             $filename = time().'_'.$file->getClientOriginalName();
-            $imagePath = $file->storeAs('uploads', $filename, 'my_files');
+            $imagePath = $file->storeAs('uploads', $filename);
 
 
         } else $imagePath=null;
