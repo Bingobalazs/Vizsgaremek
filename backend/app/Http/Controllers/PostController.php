@@ -80,16 +80,23 @@ class PostController extends Controller
     public function store(Request $request)
     {
 
-        return "ezt akarja lefuttatni. sex";
-        /*
+
         $validated = $request->validate([
             'content' => 'required|string',
             'media_url' => 'image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
         ]);
+        if (!$validated) {
+            return response()->json([
+                'error' => 'Invalid request',
+                'messages' => $request->errors()->all()
+            ], 422);
+        }
 
+/*
         $postModel = new Post();
         \Log::info('Attempting to save to table: ' . $postModel->getTable()); // Check Laravel log
         dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
+*/
 
         if ($request->hasFile('media_url')) {
             $file = $request->file('media_url');
@@ -111,7 +118,7 @@ class PostController extends Controller
 
         return response()->json($post, 201);
 
-        */
+
 
     }
 
