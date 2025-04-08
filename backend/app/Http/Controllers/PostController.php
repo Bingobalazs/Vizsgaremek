@@ -80,6 +80,7 @@ class PostController extends Controller
     public function store(Request $request)
     {
 
+        return "ezt akarja lefuttatni. sex";
         /*
         $validated = $request->validate([
             'content' => 'required|string',
@@ -111,7 +112,7 @@ class PostController extends Controller
         return response()->json($post, 201);
 
         */
-        
+
     }
 
     // Show a specific post
