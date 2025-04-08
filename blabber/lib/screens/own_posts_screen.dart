@@ -60,7 +60,14 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
 
   // Törli a posztot a post/{postid} végponton keresztül
   Future<void> deletePost(int postId) async {
-    final response = await http.delete(Uri.parse('${baseUrl}post/$postId'));
+    final token = await _getToken();
+
+    final response = await http.delete(Uri.parse('${baseUrl}posts/$postId'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    }
+    );
     if (response.statusCode == 200) {
       setState(() {
         _postsFuture = fetchPosts();
@@ -73,9 +80,14 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
   // Módosítja a posztot a post/{postid} végponton keresztül
   
   Future<void> updatePost(int postId, String newContent) async {
+    final token = await _getToken();
+
     final response = await http.put(
-      Uri.parse('${baseUrl}post/$postId'),
-      headers: {'Content-Type': 'application/json'},
+      Uri.parse('${baseUrl}posts/$postId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
       body: jsonEncode({'content': newContent}),
     );
     if (response.statusCode == 200) {
@@ -95,10 +107,28 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Poszt módosítása'),
+        backgroundColor: darkColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(0),
+          side: BorderSide(color: accentColor),
+        ),
+        title: Text(
+          'Poszt módosítása',
+          style: TextStyle(
+            color: accentColor,
+          ),
+        ),
+
         content: TextField(
+          style: TextStyle(color: whiteColor),
           controller: controller,
-          decoration: InputDecoration(labelText: 'Új tartalom'),
+          decoration: InputDecoration(
+            labelText: 'Új tartalom',
+            labelStyle: TextStyle(color: accentColor),
+          ),
+          maxLines: 15,
+          keyboardType: TextInputType.multiline,
+
         ),
         actions: [
           TextButton(
@@ -125,7 +155,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
       margin: EdgeInsets.all(8),
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: darkColor,
         border: Border.all(color: accentColor),
       ),
       child: Column(
@@ -136,21 +166,11 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
             color: accentColor,
             child: Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 5.0),
-                  child: Text(
-                    'ÉN',
-                    style: TextStyle(
-                      fontFamily: 'Roboto Mono',
-                      color: whiteColor,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
+
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: Text(
-                    post.createdAt,
+                    post.createdAt.substring(0, 10),
                     style: TextStyle(
                       fontFamily: 'Ubuntu',
                       color: whiteColor,

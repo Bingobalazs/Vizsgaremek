@@ -17,6 +17,7 @@ class SearchController extends Controller
         $posts = $query
             ? Post::where('content', 'like', "%{$query}%")->paginate(10)
             : Post::paginate(10);
+        //TODO: felhasználó nevének hozzáadása outputhoz, hogy a frontend úgy mutassa a posztokat
 
         $users = $query
             ? User::where('name', 'like', "%{$query}%")->paginate(10)
