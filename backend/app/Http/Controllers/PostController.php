@@ -85,6 +85,9 @@ class PostController extends Controller
             'media_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
         ]);
 
+        $postModel = new Post();
+        \Log::info('Attempting to save to table: ' . $postModel->getTable()); // Check Laravel log
+        dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
 
         if ($request->hasFile('media_url')) {
             $file = $request->file('media_url');
@@ -95,9 +98,6 @@ class PostController extends Controller
         } else $imagePath=null;
 
 
-        $postModel = new Post();
-        \Log::info('Attempting to save to table: ' . $postModel->getTable()); // Check Laravel log
-        dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
 
 
 
