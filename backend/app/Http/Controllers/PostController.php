@@ -95,6 +95,10 @@ class PostController extends Controller
         } else $imagePath=null;
 
 
+        $postModel = new Post();
+        \Log::info('Attempting to save to table: ' . $postModel->getTable()); // Check Laravel log
+        // dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
+
 
 
         $post = Post::create([
