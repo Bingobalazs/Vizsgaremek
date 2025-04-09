@@ -62,15 +62,22 @@ class _SearchScreenState extends State<SearchScreen> {
   final _textController = TextEditingController();
   final _textFieldFocusNode = FocusNode();
   List<UserData> _users = [];
-  List<Post> _posts = [];
+  List<Post> _allPosts = [];
+  List<Post> _displayedPosts = [];
   Timer? _debounce;
   bool _isLoading = false;
+  bool _isLoadingMorePosts = false;
   String _errorMessage = '';
+  int _postCurrentPage = 1;
+  bool _hasMorePosts = true;
+  final ScrollController _scrollController = ScrollController();
+  String _currentQuery = '';
 
   @override
   void initState() {
     super.initState();
     _textController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
@@ -78,61 +85,101 @@ class _SearchScreenState extends State<SearchScreen> {
     _textController.dispose();
     _textFieldFocusNode.dispose();
     _debounce?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (_textController.text.length > 1) {
-        _fetchSearchResults(_textController.text);
+      final query = _textController.text;
+      if (query.length > 1) {
+        _currentQuery = query;
+        _resetSearch();
+        _fetchSearchResults(query);
       } else {
-        setState(() {
-          _users.clear();
-          _posts.clear();
-        });
+        _resetSearch();
       }
     });
   }
 
-  Future<void> _fetchSearchResults(String query) async {
+  void _resetSearch() {
     setState(() {
-      _isLoading = true;
+      _users.clear();
+      _allPosts.clear();
+      _displayedPosts.clear();
+      _postCurrentPage = 1;
+      _hasMorePosts = true;
       _errorMessage = '';
+    });
+  }
+
+  Future<void> _fetchSearchResults(String query, {int page = 1}) async {
+    setState(() {
+      if (page == 1) {
+        _isLoading = true;
+        _errorMessage = '';
+      } else {
+        _isLoadingMorePosts = true;
+      }
     });
 
     final url = Uri.parse(
-        'https://kovacscsabi.moriczcloud.hu/api/search/$query?page=1');
+        'https://kovacscsabi.moriczcloud.hu/api/search/$query?page=$page');
 
     try {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final decodedJson = jsonDecode(response.body);
-
-        // decodedJson is a Map according to your API structure.
         final searchResult = SearchResult.fromJson(decodedJson);
 
         setState(() {
-          _users = searchResult.users.data;
-          _posts = searchResult.posts.data;
+          if (page == 1) {
+            _users = searchResult.users.data;
+            _allPosts = searchResult.posts.data;
+            _displayedPosts = _allPosts.take(10).toList();
+            _postCurrentPage = 1;
+            _hasMorePosts = searchResult.posts.pagination?.currentPage != null &&
+                searchResult.posts.pagination?.lastPage != null &&
+                searchResult.posts.pagination!.currentPage < searchResult.posts.pagination!.lastPage;
+          } else {
+            _allPosts.addAll(searchResult.posts.data);
+            _displayedPosts = _allPosts;
+            _hasMorePosts = searchResult.posts.pagination?.currentPage != null &&
+                searchResult.posts.pagination?.lastPage != null &&
+                searchResult.posts.pagination!.currentPage < searchResult.posts.pagination!.lastPage;
+          }
         });
       } else {
         setState(() {
           _errorMessage =
           'Failed to fetch data. Status code: ${response.statusCode}';
+          _hasMorePosts = false;
         });
       }
     } catch (e) {
       setState(() {
         _errorMessage = 'An error occurred: $e';
+        _hasMorePosts = false;
       });
     } finally {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _isLoadingMorePosts = false;
         });
       }
+    }
+  }
+
+  void _onScroll() {
+    if (_hasMorePosts &&
+        !_isLoadingMorePosts &&
+        _scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+      _postCurrentPage++;
+      _fetchSearchResults(_currentQuery, page: _postCurrentPage);
     }
   }
 
@@ -140,7 +187,6 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Dismiss keyboard when tapping outside input
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
@@ -195,8 +241,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     _errorMessage,
                     style: const TextStyle(color: errorColor),
                   ),
-                // Loading Indicator
-                if (_isLoading) const Center(child: CircularProgressIndicator()),
+                // Loading Indicator (initial search)
+                if (_isLoading && _users.isEmpty && _allPosts.isEmpty)
+                  const Center(child: CircularProgressIndicator()),
                 // Users Section
                 if (!_isLoading && _users.isNotEmpty) ...[
                   Text('Felhasználók', style: titleMediumStyle),
@@ -215,32 +262,56 @@ class _SearchScreenState extends State<SearchScreen> {
                           .toList(),
                     ),
                   ),
-                ],
-                // Posts Section
-                if (!_isLoading && _posts.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   const Divider(
                     height: 1,
                     thickness: 1,
                     color: accentColor,
                   ),
+                ],
+                // Posts Section
+                if (!_isLoading && (_displayedPosts.isNotEmpty || _isLoadingMorePosts || !_hasMorePosts)) ...[
                   const SizedBox(height: 12),
                   Text('Bejegyzések', style: titleMediumStyle),
                   const SizedBox(height: 12),
                   Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.all(10.0),
-                      itemCount: _posts.length,
-                      itemBuilder: (context, index) {
-                        // Use your custom PostWidget.
-                        return PostWidget(post: _posts[index]);
-                      },
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(height: 10);
-                      },
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        ListView.separated(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(10.0),
+                          itemCount: _displayedPosts.length,
+                          itemBuilder: (context, index) {
+                            return PostWidget(post: _displayedPosts[index]);
+                          },
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(height: 10);
+                          },
+                        ),
+                        if (_isLoadingMorePosts)
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        if (!_hasMorePosts && _displayedPosts.isNotEmpty)
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text('Nincs több bejegyzés.'),
+                          ),
+                      ],
                     ),
                   ),
                 ],
+                if (!_isLoading && _users.isEmpty && _displayedPosts.isEmpty && _errorMessage.isEmpty && _textController.text.length > 1)
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        'Nincs találat.',
+                        style: TextStyle(color: secondaryTextColor),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -300,7 +371,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
 class SearchResult {
   final UsersResult users;
-  final PostsResult posts;
+  final PaginatedPostsResult posts;
 
   SearchResult({
     required this.users,
@@ -310,7 +381,7 @@ class SearchResult {
   factory SearchResult.fromJson(Map<String, dynamic> json) {
     return SearchResult(
       users: UsersResult.fromJson(json['users']),
-      posts: PostsResult.fromJson(json['posts']),
+      posts: PaginatedPostsResult.fromJson(json['posts']),
     );
   }
 }
@@ -332,24 +403,42 @@ class UsersResult {
   }
 }
 
-/// Update the PostsResult to handle a List directly.
-class PostsResult {
+class PaginatedPostsResult {
   final List<Post> data;
+  final Pagination? pagination;
 
-  PostsResult({required this.data});
+  PaginatedPostsResult({required this.data, this.pagination});
 
-  factory PostsResult.fromJson(dynamic json) {
-    // If json is a List, map directly; if it's a Map with a 'data' key, use that.
-    if (json is List) {
-      return PostsResult(data: json.map<Post>((item) => Post.fromJson(item)).toList());
-    } else if (json is Map<String, dynamic> && json.containsKey('data')) {
+  factory PaginatedPostsResult.fromJson(dynamic json) {
+    if (json is Map<String, dynamic>) {
       final List<dynamic> dataList = json['data'];
       final List<Post> posts =
       dataList.map((item) => Post.fromJson(item)).toList();
-      return PostsResult(data: posts);
+      return PaginatedPostsResult(
+        data: posts,
+        pagination: json.containsKey('links') && json.containsKey('meta')
+            ? Pagination.fromJson(json)
+            : null,
+      );
     } else {
-      throw Exception("Unexpected posts JSON format");
+      // Handle case where 'posts' might directly be a list (though your structure suggests otherwise)
+      return PaginatedPostsResult(
+          data: (json as List).map((item) => Post.fromJson(item)).toList());
     }
+  }
+}
+
+class Pagination {
+  final int currentPage;
+  final int lastPage;
+
+  Pagination({required this.currentPage, required this.lastPage});
+
+  factory Pagination.fromJson(Map<String, dynamic> json) {
+    return Pagination(
+      currentPage: json['meta']['current_page'],
+      lastPage: json['meta']['last_page'],
+    );
   }
 }
 
