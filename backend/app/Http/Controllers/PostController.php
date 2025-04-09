@@ -85,6 +85,7 @@ class PostController extends Controller
             'content' => 'required|string',
             'media_url' => 'image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
         ]);
+        dd($validated);
         if (!$validated) {
             return response()->json([
                 'error' => 'Invalid request',
