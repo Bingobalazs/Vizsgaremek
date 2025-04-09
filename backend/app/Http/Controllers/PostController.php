@@ -80,7 +80,7 @@ class PostController extends Controller
     public function store(Request $request)
     {
 
-
+        dd($request->all());
         $validated = $request->validate([
             'content' => 'required|string',
             'media_url' => 'image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
