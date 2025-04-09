@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../services/posts_api_service.dart';
+import 'package:blabber/models/Post.dart';
+import 'package:blabber/widgets/post_widget.dart';
 
 // Define your color palette - replace these with your actual colors
 const Color primaryColor = Color(0xFF007BFF);
@@ -11,8 +12,6 @@ const Color accentColor = Color.fromRGBO(255, 32, 78, 1);
 const Color primaryTextColor = Colors.white;
 const Color secondaryTextColor = Colors.grey;
 const Color errorColor = Colors.red;
-const Color darkColor = Color(0xFF333333);
-const Color whiteColor = Colors.white;
 
 // Define your text styles - replace these with your actual styles
 final TextStyle titleMediumStyle = TextStyle(
@@ -49,8 +48,6 @@ final TextStyle bodyLargeStyle = TextStyle(
   letterSpacing: 0.0,
 );
 
-
-
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
 
@@ -65,7 +62,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final _textController = TextEditingController();
   final _textFieldFocusNode = FocusNode();
   List<UserData> _users = [];
-  List<PostData> _posts = [];
+  List<Post> _posts = [];
   Timer? _debounce;
   bool _isLoading = false;
   String _errorMessage = '';
@@ -112,6 +109,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (response.statusCode == 200) {
         final decodedJson = jsonDecode(response.body);
+
+        // decodedJson is a Map according to your API structure.
         final searchResult = SearchResult.fromJson(decodedJson);
 
         setState(() {
@@ -228,12 +227,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   const SizedBox(height: 12),
                   Text('Bejegyzések', style: titleMediumStyle),
                   const SizedBox(height: 12),
-                  // Expanded to allow the list view to scroll within the available space
                   Expanded(
                     child: ListView.separated(
                       padding: const EdgeInsets.all(10.0),
                       itemCount: _posts.length,
                       itemBuilder: (context, index) {
+                        // Use your custom PostWidget.
                         return PostWidget(post: _posts[index]);
                       },
                       separatorBuilder: (context, index) {
@@ -259,8 +258,8 @@ class _SearchScreenState extends State<SearchScreen> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.cover,
-              image: NetworkImage(
-                  'https://picsum.photos/500/500?person=${user.id}'),
+              image:
+              NetworkImage('https://picsum.photos/500/500?person=${user.id}'),
             ),
             shape: BoxShape.rectangle,
             border: Border.all(color: accentColor, width: 2),
@@ -286,8 +285,7 @@ class _SearchScreenState extends State<SearchScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: accentColor,
             foregroundColor: Colors.white,
-            padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(0)),
             elevation: 0,
@@ -298,8 +296,8 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
+/// Models for the API response ///
 
-// Data models to match the API response.
 class SearchResult {
   final UsersResult users;
   final PostsResult posts;
@@ -319,7 +317,6 @@ class SearchResult {
 
 class UsersResult {
   final List<UserData> data;
-  // Add other pagination data if needed
 
   UsersResult({
     required this.data,
@@ -335,28 +332,30 @@ class UsersResult {
   }
 }
 
+/// Update the PostsResult to handle a List directly.
 class PostsResult {
-  final List<PostData> data;
-  // Add other pagination data if needed
+  final List<Post> data;
 
-  PostsResult({
-    required this.data,
-  });
+  PostsResult({required this.data});
 
-  factory PostsResult.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> dataList = json['data'];
-    final List<PostData> posts =
-    dataList.map((item) => PostData.fromJson(item)).toList();
-    return PostsResult(
-      data: posts,
-    );
+  factory PostsResult.fromJson(dynamic json) {
+    // If json is a List, map directly; if it's a Map with a 'data' key, use that.
+    if (json is List) {
+      return PostsResult(data: json.map<Post>((item) => Post.fromJson(item)).toList());
+    } else if (json is Map<String, dynamic> && json.containsKey('data')) {
+      final List<dynamic> dataList = json['data'];
+      final List<Post> posts =
+      dataList.map((item) => Post.fromJson(item)).toList();
+      return PostsResult(data: posts);
+    } else {
+      throw Exception("Unexpected posts JSON format");
+    }
   }
 }
 
 class UserData {
   final int id;
   final String name;
-  // Add other user fields as needed
 
   UserData({
     required this.id,
@@ -367,166 +366,6 @@ class UserData {
     return UserData(
       id: json['id'],
       name: json['name'],
-    );
-  }
-}
-
-class PostData {
-  final int id;
-  final int userId;
-  final String content;
-  final DateTime createdAt;
-   bool isLiked;
-   int likeCount;
-  // Add other post fields if needed
-
-  PostData({
-    required this.id,
-    required this.userId,
-    required this.content,
-    required this.createdAt,
-    required this.isLiked,
-    required this.likeCount,
-  });
-
-
-  factory PostData.fromJson(Map<String, dynamic> json) {
-    return PostData(
-      id: json['id'],
-      userId: json['user_id'],
-      content: json['content'],
-      createdAt: DateTime.parse(json['created_at']),
-      isLiked: json['is_liked'],
-      likeCount: json['like_count'],
-    );
-  }
-}
-
-/// A stateful PostWidget that displays post content along with like and comment buttons.
-class PostWidget extends StatefulWidget {
-  final PostData post;
-
-  const PostWidget({Key? key, required this.post}) : super(key: key);
-
-  @override
-  State<PostWidget> createState() => _PostWidgetState();
-}
-
-class _PostWidgetState extends State<PostWidget> {
-  late Future<int> commentCountFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    commentCountFuture = PostsApiService().getCommentCount(widget.post.id);
-  }
-
-  // Calculate how many days ago the post was created.
-  String _calculateDaysAgo(DateTime createdAt) {
-    final difference = DateTime.now().difference(createdAt).inDays;
-    return '$difference days ago';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: accentColor),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with user information and post age.
-          Container(
-            width: double.infinity,
-            color: accentColor,
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              'User: ${widget.post.userId} • ${_calculateDaysAgo(widget.post.createdAt)}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Post content.
-          Text(
-            widget.post.content,
-            style: bodyMediumStyle,
-          ),
-          const SizedBox(height: 8),
-          // Like and Comment buttons.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Like Button.
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      widget.post.isLiked
-                          ? Icons.thumb_up_off_alt_sharp
-                          : Icons.thumb_up_off_alt_outlined,
-                      color:
-                      widget.post.isLiked ? accentColor : whiteColor,
-                    ),
-                    onPressed: () async {
-                      try {
-                        bool newLikeStatus =
-                        await PostsApiService().toggleLike(widget.post.id);
-                        setState(() {
-                          widget.post.isLiked = newLikeStatus;
-                          widget.post.likeCount += newLikeStatus ? 1 : -1;
-                        });
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error toggling like: $e')),
-                        );
-                      }
-                    },
-                  ),
-                  Text(
-                    '${widget.post.likeCount}',
-                    style: const TextStyle(color: whiteColor),
-                  ),
-                ],
-              ),
-              // Comment Button.
-              FutureBuilder<int>(
-                future: commentCountFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator(color: accentColor);
-                  } else if (snapshot.hasError) {
-                    return Icon(Icons.error, color: accentColor);
-                  }
-                  int count = snapshot.data ?? 0;
-                  return TextButton.icon(
-                    icon: Icon(Icons.comment, color: darkColor),
-                    label: Text(
-                      'Szólj hozzá... ($count)',
-                      style: TextStyle(color: darkColor),
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: whiteColor,
-                      side: const BorderSide(color: accentColor),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 8.0),
-                    ),
-                    onPressed: () {
-                      // Add navigation to comments screen or functionality here.
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
