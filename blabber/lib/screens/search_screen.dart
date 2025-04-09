@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../services/posts_api_service.dart';
 
 // Define your color palette - replace these with your actual colors
 const Color primaryColor = Color(0xFF007BFF);
@@ -10,6 +11,8 @@ const Color accentColor = Color.fromRGBO(255, 32, 78, 1);
 const Color primaryTextColor = Colors.white;
 const Color secondaryTextColor = Colors.grey;
 const Color errorColor = Colors.red;
+const Color darkColor = Color(0xFF333333);
+const Color whiteColor = Colors.white;
 
 // Define your text styles - replace these with your actual styles
 final TextStyle titleMediumStyle = TextStyle(
@@ -45,7 +48,6 @@ final TextStyle bodyLargeStyle = TextStyle(
   color: accentColor,
   letterSpacing: 0.0,
 );
-
 
 
 
@@ -103,7 +105,7 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     final url = Uri.parse(
-        'https://kovacscsabi.moriczcloud.hu/api/search/$query?page=1'); // You might need to handle pagination
+        'https://kovacscsabi.moriczcloud.hu/api/search/$query?page=1');
 
     try {
       final response = await http.get(url);
@@ -139,6 +141,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        // Dismiss keyboard when tapping outside input
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
@@ -150,19 +153,21 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Search Field
                 Container(
                   width: double.infinity,
                   child: TextFormField(
                     controller: _textController,
                     focusNode: _textFieldFocusNode,
                     autofocus: false,
-                    obscureText: false,
                     decoration: InputDecoration(
                       hintText: 'Search people, posts, and more...',
-                      hintStyle: bodyMediumStyle.copyWith(color: secondaryTextColor),
+                      hintStyle:
+                      bodyMediumStyle.copyWith(color: secondaryTextColor),
                       filled: true,
                       fillColor: secondaryColor,
-                      prefixIcon: Icon(Icons.search_rounded, color: accentColor),
+                      prefixIcon:
+                      Icon(Icons.search_rounded, color: accentColor),
                       enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: accentColor, width: 1),
                         borderRadius: BorderRadius.zero,
@@ -185,13 +190,15 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                // Error Message
                 if (_errorMessage.isNotEmpty)
                   Text(
                     _errorMessage,
                     style: const TextStyle(color: errorColor),
                   ),
-                if (_isLoading)
-                  const Center(child: CircularProgressIndicator()),
+                // Loading Indicator
+                if (_isLoading) const Center(child: CircularProgressIndicator()),
+                // Users Section
                 if (!_isLoading && _users.isNotEmpty) ...[
                   Text('Felhasználók', style: titleMediumStyle),
                   const SizedBox(height: 12),
@@ -200,14 +207,17 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: _users
-                          .map((user) => Padding(
-                        padding: const EdgeInsets.only(right: 16.0),
-                        child: _buildPersonCard(user, context),
-                      ))
+                          .map(
+                            (user) => Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: _buildPersonCard(user, context),
+                        ),
+                      )
                           .toList(),
                     ),
                   ),
                 ],
+                // Posts Section
                 if (!_isLoading && _posts.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   const Divider(
@@ -217,34 +227,20 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text('Bejegyzések', style: titleMediumStyle),
-                  const SizedBox(height: 12
-                  ),
-                  //BEJEGYZÉSEK
-                  ListView.separated(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(10.0),
-                    itemCount: _posts.length + (_hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index < _posts.length) {
+                  const SizedBox(height: 12),
+                  // Expanded to allow the list view to scroll within the available space
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(10.0),
+                      itemCount: _posts.length,
+                      itemBuilder: (context, index) {
                         return PostWidget(post: _posts[index]);
-                      } else {
-                        // Display a loading indicator at the bottom
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-                    },
-                    separatorBuilder: (context, index) {
-                      // Insert a separator if transitioning from unseen to seen posts
-                      if (index < _posts.length - 1) {
-
-                      }
-                      return const SizedBox(height: 10);
-                    },
+                      },
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(height: 10);
+                      },
+                    ),
                   ),
-
-
                 ],
               ],
             ),
@@ -264,7 +260,7 @@ class _SearchScreenState extends State<SearchScreen> {
             image: DecorationImage(
               fit: BoxFit.cover,
               image: NetworkImage(
-                  'https://picsum.photos/500/500?person=${user.id}'), // Or a default image
+                  'https://picsum.photos/500/500?person=${user.id}'),
             ),
             shape: BoxShape.rectangle,
             border: Border.all(color: accentColor, width: 2),
@@ -290,161 +286,20 @@ class _SearchScreenState extends State<SearchScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: accentColor,
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+            padding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0)),
             elevation: 0,
           ),
         ),
       ],
     );
   }
-
-  Widget _buildPostCard(PostData post, BuildContext context) {
-    LayoutBuilder(builder: (context, constraints) {
-        return Align(
-          alignment: Alignment.center,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 20.0),
-            child: Container(
-              width: constraints.maxWidth * 0.7,
-              decoration: BoxDecoration(
-                border: Border.all(color: accentColor),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Top bar with poster's name and post age
-                  Container(
-                    decoration: BoxDecoration(
-                      color: widget.post.isUnseen? accentColor : darkColor,
-                      border: Border(
-                        bottom: BorderSide(color: accentColor),
-                      ),
-                    ),
-
-                    padding: const EdgeInsets.all(8.0),
-                    width: double.infinity,
-                    child: Text(
-                      '${widget.post.userName} • ${_calculateDaysAgo(widget.post.createdAt)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  // Post content or media
-                  if (widget.post.mediaUrl != null) ...[
-                    Image.network(widget.post.mediaUrl!),
-                    Container(
-                      height: 2,
-                      color: accentColor,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        widget.post.content,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ] else ...[
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          widget.post.content,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: accentColor,
-                            fontSize: 25,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  // Like and Comment buttons
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Like Button
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                widget.post.isLiked
-                                    ? Icons.thumb_up_off_alt_sharp
-                                    : Icons.thumb_up_off_alt_outlined,
-                                color: widget.post.isLiked ? accentColor : whiteColor,
-                              ),
-                              onPressed: () async {
-                                try {
-                                  bool newLikeStatus = await PostsApiService().toggleLike(widget.post.id);
-                                  setState(() {
-                                    widget.post.isLiked = newLikeStatus;
-                                    widget.post.likeCount += newLikeStatus ? 1 : -1;
-                                  });
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error toggling like: $e')),
-                                  );
-                                }
-                              },
-                            ),
-                            Text(
-                              '${widget.post.likeCount}',
-                              style: TextStyle(color: whiteColor),
-                            ),
-                          ],
-                        ),
-                        // Comment Button
-                        FutureBuilder<int>(
-                          future: commentCountFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return CircularProgressIndicator(color: accentColor);
-                            } else if (snapshot.hasError) {
-                              return Icon(Icons.error, color: accentColor);
-                            }
-                            int count = snapshot.data ?? 0;
-                            return TextButton.icon(
-                              icon: Icon(Icons.comment, color: darkColor),
-                              label: Text(
-                                'Szólj hozzá... ($count)',
-                                style: TextStyle(color: darkColor),
-                              ),
-                              style: TextButton.styleFrom(
-                                backgroundColor: whiteColor,
-                                side: BorderSide(color: accentColor),
-                                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                              ),
-                              onPressed: () {
-                                // Navigation to comments screen can be added here.
-                              },
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }),
-
-
-  }
 }
 
-// Data models to match the API response
+
+// Data models to match the API response.
 class SearchResult {
   final UsersResult users;
   final PostsResult posts;
@@ -464,7 +319,7 @@ class SearchResult {
 
 class UsersResult {
   final List<UserData> data;
-  // Add other pagination data if needed (e.g., currentPage, lastPage)
+  // Add other pagination data if needed
 
   UsersResult({
     required this.data,
@@ -521,14 +376,19 @@ class PostData {
   final int userId;
   final String content;
   final DateTime createdAt;
-  // Add other post fields
+   bool isLiked;
+   int likeCount;
+  // Add other post fields if needed
 
   PostData({
     required this.id,
     required this.userId,
     required this.content,
     required this.createdAt,
+    required this.isLiked,
+    required this.likeCount,
   });
+
 
   factory PostData.fromJson(Map<String, dynamic> json) {
     return PostData(
@@ -536,6 +396,137 @@ class PostData {
       userId: json['user_id'],
       content: json['content'],
       createdAt: DateTime.parse(json['created_at']),
+      isLiked: json['is_liked'],
+      likeCount: json['like_count'],
+    );
+  }
+}
+
+/// A stateful PostWidget that displays post content along with like and comment buttons.
+class PostWidget extends StatefulWidget {
+  final PostData post;
+
+  const PostWidget({Key? key, required this.post}) : super(key: key);
+
+  @override
+  State<PostWidget> createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
+  late Future<int> commentCountFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    commentCountFuture = PostsApiService().getCommentCount(widget.post.id);
+  }
+
+  // Calculate how many days ago the post was created.
+  String _calculateDaysAgo(DateTime createdAt) {
+    final difference = DateTime.now().difference(createdAt).inDays;
+    return '$difference days ago';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: accentColor),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with user information and post age.
+          Container(
+            width: double.infinity,
+            color: accentColor,
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              'User: ${widget.post.userId} • ${_calculateDaysAgo(widget.post.createdAt)}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Post content.
+          Text(
+            widget.post.content,
+            style: bodyMediumStyle,
+          ),
+          const SizedBox(height: 8),
+          // Like and Comment buttons.
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Like Button.
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      widget.post.isLiked
+                          ? Icons.thumb_up_off_alt_sharp
+                          : Icons.thumb_up_off_alt_outlined,
+                      color:
+                      widget.post.isLiked ? accentColor : whiteColor,
+                    ),
+                    onPressed: () async {
+                      try {
+                        bool newLikeStatus =
+                        await PostsApiService().toggleLike(widget.post.id);
+                        setState(() {
+                          widget.post.isLiked = newLikeStatus;
+                          widget.post.likeCount += newLikeStatus ? 1 : -1;
+                        });
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error toggling like: $e')),
+                        );
+                      }
+                    },
+                  ),
+                  Text(
+                    '${widget.post.likeCount}',
+                    style: const TextStyle(color: whiteColor),
+                  ),
+                ],
+              ),
+              // Comment Button.
+              FutureBuilder<int>(
+                future: commentCountFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator(color: accentColor);
+                  } else if (snapshot.hasError) {
+                    return Icon(Icons.error, color: accentColor);
+                  }
+                  int count = snapshot.data ?? 0;
+                  return TextButton.icon(
+                    icon: Icon(Icons.comment, color: darkColor),
+                    label: Text(
+                      'Szólj hozzá... ($count)',
+                      style: TextStyle(color: darkColor),
+                    ),
+                    style: TextButton.styleFrom(
+                      backgroundColor: whiteColor,
+                      side: const BorderSide(color: accentColor),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 8.0),
+                    ),
+                    onPressed: () {
+                      // Add navigation to comments screen or functionality here.
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
