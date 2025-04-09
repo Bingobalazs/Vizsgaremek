@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:blabber/models/Post.dart';
 import 'package:blabber/widgets/post_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Define your color palette - replace these with your actual colors
 const Color primaryColor = Color(0xFF007BFF);
@@ -12,6 +13,14 @@ const Color accentColor = Color.fromRGBO(255, 32, 78, 1);
 const Color primaryTextColor = Colors.white;
 const Color secondaryTextColor = Colors.grey;
 const Color errorColor = Colors.red;
+
+Future<String> _getToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+  if (token == null) throw Exception('No token found');
+  return token;
+}
+
 
 // Define your text styles - replace these with your actual styles
 final TextStyle titleMediumStyle = TextStyle(
@@ -296,8 +305,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         if (!_hasMorePosts && _displayedPosts.isNotEmpty)
                           const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text('Nincs több bejegyzés.'),
+                            padding: EdgeInsets.all(10.0),
+                            child: Text(''),
                           ),
                       ],
                     ),
@@ -321,6 +330,11 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildPersonCard(UserData user, BuildContext context) {
+    bool _isMarked = false;
+    //TODO: ez nem működik így majd talán ha lesz api
+    // Lehet inkább egyszerűbb lenne nem itt jelölni, csak a részletes oldalon
+
+
     return Column(
       children: [
         Container(
@@ -331,6 +345,7 @@ class _SearchScreenState extends State<SearchScreen> {
               fit: BoxFit.cover,
               image:
               NetworkImage('https://picsum.photos/500/500?person=${user.id}'),
+              //TODO: Replace with actual image
             ),
             shape: BoxShape.rectangle,
             border: Border.all(color: accentColor, width: 2),
@@ -348,13 +363,60 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         const SizedBox(height: 8),
         ElevatedButton.icon(
-          onPressed: () {
-            print('Button pressed ...');
+          onPressed: () async {
+            setState(() {
+              _isLoading = true;
+            });
+
+            try {
+              String token = await _getToken();
+
+              final response = await http.post(
+                Uri.parse('https://kovacscsabi.moriczcloud.hu/api/jeloles/${user.id}'),
+                headers: {
+                  'Authorization': 'Bearer $token',
+                  'Content-Type': 'application/json',
+                },
+              );
+
+              if (response.statusCode == 200) {
+                setState(() {
+                  _isMarked = true;
+                  _isLoading = false;
+                });
+              } else {
+                // Handle error
+                print('Failed to mark: ${response.statusCode}');
+                setState(() {
+                  _isLoading = false;
+                });
+              }
+            } catch (e) {
+              print('Error: $e');
+              setState(() {
+                _isLoading = false;
+              });
+            }
           },
-          label: const Text('Jelölés', style: TextStyle(fontSize: 12)),
-          icon: const Icon(Icons.add, size: 16),
+          label: Text(
+              _isMarked ? 'Mégse' : 'Jelölés',
+              style: TextStyle(fontSize: 12)
+          ),
+          icon: _isLoading
+              ? SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2,
+            ),
+          )
+              : Icon(
+              _isMarked ? Icons.close : Icons.add,
+              size: 16
+          ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: accentColor,
+            backgroundColor: _isMarked ? Colors.red : accentColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             shape: RoundedRectangleBorder(
@@ -416,7 +478,7 @@ class PaginatedPostsResult {
       dataList.map((item) => Post.fromJson(item)).toList();
       return PaginatedPostsResult(
         data: posts,
-        pagination: json.containsKey('links') && json.containsKey('meta')
+        pagination: json.containsKey('links')
             ? Pagination.fromJson(json)
             : null,
       );
@@ -436,8 +498,8 @@ class Pagination {
 
   factory Pagination.fromJson(Map<String, dynamic> json) {
     return Pagination(
-      currentPage: json['meta']['current_page'],
-      lastPage: json['meta']['last_page'],
+      currentPage: json['current_page'],
+      lastPage: json['last_page'],
     );
   }
 }
