@@ -79,18 +79,47 @@ class PostController extends Controller
     // Create a new post
     public function store(Request $request)
     {
+
+
         $validated = $request->validate([
             'content' => 'required|string',
-            'media_url' => 'nullable|string',
+            'media_url' => 'image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
         ]);
+        if (!$validated) {
+            return response()->json([
+                'error' => 'Invalid request',
+                'messages' => $request->errors()->all()
+            ], 422);
+        }
+
+/*
+        $postModel = new Post();
+        \Log::info('Attempting to save to table: ' . $postModel->getTable()); // Check Laravel log
+        dd('Attempting to save to table:', $postModel->getTable()); // Or die and dump
+*/
+
+        if ($request->hasFile('media_url')) {
+            $file = $request->file('media_url');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $imagePath = $file->storeAs('uploads', $filename);
+
+
+        } else $imagePath=null;
+
+
+
+
 
         $post = Post::create([
             'user_id' => Auth::id(),
             'content' => $validated['content'],
-            'media_url' => $validated['media_url'] ?? null,
+            'media_url' => $imagePath,
         ]);
 
         return response()->json($post, 201);
+
+
+
     }
 
     // Show a specific post

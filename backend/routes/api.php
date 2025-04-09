@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\api_AuthController;
-use App\Http\Controllers\AutoController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\LikeController;
@@ -14,7 +13,6 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SearchController;
 
 
-Route::get('/p', [AutoController::class, 'p']);
 
 Route::controller(api_AuthController::class)->group(function () {
 
