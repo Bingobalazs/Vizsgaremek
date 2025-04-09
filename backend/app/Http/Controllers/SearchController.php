@@ -14,6 +14,12 @@ class SearchController extends Controller
     {
         //$query = $request->input('query');
 
+
+        $posts = $query
+            ? Post::where('content', 'like', "%{$query}%")
+                ->paginate(10)
+            : Post::paginate(10);
+        /*
         $posts = $query
             ? Post::with('user:id,name')
                 ->where('content', 'like', "%{$query}%")
@@ -27,6 +33,7 @@ class SearchController extends Controller
 
             return $post;
         });
+        */
 
         $users = $query
             ? User::where('name', 'like', "%{$query}%")->paginate(10)
