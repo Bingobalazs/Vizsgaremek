@@ -217,15 +217,34 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text('Bejegyzések', style: titleMediumStyle),
-                  const SizedBox(height: 12),
-                  Column(
-                    children: _posts
-                        .map((post) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: _buildPostCard(post, context),
-                    ))
-                        .toList(),
+                  const SizedBox(height: 12
                   ),
+                  //BEJEGYZÉSEK
+                  ListView.separated(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(10.0),
+                    itemCount: _posts.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index < _posts.length) {
+                        return PostWidget(post: _posts[index]);
+                      } else {
+                        // Display a loading indicator at the bottom
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                    },
+                    separatorBuilder: (context, index) {
+                      // Insert a separator if transitioning from unseen to seen posts
+                      if (index < _posts.length - 1) {
+
+                      }
+                      return const SizedBox(height: 10);
+                    },
+                  ),
+
+
                 ],
               ],
             ),
@@ -282,121 +301,146 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildPostCard(PostData post, BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.7,
-      decoration: BoxDecoration(
-        color: secondaryColor,
-        border: Border.all(color: accentColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: 20,
-            color: accentColor,
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 5),
-                  child: Text(
-                    'User ${post.userId}', // Or fetch the user's name
-                    style: const TextStyle(
-                      fontFamily: 'Roboto Mono',
-                      color: secondaryColor,
-                      fontSize: 12,
-                      letterSpacing: 0.0,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: Text(
-                    post.createdAt.toString(), // Format this date
-                    style: TextStyle(
-                      fontFamily: 'Ubuntu',
-                      color: secondaryTextColor,
-                      letterSpacing: 0.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Text(
-              post.content,
-              textAlign: TextAlign.center,
-              style: bodyLargeStyle,
-            ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.4 * 0.7,
-                height: MediaQuery.of(context).size.height * 0.05,
-                color: secondaryColor,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    print('Comment button pressed ...');
-                  },
-                  icon: const Icon(Icons.comment_sharp, color: accentColor, size: 16),
-                  label: Text('Szólj hozzá...', style: titleSmallStyle),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: secondaryColor,
-                    foregroundColor: secondaryTextColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                      side: BorderSide(color: accentColor),
-                    ),
-                    elevation: 0,
-                  ),
-                ),
+    LayoutBuilder(builder: (context, constraints) {
+        return Align(
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: Container(
+              width: constraints.maxWidth * 0.7,
+              decoration: BoxDecoration(
+                border: Border.all(color: accentColor),
               ),
-              Expanded(
-                child: Column(
-                  children: [
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top bar with poster's name and post age
+                  Container(
+                    decoration: BoxDecoration(
+                      color: widget.post.isUnseen? accentColor : darkColor,
+                      border: Border(
+                        bottom: BorderSide(color: accentColor),
+                      ),
+                    ),
+
+                    padding: const EdgeInsets.all(8.0),
+                    width: double.infinity,
+                    child: Text(
+                      '${widget.post.userName} • ${_calculateDaysAgo(widget.post.createdAt)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Post content or media
+                  if (widget.post.mediaUrl != null) ...[
+                    Image.network(widget.post.mediaUrl!),
+                    Container(
+                      height: 2,
+                      color: accentColor,
+                    ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 10, bottom: 5),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          print('Like button pressed ...');
-                        },
-                        icon: const Icon(Icons.thumb_up_outlined, size: 16),
-                        label: const Text(
-                          'LIKE',
-                          style: TextStyle(
-                            fontFamily: 'Roboto Mono',
-                            color: secondaryColor,
-                            fontSize: 16,
-                            letterSpacing: 0.0,
-                          ),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        widget.post.content,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accentColor,
-                          foregroundColor: Colors.white,
-                          minimumSize: Size.zero,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          alignment: Alignment.centerLeft,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero),
-                          elevation: 0,
+                      ),
+                    ),
+                  ] else ...[
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          widget.post.content,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: accentColor,
+                            fontSize: 25,
+                          ),
                         ),
                       ),
                     ),
                   ],
-                ),
+                  // Like and Comment buttons
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Like Button
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                widget.post.isLiked
+                                    ? Icons.thumb_up_off_alt_sharp
+                                    : Icons.thumb_up_off_alt_outlined,
+                                color: widget.post.isLiked ? accentColor : whiteColor,
+                              ),
+                              onPressed: () async {
+                                try {
+                                  bool newLikeStatus = await PostsApiService().toggleLike(widget.post.id);
+                                  setState(() {
+                                    widget.post.isLiked = newLikeStatus;
+                                    widget.post.likeCount += newLikeStatus ? 1 : -1;
+                                  });
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error toggling like: $e')),
+                                  );
+                                }
+                              },
+                            ),
+                            Text(
+                              '${widget.post.likeCount}',
+                              style: TextStyle(color: whiteColor),
+                            ),
+                          ],
+                        ),
+                        // Comment Button
+                        FutureBuilder<int>(
+                          future: commentCountFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return CircularProgressIndicator(color: accentColor);
+                            } else if (snapshot.hasError) {
+                              return Icon(Icons.error, color: accentColor);
+                            }
+                            int count = snapshot.data ?? 0;
+                            return TextButton.icon(
+                              icon: Icon(Icons.comment, color: darkColor),
+                              label: Text(
+                                'Szólj hozzá... ($count)',
+                                style: TextStyle(color: darkColor),
+                              ),
+                              style: TextButton.styleFrom(
+                                backgroundColor: whiteColor,
+                                side: BorderSide(color: accentColor),
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                              ),
+                              onPressed: () {
+                                // Navigation to comments screen can be added here.
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ],
-      ),
-    );
+        );
+      }),
+
+
   }
 }
 
