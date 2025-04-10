@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:blabber/models/Post.dart';
+import 'package:blabber/widgets/post_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Define your color palette - replace these with your actual colors
 const Color primaryColor = Color(0xFF007BFF);
@@ -10,6 +13,14 @@ const Color accentColor = Color.fromRGBO(255, 32, 78, 1);
 const Color primaryTextColor = Colors.white;
 const Color secondaryTextColor = Colors.grey;
 const Color errorColor = Colors.red;
+
+Future<String> _getToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+  if (token == null) throw Exception('No token found');
+  return token;
+}
+
 
 // Define your text styles - replace these with your actual styles
 final TextStyle titleMediumStyle = TextStyle(
@@ -46,9 +57,6 @@ final TextStyle bodyLargeStyle = TextStyle(
   letterSpacing: 0.0,
 );
 
-
-
-
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
 
@@ -63,15 +71,22 @@ class _SearchScreenState extends State<SearchScreen> {
   final _textController = TextEditingController();
   final _textFieldFocusNode = FocusNode();
   List<UserData> _users = [];
-  List<PostData> _posts = [];
+  List<Post> _allPosts = [];
+  List<Post> _displayedPosts = [];
   Timer? _debounce;
   bool _isLoading = false;
+  bool _isLoadingMorePosts = false;
   String _errorMessage = '';
+  int _postCurrentPage = 1;
+  bool _hasMorePosts = true;
+  final ScrollController _scrollController = ScrollController();
+  String _currentQuery = '';
 
   @override
   void initState() {
     super.initState();
     _textController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
@@ -79,31 +94,47 @@ class _SearchScreenState extends State<SearchScreen> {
     _textController.dispose();
     _textFieldFocusNode.dispose();
     _debounce?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (_textController.text.length > 1) {
-        _fetchSearchResults(_textController.text);
+      final query = _textController.text;
+      if (query.length > 1) {
+        _currentQuery = query;
+        _resetSearch();
+        _fetchSearchResults(query);
       } else {
-        setState(() {
-          _users.clear();
-          _posts.clear();
-        });
+        _resetSearch();
       }
     });
   }
 
-  Future<void> _fetchSearchResults(String query) async {
+  void _resetSearch() {
     setState(() {
-      _isLoading = true;
+      _users.clear();
+      _allPosts.clear();
+      _displayedPosts.clear();
+      _postCurrentPage = 1;
+      _hasMorePosts = true;
       _errorMessage = '';
+    });
+  }
+
+  Future<void> _fetchSearchResults(String query, {int page = 1}) async {
+    setState(() {
+      if (page == 1) {
+        _isLoading = true;
+        _errorMessage = '';
+      } else {
+        _isLoadingMorePosts = true;
+      }
     });
 
     final url = Uri.parse(
-        'https://kovacscsabi.moriczcloud.hu/api/search/$query?page=1'); // You might need to handle pagination
+        'https://kovacscsabi.moriczcloud.hu/api/search/$query?page=$page');
 
     try {
       final response = await http.get(url);
@@ -113,25 +144,51 @@ class _SearchScreenState extends State<SearchScreen> {
         final searchResult = SearchResult.fromJson(decodedJson);
 
         setState(() {
-          _users = searchResult.users.data;
-          _posts = searchResult.posts.data;
+          if (page == 1) {
+            _users = searchResult.users.data;
+            _allPosts = searchResult.posts.data;
+            _displayedPosts = _allPosts.take(10).toList();
+            _postCurrentPage = 1;
+            _hasMorePosts = searchResult.posts.pagination?.currentPage != null &&
+                searchResult.posts.pagination?.lastPage != null &&
+                searchResult.posts.pagination!.currentPage < searchResult.posts.pagination!.lastPage;
+          } else {
+            _allPosts.addAll(searchResult.posts.data);
+            _displayedPosts = _allPosts;
+            _hasMorePosts = searchResult.posts.pagination?.currentPage != null &&
+                searchResult.posts.pagination?.lastPage != null &&
+                searchResult.posts.pagination!.currentPage < searchResult.posts.pagination!.lastPage;
+          }
         });
       } else {
         setState(() {
           _errorMessage =
           'Failed to fetch data. Status code: ${response.statusCode}';
+          _hasMorePosts = false;
         });
       }
     } catch (e) {
       setState(() {
         _errorMessage = 'An error occurred: $e';
+        _hasMorePosts = false;
       });
     } finally {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _isLoadingMorePosts = false;
         });
       }
+    }
+  }
+
+  void _onScroll() {
+    if (_hasMorePosts &&
+        !_isLoadingMorePosts &&
+        _scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+      _postCurrentPage++;
+      _fetchSearchResults(_currentQuery, page: _postCurrentPage);
     }
   }
 
@@ -150,19 +207,21 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Search Field
                 Container(
                   width: double.infinity,
                   child: TextFormField(
                     controller: _textController,
                     focusNode: _textFieldFocusNode,
                     autofocus: false,
-                    obscureText: false,
                     decoration: InputDecoration(
                       hintText: 'Search people, posts, and more...',
-                      hintStyle: bodyMediumStyle.copyWith(color: secondaryTextColor),
+                      hintStyle:
+                      bodyMediumStyle.copyWith(color: secondaryTextColor),
                       filled: true,
                       fillColor: secondaryColor,
-                      prefixIcon: Icon(Icons.search_rounded, color: accentColor),
+                      prefixIcon:
+                      Icon(Icons.search_rounded, color: accentColor),
                       enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: accentColor, width: 1),
                         borderRadius: BorderRadius.zero,
@@ -185,13 +244,16 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                // Error Message
                 if (_errorMessage.isNotEmpty)
                   Text(
                     _errorMessage,
                     style: const TextStyle(color: errorColor),
                   ),
-                if (_isLoading)
+                // Loading Indicator (initial search)
+                if (_isLoading && _users.isEmpty && _allPosts.isEmpty)
                   const Center(child: CircularProgressIndicator()),
+                // Users Section
                 if (!_isLoading && _users.isNotEmpty) ...[
                   Text('Felhasználók', style: titleMediumStyle),
                   const SizedBox(height: 12),
@@ -200,33 +262,65 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: _users
-                          .map((user) => Padding(
-                        padding: const EdgeInsets.only(right: 16.0),
-                        child: _buildPersonCard(user, context),
-                      ))
+                          .map(
+                            (user) => Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: _buildPersonCard(user, context),
+                        ),
+                      )
                           .toList(),
                     ),
                   ),
-                ],
-                if (!_isLoading && _posts.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   const Divider(
                     height: 1,
                     thickness: 1,
                     color: accentColor,
                   ),
+                ],
+                // Posts Section
+                if (!_isLoading && (_displayedPosts.isNotEmpty || _isLoadingMorePosts || !_hasMorePosts)) ...[
                   const SizedBox(height: 12),
                   Text('Bejegyzések', style: titleMediumStyle),
                   const SizedBox(height: 12),
-                  Column(
-                    children: _posts
-                        .map((post) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: _buildPostCard(post, context),
-                    ))
-                        .toList(),
+                  Expanded(
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        ListView.separated(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(10.0),
+                          itemCount: _displayedPosts.length,
+                          itemBuilder: (context, index) {
+                            return PostWidget(post: _displayedPosts[index]);
+                          },
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(height: 10);
+                          },
+                        ),
+                        if (_isLoadingMorePosts)
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        if (!_hasMorePosts && _displayedPosts.isNotEmpty)
+                          const Padding(
+                            padding: EdgeInsets.all(10.0),
+                            child: Text(''),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
+                if (!_isLoading && _users.isEmpty && _displayedPosts.isEmpty && _errorMessage.isEmpty && _textController.text.length > 1)
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        'Nincs találat.',
+                        style: TextStyle(color: secondaryTextColor),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -236,6 +330,11 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildPersonCard(UserData user, BuildContext context) {
+    bool _isMarked = false;
+    //TODO: ez nem működik így majd talán ha lesz api
+    // Lehet inkább egyszerűbb lenne nem itt jelölni, csak a részletes oldalon
+
+
     return Column(
       children: [
         Container(
@@ -244,8 +343,9 @@ class _SearchScreenState extends State<SearchScreen> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.cover,
-              image: NetworkImage(
-                  'https://picsum.photos/500/500?person=${user.id}'), // Or a default image
+              image:
+              NetworkImage('https://picsum.photos/500/500?person=${user.id}'),
+              //TODO: Replace with actual image
             ),
             shape: BoxShape.rectangle,
             border: Border.all(color: accentColor, width: 2),
@@ -263,147 +363,77 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         const SizedBox(height: 8),
         ElevatedButton.icon(
-          onPressed: () {
-            print('Button pressed ...');
+          onPressed: () async {
+            setState(() {
+              _isLoading = true;
+            });
+
+            try {
+              String token = await _getToken();
+
+              final response = await http.post(
+                Uri.parse('https://kovacscsabi.moriczcloud.hu/api/jeloles/${user.id}'),
+                headers: {
+                  'Authorization': 'Bearer $token',
+                  'Content-Type': 'application/json',
+                },
+              );
+
+              if (response.statusCode == 200) {
+                setState(() {
+                  _isMarked = true;
+                  _isLoading = false;
+                });
+              } else {
+                // Handle error
+                print('Failed to mark: ${response.statusCode}');
+                setState(() {
+                  _isLoading = false;
+                });
+              }
+            } catch (e) {
+              print('Error: $e');
+              setState(() {
+                _isLoading = false;
+              });
+            }
           },
-          label: const Text('Jelölés', style: TextStyle(fontSize: 12)),
-          icon: const Icon(Icons.add, size: 16),
+          label: Text(
+              _isMarked ? 'Mégse' : 'Jelölés',
+              style: TextStyle(fontSize: 12)
+          ),
+          icon: _isLoading
+              ? SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2,
+            ),
+          )
+              : Icon(
+              _isMarked ? Icons.close : Icons.add,
+              size: 16
+          ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: accentColor,
+            backgroundColor: _isMarked ? Colors.red : accentColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0)),
             elevation: 0,
           ),
         ),
       ],
     );
   }
-
-  Widget _buildPostCard(PostData post, BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.7,
-      decoration: BoxDecoration(
-        color: secondaryColor,
-        border: Border.all(color: accentColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: 20,
-            color: accentColor,
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 5),
-                  child: Text(
-                    'User ${post.userId}', // Or fetch the user's name
-                    style: const TextStyle(
-                      fontFamily: 'Roboto Mono',
-                      color: secondaryColor,
-                      fontSize: 12,
-                      letterSpacing: 0.0,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: Text(
-                    post.createdAt.toString(), // Format this date
-                    style: TextStyle(
-                      fontFamily: 'Ubuntu',
-                      color: secondaryTextColor,
-                      letterSpacing: 0.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Text(
-              post.content,
-              textAlign: TextAlign.center,
-              style: bodyLargeStyle,
-            ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.4 * 0.7,
-                height: MediaQuery.of(context).size.height * 0.05,
-                color: secondaryColor,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    print('Comment button pressed ...');
-                  },
-                  icon: const Icon(Icons.comment_sharp, color: accentColor, size: 16),
-                  label: Text('Szólj hozzá...', style: titleSmallStyle),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: secondaryColor,
-                    foregroundColor: secondaryTextColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                      side: BorderSide(color: accentColor),
-                    ),
-                    elevation: 0,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10, bottom: 5),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          print('Like button pressed ...');
-                        },
-                        icon: const Icon(Icons.thumb_up_outlined, size: 16),
-                        label: const Text(
-                          'LIKE',
-                          style: TextStyle(
-                            fontFamily: 'Roboto Mono',
-                            color: secondaryColor,
-                            fontSize: 16,
-                            letterSpacing: 0.0,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accentColor,
-                          foregroundColor: Colors.white,
-                          minimumSize: Size.zero,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          alignment: Alignment.centerLeft,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero),
-                          elevation: 0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-// Data models to match the API response
+/// Models for the API response ///
+
 class SearchResult {
   final UsersResult users;
-  final PostsResult posts;
+  final PaginatedPostsResult posts;
 
   SearchResult({
     required this.users,
@@ -413,14 +443,13 @@ class SearchResult {
   factory SearchResult.fromJson(Map<String, dynamic> json) {
     return SearchResult(
       users: UsersResult.fromJson(json['users']),
-      posts: PostsResult.fromJson(json['posts']),
+      posts: PaginatedPostsResult.fromJson(json['posts']),
     );
   }
 }
 
 class UsersResult {
   final List<UserData> data;
-  // Add other pagination data if needed (e.g., currentPage, lastPage)
 
   UsersResult({
     required this.data,
@@ -436,20 +465,41 @@ class UsersResult {
   }
 }
 
-class PostsResult {
-  final List<PostData> data;
-  // Add other pagination data if needed
+class PaginatedPostsResult {
+  final List<Post> data;
+  final Pagination? pagination;
 
-  PostsResult({
-    required this.data,
-  });
+  PaginatedPostsResult({required this.data, this.pagination});
 
-  factory PostsResult.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> dataList = json['data'];
-    final List<PostData> posts =
-    dataList.map((item) => PostData.fromJson(item)).toList();
-    return PostsResult(
-      data: posts,
+  factory PaginatedPostsResult.fromJson(dynamic json) {
+    if (json is Map<String, dynamic>) {
+      final List<dynamic> dataList = json['data'];
+      final List<Post> posts =
+      dataList.map((item) => Post.fromJson(item)).toList();
+      return PaginatedPostsResult(
+        data: posts,
+        pagination: json.containsKey('links')
+            ? Pagination.fromJson(json)
+            : null,
+      );
+    } else {
+      // Handle case where 'posts' might directly be a list (though your structure suggests otherwise)
+      return PaginatedPostsResult(
+          data: (json as List).map((item) => Post.fromJson(item)).toList());
+    }
+  }
+}
+
+class Pagination {
+  final int currentPage;
+  final int lastPage;
+
+  Pagination({required this.currentPage, required this.lastPage});
+
+  factory Pagination.fromJson(Map<String, dynamic> json) {
+    return Pagination(
+      currentPage: json['current_page'],
+      lastPage: json['last_page'],
     );
   }
 }
@@ -457,7 +507,6 @@ class PostsResult {
 class UserData {
   final int id;
   final String name;
-  // Add other user fields as needed
 
   UserData({
     required this.id,
@@ -468,30 +517,6 @@ class UserData {
     return UserData(
       id: json['id'],
       name: json['name'],
-    );
-  }
-}
-
-class PostData {
-  final int id;
-  final int userId;
-  final String content;
-  final DateTime createdAt;
-  // Add other post fields
-
-  PostData({
-    required this.id,
-    required this.userId,
-    required this.content,
-    required this.createdAt,
-  });
-
-  factory PostData.fromJson(Map<String, dynamic> json) {
-    return PostData(
-      id: json['id'],
-      userId: json['user_id'],
-      content: json['content'],
-      createdAt: DateTime.parse(json['created_at']),
     );
   }
 }
