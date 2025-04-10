@@ -86,7 +86,7 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                   // Post content or media
                   if (widget.post.mediaUrl != null) ...[
-                    Image.network(widget.post.mediaUrl!),
+                    Image.network('https://kovacscsabi.moriczcloud.hu/' + widget.post.mediaUrl!),
                     Container(
                       height: 2,
                       color: accentColor,
