@@ -62,7 +62,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
         request.files.add(
           await http.MultipartFile.fromPath(
-            'image',
+            'media_url',
             _imageFile!.path,
             contentType: MediaType.parse(contentType),
           ),
