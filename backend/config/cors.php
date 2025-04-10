@@ -1,6 +1,6 @@
 <?php
 return [
-    'paths' => ['api/*', 'uploads/*', 'sanctum/csrf-cookie', 'public/uploads/*'],
+    'paths' => ['api/*', 'uploads/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'https://balgalazs.moriczcloud.hu',
