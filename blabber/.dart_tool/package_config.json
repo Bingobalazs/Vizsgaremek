@@ -248,6 +248,12 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "io",
+      "rootUri": "file:///C:/Users/baluv/AppData/Local/Pub/Cache/hosted/pub.dev/io-1.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "js",
       "rootUri": "file:///C:/Users/baluv/AppData/Local/Pub/Cache/hosted/pub.dev/js-0.6.7",
       "packageUri": "lib/",
@@ -500,7 +506,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-04-09T16:13:30.825608Z",
+  "generated": "2025-04-10T17:25:50.083819Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///C:/tools/flutter",
