@@ -34,7 +34,7 @@ class AuthController extends Controller
         })
         ->select('Auto.*', DB::raw('views.id as viewed'), DB::raw('views.updated_at as date'))
         ->get();*/
-        $data = DB::table('Auto')
+       /* $data = DB::table('Auto')
                 ->join('users', 'users.id', '=', 'Auto.user_id')
                 ->leftJoin('views', function ($join) use ($id) {
                     $join->on('views.auto_id', '=', 'Auto.id')
@@ -45,7 +45,8 @@ class AuthController extends Controller
                     DB::raw('IF(views.id IS NULL, false, true) as viewed'))  // Ha nincs rekord a views táblában, akkor false (nem látta), egyébként true (látta)
                 ->get();
 
-        return view('index', compact('data'));
+        return view('index', compact('data'));*/
+        return 0;
     }
 
     public function login()
