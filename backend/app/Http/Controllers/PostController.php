@@ -79,8 +79,7 @@ class PostController extends Controller
     // Create a new post
     public function store(Request $request)
     {
-
-
+        
         $validated = $request->validate([
             'content' => 'required|string',
             'media_url' => 'image|mimes:jpeg,png,jpg,gif|max:5048', // max 5MB
