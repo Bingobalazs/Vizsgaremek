@@ -35,6 +35,11 @@ Route::controller(SearchController::class)->group(function () {
 
     Route::get('/search/{query}', 'search');
 });
+
+Route::controller(FriendsController::class)->group(function () {
+
+    Route::get('/getUser/{userId}', 'getUserWithPosts');
+});
 // AUTH ONLY
 Route::middleware('auth:sanctum')->group(function () {
 
