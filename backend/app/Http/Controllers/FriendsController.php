@@ -73,7 +73,7 @@ class FriendsController extends Controller
             ]);
         }
 
-        return response()->json($users);
+        return response()->json(["message" => "Fasza"]);
     }
 
     public function friend_req()
