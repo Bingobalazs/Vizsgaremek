@@ -23,24 +23,25 @@ class ChatController extends Controller
     }
 
     public function getchat($friend_id)
-    {
-        $user = auth()->user();
-        $user_id = $user->id;
-        
-        $messages = DB::table('chat')
-            ->where(function ($query) use ($user_id, $friend_id) {
-                $query->where('from_id', $user_id)
-                      ->where('to_id', $friend_id);
-            })
-            ->orWhere(function ($query) use ($user_id, $friend_id) {
-                $query->where('from_id', $friend_id)
-                      ->where('to_id', $user_id);
-            })
-            ->orderBy('created_at', 'asc')
-            ->get();
+{
+    $user = auth()->user();
+    $user_id = $user->id;
 
-        return response()->json($messages);
-    }
+    $messages = DB::table('chat')
+        ->where(function ($query) use ($user_id, $friend_id) {
+            $query->where('from_id', $user_id)
+                  ->where('to_id', $friend_id);
+        })
+        ->orWhere(function ($query) use ($user_id, $friend_id) {
+            $query->where('from_id', $friend_id)
+                  ->where('to_id', $user_id);
+        })
+        ->orderBy('created_at', 'asc')
+        ->paginate(10);
+
+    return response()->json($messages);
+}
+
 
     // Új SSE metódus
     public function streamChat($friend_id, $lastMessageId = 0)
