@@ -155,7 +155,9 @@ class _PostWidgetState extends State<PostWidget> {
                           ],
                         ),
                         // Comment Button
-                        FutureBuilder<int>(
+
+                 /*
+                       FutureBuilder<int>(
                           future: commentCountFuture,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -181,6 +183,7 @@ class _PostWidgetState extends State<PostWidget> {
                             );
                           },
                         ),
+                        */
                       ],
                     ),
                   ),

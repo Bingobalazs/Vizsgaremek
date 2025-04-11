@@ -60,6 +60,51 @@ class _EditIdenticardScreenState extends State<EditIdenticardScreen> {
     super.initState();
     _loadData();
   }
+// Helper method to parse JSON arrays from strings with proper type handling
+  List<dynamic> parseJsonArray(dynamic value) {
+    if (value == null || value == "null") {
+      return [];
+    }
+
+    if (value is List) {
+      return value;
+    }
+
+    try {
+      final decoded = jsonDecode(value.toString());
+      if (decoded is List) {
+        return decoded;
+      }
+      return [];
+    } catch (e) {
+      print('Error parsing JSON array: $e');
+      return [];
+    }
+  }
+
+// Helper method to parse JSON maps from strings
+  Map<String, String> parseJsonMap(dynamic value) {
+    if (value == null || value == "null") {
+      return {};
+    }
+
+    if (value is Map) {
+      return Map<String, String>.from(
+          value.map((key, val) => MapEntry(key.toString(), val?.toString() ?? '')));
+    }
+
+    try {
+      final decoded = jsonDecode(value.toString());
+      if (decoded is Map) {
+        return Map<String, String>.from(
+            decoded.map((key, val) => MapEntry(key.toString(), val?.toString() ?? '')));
+      }
+      return {};
+    } catch (e) {
+      print('Error parsing JSON map: $e');
+      return {};
+    }
+  }
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
@@ -86,20 +131,54 @@ class _EditIdenticardScreenState extends State<EditIdenticardScreen> {
           _themeAccentColorController.text = identicard.themeAccentColor ?? '';
           _themeBgColorController.text = identicard.themeBgColor ?? '';
           _themeTextColorController.text = identicard.themeTextColor ?? '';
-          _skills = identicard.skills ?? [];
-          _hobbies = identicard.hobbies ?? [];
-          _messagingApps = identicard.messagingApps ?? {};
-          _socialHandles = identicard.socialHandles ?? {};
-          _previousWorkplaces = identicard.previousWorkplaces ?? [];
-          _education = identicard.education ?? [];
-          _certifications = identicard.certifications ?? [];
-          _languages = identicard.languages ?? [];
+
+          // Parse string fields first
+          final skills = parseJsonArray(identicard.skills);
+          final hobbies = parseJsonArray(identicard.hobbies);
+          _skills = skills.isNotEmpty ? skills.map((s) => s.toString()).toList() : [];
+          _hobbies = hobbies.isNotEmpty ? hobbies.map((h) => h.toString()).toList() : [];
+
+          // Handle map fields
+          _messagingApps = parseJsonMap(identicard.messagingApps);
+          _socialHandles = parseJsonMap(identicard.socialHandles);
+
+          // Handle complex objects
+          final previousWorkplaces = parseJsonArray(identicard.previousWorkplaces);
+          final education = parseJsonArray(identicard.education);
+          final certifications = parseJsonArray(identicard.certifications);
+          final languages = parseJsonArray(identicard.languages);
+
+          _previousWorkplaces = previousWorkplaces.isNotEmpty
+              ? previousWorkplaces.map((w) => Map<String, String>.from(
+              w.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''))
+          )).toList()
+              : [];
+
+          _education = education.isNotEmpty
+              ? education.map((e) => Map<String, String>.from(
+              e.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''))
+          )).toList()
+              : [];
+
+          _certifications = certifications.isNotEmpty
+              ? certifications.map((c) => Map<String, String>.from(
+              c.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''))
+          )).toList()
+              : [];
+
+          _languages = languages.isNotEmpty
+              ? languages.map((l) => Map<String, String>.from(
+              l.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''))
+          )).toList()
+              : [];
+
           _profileVisibility = identicard.profileVisibility ?? 'public';
         });
       } else {
         _profileVisibility = 'public'; // Default value if no Identicard exists
       }
     } catch (e) {
+      print('Detailed error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading data: $e')),
       );

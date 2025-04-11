@@ -107,7 +107,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     FeedScreen(),
     SearchScreen(),
-    const AddPostScreen(),
+    AddPostScreen(),
     Chats(),
     const ProfilePage(),
   ];
@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
       // Navigate to add post screen with a different animation
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => const AddPostScreen(),
+          builder: (context) => AddPostScreen(),
         ),
       );
     }

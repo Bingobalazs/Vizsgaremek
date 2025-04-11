@@ -80,6 +80,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "file_picker",
+      "rootUri": "file:///C:/Users/baluv/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-10.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "file_selector_linux",
       "rootUri": "file:///C:/Users/baluv/AppData/Local/Pub/Cache/hosted/pub.dev/file_selector_linux-0.9.3+2",
       "packageUri": "lib/",
@@ -506,7 +512,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-04-10T17:25:50.083819Z",
+  "generated": "2025-04-10T19:03:20.093317Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///C:/tools/flutter",

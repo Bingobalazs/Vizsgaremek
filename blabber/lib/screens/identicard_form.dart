@@ -10,6 +10,7 @@ class IdCardForm extends StatefulWidget {
   @override
   _IdCardFormState createState() => _IdCardFormState();
 }
+// UNUSED
 
 class _IdCardFormState extends State<IdCardForm> {
   final _formKey = GlobalKey<FormState>();
