@@ -27,9 +27,15 @@ class PostController extends Controller
         // Fetch unseen posts first
         $unseenPosts = Post::with('user:id,name')
             ->whereNotIn('id', $seenPostIds)
-            // **Added condition: Only fetch posts from users with public profiles**
-            ->whereHas('user', function ($query) {
-                $query->where('public', true); // Assuming 'is_public' is a boolean attribute in the users table
+            // **Modified condition: Include posts if the user is public or is a friend**
+            ->whereHas('user', function ($query) use ($user) {
+                $query->where('is_public', true)
+                    ->orWhereHas('friends', function ($friendQuery) use ($user) {
+                        $friendQuery->where(function ($relation) use ($user) {
+                            $relation->where('user_id', $user->id)
+                                ->orWhere('friend_id', $user->id); // Assuming friends table has user_id and friend_id columns
+                        });
+                    });
             })
             ->orderBy('created_at', 'desc')
             ->skip($offset)
@@ -46,9 +52,15 @@ class PostController extends Controller
 
             $seenPosts = Post::with('user:id,name')
                 ->whereIn('id', $seenPostIds)
-                // **Added condition: Only fetch posts from users with public profiles**
-                ->whereHas('user', function ($query) {
-                    $query->where('public', true); // Same condition here
+                // **Modified condition: Include posts if the user is public or is a friend**
+                ->whereHas('user', function ($query) use ($user) {
+                    $query->where('is_public', true)
+                        ->orWhereHas('friends', function ($friendQuery) use ($user) {
+                            $friendQuery->where(function ($relation) use ($user) {
+                                $relation->where('user_id', $user->id)
+                                    ->orWhere('friend_id', $user->id);
+                            });
+                        });
                 })
                 ->orderBy('created_at', 'desc')
                 ->skip($seenOffset)
@@ -70,8 +82,15 @@ class PostController extends Controller
         });
 
         // Check if more posts exist
-        $totalPosts = Post::whereHas('user', function ($query) {
-            $query->where('public', true); // **Added condition here too**
+        $totalPosts = Post::whereHas('user', function ($query) use ($user) {
+            $query->where('is_public', true)
+                // **Modified condition here too**
+                ->orWhereHas('friends', function ($friendQuery) use ($user) {
+                    $friendQuery->where(function ($relation) use ($user) {
+                        $relation->where('user_id', $user->id)
+                            ->orWhere('friend_id', $user->id);
+                    });
+                });
         })->count();
         $hasMore = ($offset + $perPage) < $totalPosts;
 
@@ -81,6 +100,7 @@ class PostController extends Controller
             'has_more' => $hasMore
         ]);
     }
+
 
 
 
