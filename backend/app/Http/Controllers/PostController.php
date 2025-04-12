@@ -13,7 +13,6 @@ class PostController extends Controller
     // Get a paginated list of posts (e.g., a feed)
     public function index(Request $request)
     {
-
         // Get the authenticated user
         $user = Auth::user();
 
@@ -28,6 +27,10 @@ class PostController extends Controller
         // Fetch unseen posts first
         $unseenPosts = Post::with('user:id,name')
             ->whereNotIn('id', $seenPostIds)
+            // **Added condition: Only fetch posts from users with public profiles**
+            ->whereHas('user', function ($query) {
+                $query->where('public', true); // Assuming 'is_public' is a boolean attribute in the users table
+            })
             ->orderBy('created_at', 'desc')
             ->skip($offset)
             ->take($perPage)
@@ -43,6 +46,10 @@ class PostController extends Controller
 
             $seenPosts = Post::with('user:id,name')
                 ->whereIn('id', $seenPostIds)
+                // **Added condition: Only fetch posts from users with public profiles**
+                ->whereHas('user', function ($query) {
+                    $query->where('public', true); // Same condition here
+                })
                 ->orderBy('created_at', 'desc')
                 ->skip($seenOffset)
                 ->take($remaining)
@@ -63,7 +70,9 @@ class PostController extends Controller
         });
 
         // Check if more posts exist
-        $totalPosts = Post::count();
+        $totalPosts = Post::whereHas('user', function ($query) {
+            $query->where('public', true); // **Added condition here too**
+        })->count();
         $hasMore = ($offset + $perPage) < $totalPosts;
 
         return response()->json([
@@ -72,6 +81,7 @@ class PostController extends Controller
             'has_more' => $hasMore
         ]);
     }
+
 
 
 
