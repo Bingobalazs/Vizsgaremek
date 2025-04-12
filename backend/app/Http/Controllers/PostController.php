@@ -29,11 +29,11 @@ class PostController extends Controller
             ->whereNotIn('id', $seenPostIds)
             // **Modified condition: Include posts if the user is public or is a friend**
             ->whereHas('user', function ($query) use ($user) {
-                $query->where('is_public', true)
+                $query->where('public', true)
                     ->orWhereHas('friends', function ($friendQuery) use ($user) {
                         $friendQuery->where(function ($relation) use ($user) {
                             $relation->where('user_id', $user->id)
-                                ->orWhere('friend_id', $user->id); // Assuming friends table has user_id and friend_id columns
+                                ->orWhere('other_user_id', $user->id); // Assuming friends table has user_id and friend_id columns
                         });
                     });
             })
@@ -54,11 +54,11 @@ class PostController extends Controller
                 ->whereIn('id', $seenPostIds)
                 // **Modified condition: Include posts if the user is public or is a friend**
                 ->whereHas('user', function ($query) use ($user) {
-                    $query->where('is_public', true)
+                    $query->where('public', true)
                         ->orWhereHas('friends', function ($friendQuery) use ($user) {
                             $friendQuery->where(function ($relation) use ($user) {
                                 $relation->where('user_id', $user->id)
-                                    ->orWhere('friend_id', $user->id);
+                                    ->orWhere('other_user_id', $user->id);
                             });
                         });
                 })
@@ -83,12 +83,12 @@ class PostController extends Controller
 
         // Check if more posts exist
         $totalPosts = Post::whereHas('user', function ($query) use ($user) {
-            $query->where('is_public', true)
+            $query->where('public', true)
                 // **Modified condition here too**
                 ->orWhereHas('friends', function ($friendQuery) use ($user) {
                     $friendQuery->where(function ($relation) use ($user) {
                         $relation->where('user_id', $user->id)
-                            ->orWhere('friend_id', $user->id);
+                            ->orWhere('other_user_id', $user->id);
                     });
                 });
         })->count();
