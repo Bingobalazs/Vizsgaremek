@@ -37,14 +37,14 @@ class ChatController extends Controller
                 $query->where('from_id', $friend_id)
                     ->where('to_id', $user_id);
             })
-            ->orderBy('created_at', 'desc') // Legfrissebb üzeneteket kérjük le elsőnek
+            ->orderBy('created_at', 'asc')
             ->paginate(20);
 
-        $messages->setCollection($messages->getCollection()->reverse());
+        $messagesArray = $messages->toArray();
+        $messagesArray['data'] = array_values(array_reverse($messagesArray['data']));
 
-        return response()->json($messages);
+        return response()->json($messagesArray);
     }
-
 
     // Új SSE metódus
     public function streamChat($friend_id, $lastMessageId = 0)
