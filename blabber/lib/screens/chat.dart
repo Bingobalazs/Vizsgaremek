@@ -58,6 +58,9 @@ class _ChatScreenState extends State<Chat> {
   final ScrollController _scrollController = ScrollController();
   List<ChatMessage> _messages = [];
   bool _isLoading = true;
+  bool _isLoadingMore = false;
+  int _currentPage = 1;
+  int _lastPage = 1;
   int _lastMessageId = 0;
   HttpClient? _httpClient;
   StreamSubscription<String>? _sseSubscription;
@@ -65,7 +68,11 @@ class _ChatScreenState extends State<Chat> {
   @override
   void initState() {
     super.initState();
-    _loadMessages().then((_) {
+    // Figyeljük a scroll pozíció változását, hogy ha a felhasználó a lista tetejére ér,
+    // akkor elinduljon az újabb (korábbi) üzenetek betöltése.
+    _scrollController.addListener(_onScroll);
+    // Kezdetben az első oldalt töltjük be
+    _fetchMessages(page: 1, prepend: false).then((_) {
       if (_messages.isNotEmpty) {
         _lastMessageId = int.tryParse(_messages.last.id) ?? 0;
       }
@@ -73,28 +80,30 @@ class _ChatScreenState extends State<Chat> {
     });
   }
 
-  Future<void> _loadMessages() async {
-    String token = await _getToken();
-    setState(() {
-      _isLoading = true;
-    });
+  // Scroll listener: ha a lista tetejéhez közelítünk, akkor betöltjük az előző oldalt (korábbi üzeneteket)
+  void _onScroll() {
+    if (_scrollController.position.pixels <=
+        _scrollController.position.minScrollExtent + 50) {
+      if (!_isLoadingMore && _currentPage < _lastPage) {
+        _loadMoreMessages();
+      }
+    }
+  }
 
+  // Az API kérés itt pagination információkat is tartalmaz (current_page, last_page) és a tényleges üzeneteket a 'data' (vagy 'messages') kulcs alatt.
+  // A lekért üzeneteket megfordítjuk, hogy időrendi sorrendben (legrégebbitől a legfrissebbig) jelenjenek meg.
+  Future<void> _fetchMessages({required int page, bool prepend = false}) async {
+    String token = await _getToken();
     try {
       final response = await http.get(
         Uri.parse(
-            'https://kovacscsabi.moriczcloud.hu/api/getchat/${widget.friendId}'),
+            'https://kovacscsabi.moriczcloud.hu/api/getchat/${widget.friendId}?page=$page'),
         headers: {'Authorization': 'Bearer $token'},
       );
-
       if (response.statusCode == 200) {
-        // JSON dekódolása, amely vagy List vagy Map lehet
         final dynamic decodedData = jsonDecode(response.body);
         List<dynamic> dataList = [];
-
-        if (decodedData is List) {
-          dataList = decodedData;
-        } else if (decodedData is Map) {
-          // Alapértelmezett kulcs itt "data", de ha az API más kulcsot ad (pl. "messages"), azt használd!
+        if (decodedData is Map) {
           if (decodedData.containsKey('data')) {
             dataList = decodedData['data'];
           } else if (decodedData.containsKey('messages')) {
@@ -103,15 +112,52 @@ class _ChatScreenState extends State<Chat> {
             throw Exception(
                 "A válasz nem tartalmaz 'data' vagy 'messages' kulcsot!");
           }
-        } else {
-          throw Exception("Ismeretlen JSON struktúra!");
-        }
-
-        setState(() {
-          _messages = dataList
+          // Pagination metaadatok
+          int currentPage = decodedData['current_page'];
+          int lastPage = decodedData['last_page'];
+          // A kapott üzenetek listája DESC sorrendben lett lekérdezve a backend által,
+          // így megfordítjuk, hogy az üzenetek időrendi sorrendben (legrégebbitől a legfrissebbig) szerepeljenek.
+          List<ChatMessage> fetchedMessages = dataList
               .map<ChatMessage>((json) => ChatMessage.fromJson(json))
               .toList();
-        });
+          fetchedMessages = fetchedMessages.reversed.toList();
+
+          // Frissítjük a pagination változókat a state-ben
+          setState(() {
+            _currentPage = currentPage;
+            _lastPage = lastPage;
+          });
+
+          if (prepend) {
+            // Az új, régebbi üzeneteket a lista elejére tesszük, miközben megőrizzük a scroll pozíciót.
+            double prevScrollHeight =
+                _scrollController.position.maxScrollExtent;
+            setState(() {
+              _messages.insertAll(0, fetchedMessages);
+            });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              double newScrollHeight =
+                  _scrollController.position.maxScrollExtent;
+              double scrollOffset = _scrollController.offset +
+                  (newScrollHeight - prevScrollHeight);
+              _scrollController.jumpTo(scrollOffset);
+            });
+          } else {
+            // Kezdeti betöltéskor egyszerűen felülírjuk a korábbi adatokat.
+            setState(() {
+              _messages = fetchedMessages;
+            });
+          }
+        } else if (decodedData is List) {
+          // Fallback: ha a válasz közvetlenül egy lista
+          List<ChatMessage> fetchedMessages = decodedData
+              .map<ChatMessage>((json) => ChatMessage.fromJson(json))
+              .toList();
+          fetchedMessages = fetchedMessages.reversed.toList();
+          setState(() {
+            _messages = fetchedMessages;
+          });
+        }
       } else {
         _showSnackBar(
             'Hiba történt az üzenetek betöltésekor: ${response.body}');
@@ -119,13 +165,28 @@ class _ChatScreenState extends State<Chat> {
     } catch (e) {
       _showSnackBar('Hiba: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
-      _scrollToBottom();
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
+  // Betölti a következő (nagyobb page számmal rendelkező) régebbi üzeneteket
+  Future<void> _loadMoreMessages() async {
+    if (_currentPage >= _lastPage) return;
+    setState(() {
+      _isLoadingMore = true;
+    });
+    int nextPage = _currentPage + 1;
+    await _fetchMessages(page: nextPage, prepend: true);
+    setState(() {
+      _isLoadingMore = false;
+    });
+  }
+
+  // SSE kapcsolat a valós idejű új üzenetek érkezéséhez
   void _connectSSE() async {
     _httpClient = HttpClient();
     var uri = Uri.parse(
@@ -163,6 +224,7 @@ class _ChatScreenState extends State<Chat> {
     }
   }
 
+  // Üzenetküldés
   void _sendMessage() async {
     String token = await _getToken();
 
@@ -204,6 +266,7 @@ class _ChatScreenState extends State<Chat> {
     }
   }
 
+  // Az üzenetek lista aljára scrolloz
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -238,7 +301,7 @@ class _ChatScreenState extends State<Chat> {
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
-            onPressed: _loadMessages,
+            onPressed: () => _fetchMessages(page: 1, prepend: false),
           ),
         ],
       ),
