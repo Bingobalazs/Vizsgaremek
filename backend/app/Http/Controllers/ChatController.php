@@ -46,6 +46,7 @@ class ChatController extends Controller
     }
 
 
+
     // Új SSE metódus
     public function streamChat($friend_id, $lastMessageId = 0)
     {
