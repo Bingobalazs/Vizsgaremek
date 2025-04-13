@@ -8,8 +8,13 @@ use App\Models\Chat;
 
 class ChatController extends Controller
 {
-    public function postChat($user_id, $friend_id, $chat)
+    public function postChat(Request $request, $friend_id)
     {
+        $user = auth()->user();
+        $user_id = $user->id;
+
+        $chat = $request->input('chat');
+
         $data = Chat::create([
             'from_id' => $user_id,
             'to_id'   => $friend_id,

@@ -53,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::controller(ChatController::class)->group(function () {
 
-        Route::post('/postchat/{user_id}/{friend_id}/{chat}', 'postchat')->name('postchat');
+        Route::post('/postchat/{friend_id}/{chat}', 'postchat')->name('postchat');
         Route::get('/getchat/{friend_id}', 'getchat')->name('getchat');
     });
     Route::get('stream-chat/{friend_id}/{lastMessageId}', [ChatController::class, 'streamChat']);
