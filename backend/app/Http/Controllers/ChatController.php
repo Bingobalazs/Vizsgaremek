@@ -22,25 +22,27 @@ class ChatController extends Controller
         ], 201);
     }
 
+    //He micsinász
     public function getchat($friend_id)
-{
-    $user = auth()->user();
-    $user_id = $user->id;
+    {
+        $user = auth()->user();
+        $user_id = $user->id;
 
-    $messages = DB::table('chat')
-        ->where(function ($query) use ($user_id, $friend_id) {
-            $query->where('from_id', $user_id)
-                  ->where('to_id', $friend_id);
-        })
-        ->orWhere(function ($query) use ($user_id, $friend_id) {
-            $query->where('from_id', $friend_id)
-                  ->where('to_id', $user_id);
-        })
-        ->orderBy('created_at', 'asc')
-        ->paginate(10);
+        $messages = DB::table('chat')
+            ->where(function ($query) use ($user_id, $friend_id) {
+                $query->where('from_id', $user_id)
+                    ->where('to_id', $friend_id);
+            })
+            ->orWhere(function ($query) use ($user_id, $friend_id) {
+                $query->where('from_id', $friend_id)
+                    ->where('to_id', $user_id);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-    return response()->json($messages);
-}
+        return response()->json($messages);
+    }
+
 
 
     // Új SSE metódus
