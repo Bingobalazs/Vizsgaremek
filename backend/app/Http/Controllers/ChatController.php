@@ -37,7 +37,7 @@ class ChatController extends Controller
                 $query->where('from_id', $friend_id)
                     ->where('to_id', $user_id);
             })
-            ->orderBy('created_at', 'asc')
+            ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         $messagesArray = $messages->toArray();
