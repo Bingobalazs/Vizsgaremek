@@ -38,13 +38,13 @@ class ChatController extends Controller
                     ->where('to_id', $user_id);
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(10);
 
-        $messagesArray = $messages->toArray();
-        $messagesArray['data'] = array_values(array_reverse($messagesArray['data']));
+        $messages->setCollection($messages->getCollection()->reverse());
 
-        return response()->json($messagesArray);
+        return response()->json($messages);
     }
+
 
     // Új SSE metódus
     public function streamChat($friend_id, $lastMessageId = 0)
