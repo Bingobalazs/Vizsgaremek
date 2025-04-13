@@ -38,7 +38,7 @@ class ChatController extends Controller
                     ->where('to_id', $user_id);
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(20);
 
         $messagesArray = $messages->toArray();
         $messagesArray['data'] = array_values(array_reverse($messagesArray['data']));
