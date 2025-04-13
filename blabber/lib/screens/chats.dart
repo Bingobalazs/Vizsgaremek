@@ -158,8 +158,7 @@ class _ChatsState extends State<Chats> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Chat(
-                                  userId:
-                                      '34', // Példa: az aktuális felhasználó ID-je
+                                  userId: '34',
                                   friendId: user['user_id'].toString(),
                                   friendName: user['name'],
                                 ),
