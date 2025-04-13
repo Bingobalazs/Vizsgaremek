@@ -40,8 +40,11 @@ class ChatController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+        $messages->setCollection($messages->getCollection()->reverse());
+
         return response()->json($messages);
     }
+
 
 
 
