@@ -1,12 +1,10 @@
-//Nem tudom a user_profile_screen mit csinál, de azt nem mertem átírni
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'user_screen.dart'; // Importáljuk a külön fájlban lévő NewScreen-t
+import 'user_screen.dart';
+import 'chat.dart'; // Importáljuk a chat képernyőt
 
-// Chats képernyő, ahol a barátkérelmek és a felhasználók adatait jelenítjük meg.
 class Chats extends StatefulWidget {
   @override
   _ChatsState createState() => _ChatsState();
@@ -62,11 +60,13 @@ class _ChatsState extends State<Chats> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Felhasználók')),
+      appBar: AppBar(
+        title: Text('Felhasználók'),
+      ),
       body: friendRequests.isEmpty && users.isEmpty
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              // A listában egy fejléc, a barátkérelmek, egy elválasztó és utána a jóváhagyott felhasználók szerepelnek.
+              // A listában szerepel egy fejléc, a barátkérelmek, majd egy elválasztó, végül a jóváhagyott felhasználók
               itemCount: friendRequests.length + users.length + 2,
               itemBuilder: (context, index) {
                 // Fejléc a barátkérelmekhez.
@@ -83,9 +83,7 @@ class _ChatsState extends State<Chats> {
                     ),
                   );
                 }
-                // Barátkérelmek listaelemei: minden elem mellett két gomb található:
-                // - "Elfogadás" a kérelem jóváhagyásához,
-                // - "Új gomb" a NewScreen megnyitásához az adott barátkérés id-jával.
+                // Barátkérelmek listaelemei.
                 else if (index <= friendRequests.length) {
                   final request = friendRequests[index - 1];
                   return ListTile(
@@ -133,7 +131,7 @@ class _ChatsState extends State<Chats> {
                     ),
                   );
                 }
-                // Elválasztó a barátkérelmek és a jóváhagyott felhasználók között.
+                // Elválasztó
                 else if (index == friendRequests.length + 1) {
                   return Divider(
                     color: Colors.grey,
@@ -141,7 +139,7 @@ class _ChatsState extends State<Chats> {
                     height: 20,
                   );
                 }
-                // Jóváhagyott felhasználók listaelemei: mindkét műveletre (chat indítás és az új képernyő megnyitása) két gomb található.
+                // Jóváhagyott felhasználók listaelemei.
                 else {
                   final user = users[index - friendRequests.length - 2];
                   return ListTile(
@@ -153,13 +151,15 @@ class _ChatsState extends State<Chats> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ElevatedButton(
-                          child: Text('Dumcsi mumcsi'),
+                          child: Text('Dumcsi'),
+                          // A Dumcsi gomb most a chat.dart-ban definiált Chat widgetet hívja meg.
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Chat(
-                                  userId: '34',
+                                  userId:
+                                      '34', // Példa: az aktuális felhasználó ID-je
                                   friendId: user['user_id'].toString(),
                                   friendName: user['name'],
                                 ),
@@ -191,34 +191,10 @@ class _ChatsState extends State<Chats> {
   }
 }
 
-// Példa Chat képernyő, mely a csevegés funkciót mutatja be.
-class Chat extends StatelessWidget {
-  final String userId;
-  final String friendId;
-  final String friendName;
-
-  const Chat({
-    Key? key,
-    required this.userId,
-    required this.friendId,
-    required this.friendName,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Chat: $friendName'),
-      ),
-      body: Center(
-        child: Text('Chat screen between user $userId and friend $friendId.'),
-      ),
-    );
-  }
-}
-
 void main() {
   runApp(MaterialApp(
+    title: 'Chats App',
+    theme: ThemeData.dark(),
     home: Chats(),
   ));
 }

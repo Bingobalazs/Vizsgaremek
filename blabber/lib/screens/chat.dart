@@ -87,9 +87,28 @@ class _ChatScreenState extends State<Chat> {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        // JSON dekódolása, amely vagy List vagy Map lehet
+        final dynamic decodedData = jsonDecode(response.body);
+        List<dynamic> dataList = [];
+
+        if (decodedData is List) {
+          dataList = decodedData;
+        } else if (decodedData is Map) {
+          // Alapértelmezett kulcs itt "data", de ha az API más kulcsot ad (pl. "messages"), azt használd!
+          if (decodedData.containsKey('data')) {
+            dataList = decodedData['data'];
+          } else if (decodedData.containsKey('messages')) {
+            dataList = decodedData['messages'];
+          } else {
+            throw Exception(
+                "A válasz nem tartalmaz 'data' vagy 'messages' kulcsot!");
+          }
+        } else {
+          throw Exception("Ismeretlen JSON struktúra!");
+        }
+
         setState(() {
-          _messages = data
+          _messages = dataList
               .map<ChatMessage>((json) => ChatMessage.fromJson(json))
               .toList();
         });
@@ -108,19 +127,15 @@ class _ChatScreenState extends State<Chat> {
   }
 
   void _connectSSE() async {
-    print("sex?");
     _httpClient = HttpClient();
-    // Paraméterként elküldjük a barát ID-t és az utolsó üzenet ID-t, amit eddig kaptunk.
     var uri = Uri.parse(
         'https://kovacscsabi.moriczcloud.hu/stream-chat/${widget.friendId}/$_lastMessageId');
     try {
       var request = await _httpClient!.getUrl(uri);
-      // Az SSE kapcsolatoknak a "text/event-stream" fejléc szükséges.
       request.headers.set(HttpHeaders.acceptHeader, "text/event-stream");
       var response = await request.close();
 
-      // A válasz egy folyamatos szöveges stream, amely soronként érkezik.
-      response
+      _sseSubscription = response
           .transform(utf8.decoder)
           .transform(LineSplitter())
           .listen((line) {
@@ -155,11 +170,8 @@ class _ChatScreenState extends State<Chat> {
       _showSnackBar('Nem küldhetsz üres üzenetet!');
       return;
     }
-
     final messageText = _messageController.text.trim();
     _messageController.clear();
-
-    // Optimista frissítés: az üzenet azonnal megjelenik.
     final optimisticMessage = ChatMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
       senderId: widget.userId,
@@ -167,12 +179,10 @@ class _ChatScreenState extends State<Chat> {
       message: messageText,
       timestamp: DateTime.now(),
     );
-
     setState(() {
       _messages.add(optimisticMessage);
     });
     _scrollToBottom();
-
     try {
       final response = await http.post(
         Uri.parse(
@@ -181,8 +191,7 @@ class _ChatScreenState extends State<Chat> {
       );
 
       if (response.statusCode != 201 && response.statusCode != 200) {
-        _showSnackBar(
-            'Nem sikerült elküldeni az üzenetet: ${response.body}');
+        _showSnackBar('Nem sikerült elküldeni az üzenetet: ${response.body}');
         setState(() {
           _messages.remove(optimisticMessage);
         });
@@ -296,8 +305,8 @@ class _ChatScreenState extends State<Chat> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24.0),
                       ),
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     ),
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _sendMessage(),
@@ -316,18 +325,4 @@ class _ChatScreenState extends State<Chat> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    title: 'Real-time Chat App',
-    theme: ThemeData(
-      primarySwatch: Colors.blue,
-    ),
-    home: Chat(
-      userId: '123',
-      friendId: '456',
-      friendName: 'János',
-    ),
-  ));
 }
