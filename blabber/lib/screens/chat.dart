@@ -205,6 +205,7 @@ class _ChatScreenState extends State<Chat> {
   }
 
   // Üzenetküldés: Az elküldött (optimista) üzenetet szintén a friss adatok részéhez fűzzük (lista végéhez).
+  // Most átadjuk a chat üzenetet a request testében JSON formátumban.
   void _sendMessage() async {
     String token = await _getToken();
     if (_messageController.text.trim().isEmpty) {
@@ -227,8 +228,12 @@ class _ChatScreenState extends State<Chat> {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://kovacscsabi.moriczcloud.hu/api/postchat/${widget.userId}/${widget.friendId}/$messageText'),
-        headers: {'Authorization': 'Bearer $token'},
+            'https://kovacscsabi.moriczcloud.hu/api/postchat/${widget.friendId}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'chat': messageText}),
       );
       if (response.statusCode != 201 && response.statusCode != 200) {
         setState(() {
