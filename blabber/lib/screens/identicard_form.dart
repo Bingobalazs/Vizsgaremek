@@ -4,12 +4,14 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 
+
 class IdCardForm extends StatefulWidget {
   const IdCardForm({Key? key}) : super(key: key);
 
   @override
   _IdCardFormState createState() => _IdCardFormState();
 }
+// UNUSED
 
 class _IdCardFormState extends State<IdCardForm> {
   final _formKey = GlobalKey<FormState>();
