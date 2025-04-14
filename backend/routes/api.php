@@ -48,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/logout', 'logout');
         Route::get('/user', 'user');
+        Route::put('/user/update-name', 'updateName');
+        Route::put('/user/update-password', 'updatePassword');
 
     });
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data'; // Needed for web image bytes
+import 'package:blabber/screens/setting_screen.dart';
 import 'package:http_parser/http_parser.dart'; // For MediaType
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'identicard_edit_screen.dart';
 import '../main.dart';
+import 'identishare_screen.dart';
 import 'own_posts_screen.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -161,7 +163,7 @@ class ProfilePageState extends State<ProfilePage> {
                       child: Padding(
                         padding: const EdgeInsets.all(5),
                         child: Image.network(
-                          userData?['pfp_url'] ?? 'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
+                        "https://kovacscsabi.moriczcloud.hu/${userData?['pfp_url']}" ?? 'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
                           width: 100,
                           height: 100,
                           fit: BoxFit.cover,
@@ -250,7 +252,7 @@ class ProfilePageState extends State<ProfilePage> {
                               _buildActionButton(
                                   icon: Icons.qr_code,
                                   label:  'megosztás',
-                                  targetScreen:  HomePage()
+                                  targetScreen:  IdentiCardScreen()
                               ),
                             ],
                           ),
@@ -278,7 +280,7 @@ class ProfilePageState extends State<ProfilePage> {
                         iconColor: baseColor),
                     _buildActionButton(icon: Icons.settings_sharp,
                         label: 'beállítások',
-                        targetScreen:  HomePage(),
+                        targetScreen:  SettingsPage(),
                         backgroundColor: accentColor,
                         iconColor: baseColor),
                   ],
