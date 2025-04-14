@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Post;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,7 +74,7 @@ class FriendsController extends Controller
             ]);
         }
 
-        return response()->json($users);
+        return response()->json(["message" => "Fasza"]);
     }
 
     public function friend_req()
@@ -173,5 +174,15 @@ class FriendsController extends Controller
 
     }
 
+    public function getUserWithPosts($userId)
+    {
+        $user = User::findOrFail($userId);
 
+        $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
+
+        return response()->json([
+            'user'  => $user,
+            'posts' => $posts,
+        ]);
+    }
 }
