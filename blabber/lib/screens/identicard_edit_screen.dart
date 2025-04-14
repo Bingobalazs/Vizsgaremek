@@ -118,7 +118,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
           .toList();
     }
     if (identicard!.skills != null) {
-      skills = List<String>.from(jsonDecode(identicard!.skills!));
+      skills = List<String>.from(identicard!.skills!);
     }
     if (identicard!.certifications != null) {
       certifications = (jsonDecode(identicard!.certifications!) as List)
@@ -129,7 +129,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
       languages = Map<String, String>.from(jsonDecode(identicard!.languages!));
     }
     if (identicard!.hobbies != null) {
-      hobbies = List<String>.from(jsonDecode(identicard!.hobbies!));
+      hobbies = List<String>.from(identicard!.hobbies!);
     }
     if (identicard!.themePrimaryColor != null) {
       primaryColor = Color(int.parse(identicard!.themePrimaryColor!.substring(1), radix: 16) + 0xFF000000);
@@ -164,10 +164,10 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
       'social_handles': jsonEncode(socialHandles),
       'previous_workplaces': jsonEncode(previousWorkplaces.map((wp) => wp.toJson()).toList()),
       'education': jsonEncode(education.map((ed) => ed.toJson()).toList()),
-      'skills': jsonEncode(skills),
+      'skills': skills.isNotEmpty ? skills : null,
       'certifications': jsonEncode(certifications.map((cert) => cert.toJson()).toList()),
       'languages': jsonEncode(languages),
-      'hobbies': jsonEncode(hobbies),
+      'hobbies': hobbies.isNotEmpty ? hobbies : null,
       'theme_primary_color': '#${primaryColor.value.toRadixString(16).substring(2)}',
       'theme_accent_color': '#${accentColor.value.toRadixString(16).substring(2)}',
       'theme_bg_color': '#${bgColor.value.toRadixString(16).substring(2)}',
@@ -289,50 +289,58 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
 
   void _showListEditorDialog(String title, List<String> list, Function(List<String>) onSave) {
     final List<String> tempList = List.from(list);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Edit $title'),
         content: SingleChildScrollView(
           child: StatefulBuilder(
-              builder: (context, setStateDialog) => Column(
-                  children: [
-                  ...tempList.map((item) => Row(
-          children: [
-          Expanded(
-          child: TextField(
-          controller: TextEditingController(text: item),
-          decoration: const InputDecoration(labelText: 'Item'),
-          onChanged: (value) => tempList[tempList.indexOf(item)] = value,
-        ),
-      ),
-      IconButton(
-        icon: const Icon(Icons.delete),
-        onPressed: () => setStateDialog(() => tempList.remove(item)),
-      ),
-      ],
-    )),
-    ElevatedButton(
-    onPressed: () => setStateDialog(() => tempList.add('')),
-    child: const Text('Add New'),
-    ),
-    ],
-    ),
-    ),
-    ),
-    actions: [
-    TextButton(
-    onPressed: () {
-    onSave(tempList);
-    Navigator.pop(context);
-    },
-    child: const Text('Save'),
-    ),
-    ],
-    ),
-    );
-    }
+            builder: (context, setStateDialog) => Column(
+              children: [
+                // Use an indexed map to track position in the list
+                ...tempList.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String item = entry.value;
 
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: TextEditingController(text: item),
+                          decoration: const InputDecoration(labelText: 'Item'),
+                          onChanged: (value) => tempList[index] = value,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => setStateDialog(() {
+                          tempList.removeAt(index);
+                        }),
+                      ),
+                    ],
+                  );
+                }).toList(),
+                ElevatedButton(
+                  onPressed: () => setStateDialog(() => tempList.add('')),
+                  child: const Text('Add New'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              onSave(tempList);
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
   void _showWorkplaceEditorDialog() {
     final List<Workplace> tempList = List.from(previousWorkplaces);
     showDialog(
