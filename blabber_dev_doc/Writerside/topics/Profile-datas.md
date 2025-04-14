@@ -1,10 +1,9 @@
 # IdentiShare
 
 ## Személyre szabott profil, megosztható link, egyszerű kapcsolatfelvétel
-Ezzel a funkcióval létrehozhatod saját egyedi URL-edet, amelyet bárki megnyithat.  
-Az oldalon megjelenik az általad megadott információ,  
-valamint a látogatók egyszerűen elmenthetnek téged mobiljuk névjegyzékébe,  
-vagy akár ismerősnek is jelölhetnek.
+Ezzel a funkcióval **létrehozhatod** saját **egyedi URL**-edet, amelyet **bárki** megnyithat.  
+Az oldalon megjelenik az általad megadott **információ**.  
+
 
 ### 🔹 Alapvető információk
 - **Teljes név**
@@ -45,6 +44,9 @@ vagy akár ismerősnek is jelölhetnek.
 🔗 **Megosztható link formátuma:**  
 **`kovacscsabi.moriczcloud.hu/identicard/felhasználónév`**
 
-Ezzel az egyedi névjegykártyával könnyedén megoszthatod magadról a legfontosabb információkat,  
-legyen szó szakmai kapcsolatok építéséről, új barátok szerzéséről, vagy egyszerű elérhetőségi megosztásról.  
-A profilodat teljes mértékben testre szabhatod, és eldöntheted, hogy mely adatokat osztod meg másokkal!
+Ezzel az **egyedi** **névjegykártyával** könnyedén **megoszthatod** magadról a **legfontosabb** információkat,  
+legyen szó **szakmai kapcsolatok** építéséről, **új barátok** szerzéséről, vagy egyszerű **elérhetőségi** megosztásról.  
+A profilodat teljes mértékben **testre szabhatod**, és **eldöntheted**, hogy mely **adatokat** osztod meg másokkal!
+
+#### 🌎 Megjegyzés 
+Ez a funkció **angolul** érhető el, hogy nemzetközi kapcsolattartásra is használható legyen

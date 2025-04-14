@@ -207,8 +207,8 @@
         }
 
         .skill-tag {
-            background: rgba(0, 255, 255, 0.1);
-            color: var(--primary);
+            background: var(--background);
+            color: var(--text);
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.9rem;
@@ -313,7 +313,7 @@
 <div class="animated-background"></div>
 
 <div class="container">
-    <div class="profile-header">
+
 
 
 
@@ -324,7 +324,7 @@
                 <div class="profile-picture" style="background: linear-gradient(135deg, var(--primary), var(--accent))"></div>
             @endif
         </div>
-    </div>
+
 
     <div class="glitch-container">
         <h1 style="color: var(--accent)">{{ $user->name }}</h1>
@@ -372,15 +372,25 @@
             @endif
 
             @if($user->hobbies)
+                @php
+                    $hobbies = json_decode($user->hobbies, true);
+                @endphp
                 <div class="info-group">
                     <div class="info-label">Interests</div>
                     <div class="skill-tags">
-                        @foreach(explode(',', $user->hobbies) as $hobby)
-                            <span class="skill-tag">{{ trim($hobby) }}</span>
-                        @endforeach
+                        @if(is_array($hobbies))
+                            @foreach($hobbies as $hobby)
+                                <span class="skill-tag">{{ $hobby }}</span>
+                            @endforeach
+                        @else
+                            <span class="skill-tag">{{ $user->hobbies }}</span>
+                        @endif
                     </div>
                 </div>
             @endif
+
+
+
         </div>
 
         <!-- Contact Info -->
@@ -528,7 +538,7 @@
                 Education & Skills
             </h2>
 
-            <!-- Education (unchanged, assuming it works) -->
+            <!-- Education -->
             @if($user->education)
                 @php
                     $education = json_decode($user->education, true);

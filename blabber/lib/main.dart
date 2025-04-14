@@ -26,6 +26,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        cardTheme: CardTheme(
+          color: Color.fromRGBO(0, 34, 77, 1),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+          ),
+
+
+        ),
         textTheme: TextTheme(
           bodyLarge: TextStyle(color: Colors.white), // Beviteli szöveg színe
           bodyMedium: TextStyle(color: Colors.white), // Szöveg színe

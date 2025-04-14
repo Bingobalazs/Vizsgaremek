@@ -14,4 +14,8 @@
         <description>Created after removal of "Starter" from Instance Name</description>
         <accepts>starter.html</accepts>
     </rule>
+    <rule id="1071b1c5">
+        <description>Created after removal of "Suggested friends" from Instance Name</description>
+        <accepts>Suggested-friends.html</accepts>
+    </rule>
 </rules>
