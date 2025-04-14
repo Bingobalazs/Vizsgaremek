@@ -12,13 +12,12 @@ class ChatController extends Controller
     {
         $user = auth()->user();
         $user_id = $user->id;
-
-        $chat = $request->input('chat');
+        $chatContent = $request->input('chat');
 
         $data = Chat::create([
             'from_id' => $user_id,
             'to_id'   => $friend_id,
-            'chat'    => $chat,
+            'chat'    => $chatContent,
         ]);
 
         return response()->json([
@@ -27,7 +26,6 @@ class ChatController extends Controller
         ], 201);
     }
 
-    //He micsinász
     public function getchat($friend_id)
     {
         $user = auth()->user();
@@ -45,20 +43,22 @@ class ChatController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
+        // A legkorábbi üzenetek legyenek elöl, ezért fordított sorrendben
         $messagesArray = $messages->toArray();
         $messagesArray['data'] = array_values(array_reverse($messagesArray['data']));
 
         return response()->json($messagesArray);
     }
 
-    // Új SSE metódus
-    public function streamChat($friend_id, $lastMessageId = 0)
+    // SSE végpont a valós idejű kommunikációhoz
+    public function streamChat(Request $request, $friend_id)
     {
         $user = auth()->user();
         $user_id = $user->id;
+        // Opcionálisan adhatjuk át a kliens által ismert legutolsó üzenet azonosítót
+        $lastMessageId = $request->query('lastMessageId', 0);
 
         return response()->stream(function () use ($user_id, $friend_id, &$lastMessageId) {
-            // Végtelen ciklus: minden 1 másodpercben leellenőrizzük, van-e új üzenet
             while (true) {
                 $newMessages = DB::table('chat')
                     ->where(function ($query) use ($user_id, $friend_id) {
@@ -80,6 +80,7 @@ class ChatController extends Controller
                         $lastMessageId = $msg->id;
                     }
                 }
+                // Minden ciklus végén ürítsük a puffert és várjunk egy másodpercet
                 ob_flush();
                 flush();
                 sleep(1);
