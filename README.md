@@ -18,3 +18,4 @@ A megoldáshoz telepíthető ez a Chrome-bővítmény:
 👉 [Allow CORS: Access-Control-Allow-Origin](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?pli=1)
 
 
+![Adatbázis ábra]([https://balgalazs.moriczcloud.hu/.png](https://balgalazs.moriczcloud.hu/docs/blabber/adatbazis.svg)
