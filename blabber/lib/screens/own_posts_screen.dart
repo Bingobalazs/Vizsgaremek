@@ -276,18 +276,38 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              post.content,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Ubuntu',
-                color: accentColor,
-                fontSize: 20,
+          if (post.mediaUrl != null) ...[
+            Image.network('https://kovacscsabi.moriczcloud.hu/' + post.mediaUrl!),
+            Container(
+              height: 2,
+              color: accentColor,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                post.content,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
             ),
-          ),
+          ] else ...[
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  post.content,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: accentColor,
+                    fontSize: 25,
+                  ),
+                ),
+              ),
+            ),
+          ],
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
