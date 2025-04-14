@@ -17,5 +17,6 @@ Ez a böngészők biztonsági korlátozása miatt van, és sajnos nem sikerült 
 A megoldáshoz telepíthető ez a Chrome-bővítmény:  
 👉 [Allow CORS: Access-Control-Allow-Origin](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?pli=1)
 
-
+## Adatbázis ábra
+Így lehetne ábrázolni a programhoz tartozó mySQL adatbázist, táblákat, mezőket és kapcsolatokat
 ![Adatbázis ábra](https://balgalazs.moriczcloud.hu/docs/blabber/adatbazis.svg)
