@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:typed_data'; // Needed for web image bytes
+import 'package:http_parser/http_parser.dart'; // For MediaType
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'identicard_edit_screen.dart';
 import '../main.dart';
 import 'own_posts_screen.dart';
+import 'package:image_picker/image_picker.dart';
+
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -19,8 +24,6 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => ProfilePageState();
 
 }
-// TODO: implement user profile
-// TODO: replace HomeScreen() to actual screens when készen vannak
 
 
 class ProfilePageState extends State<ProfilePage> {
@@ -74,7 +77,56 @@ class ProfilePageState extends State<ProfilePage> {
       });
     }
   }
+  Future<void> _pickAndUploadImage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
+      if (image == null) return;
+
+      final String apiUrl = 'https://kovacscsabi.moriczcloud.hu/api/pfp/set';
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+
+      // For web support, use bytes instead of file path
+      final bytes = await image.readAsBytes();
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          bytes,
+          filename: image.name,
+          contentType: MediaType('image', image.path.split('.').last),
+        ),
+      );
+
+      // Add any additional fields if required
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = 'application/json';
+
+      // Send the request
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        // Handle successful upload
+        final responseData = await response.stream.bytesToString();
+        // Parse responseData and update userData if needed
+        setState(() {
+          // Update UI with new image
+        });
+      } else {
+        // Handle error
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to upload image')),
+        );
+      }
+    } catch (e) {
+      // Handle any errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -94,29 +146,58 @@ class ProfilePageState extends State<ProfilePage> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 20),
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: baseColor,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Image.network(
-                      userData?['image_url'] ?? 'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
+                child: Stack(
+                  alignment: Alignment.bottomRight, // Position button at bottom-right
+                  children: [
+                    Container(
                       width: 100,
                       height: 100,
-                      fit: BoxFit.cover,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: baseColor,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Image.network(
+                          userData?['pfp_url'] ?? 'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Image.network(
+                            'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    // Add the edit button
+                    GestureDetector(
+                      onTap: () async {
+                        await _pickAndUploadImage();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: baseColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  userData?['name'] ?? 'Please log in',
+                  userData?['name'] ?? 'Jelentkezz be!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Roboto Mono',
@@ -126,7 +207,7 @@ class ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Text(
-                userData?['email']?? 'Please log in',
+                userData?['email']?? 'Jelentkezz be!',
                 style: TextStyle(
                   fontFamily: 'Roboto Mono',
                   fontSize: 16,
@@ -161,13 +242,13 @@ class ProfilePageState extends State<ProfilePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _buildActionButton(icon: Icons.edit_note_rounded,
-                                 label:  'edit',
+                                 label:  'szerkesztés',
                                   targetScreen:
                                   EditIdenticardScreen()
                               ),
                               _buildActionButton(
                                   icon: Icons.qr_code,
-                                  label:  'share',
+                                  label:  'megosztás',
                                   targetScreen:  HomePage()
                               ),
                             ],
@@ -185,17 +266,17 @@ class ProfilePageState extends State<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildActionButton(icon: Icons.people_sharp,
-                        label: 'friends',
+                        label: 'barátok',
                         targetScreen:  HomePage(),
                         backgroundColor: accentColor,
                         iconColor: baseColor),
                     _buildActionButton(icon: Icons.grid_on_sharp,
-                        label: 'my posts',
+                        label: 'bejegyzéseim',
                         targetScreen:  OwnPostsScreen(),
                         backgroundColor: accentColor,
                         iconColor: baseColor),
                     _buildActionButton(icon: Icons.settings_sharp,
-                        label: 'settings',
+                        label: 'beállítások',
                         targetScreen:  HomePage(),
                         backgroundColor: accentColor,
                         iconColor: baseColor),
@@ -258,3 +339,4 @@ class ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+
