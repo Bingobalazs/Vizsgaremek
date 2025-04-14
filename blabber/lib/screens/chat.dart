@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io'; // Szükséges az HttpClient-hez
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Chat üzenet modellje
 class ChatMessage {
   final String id;
   final String senderId;
@@ -31,6 +32,7 @@ class ChatMessage {
   }
 }
 
+// Token lekérése a SharedPreferences-ből
 Future<String> _getToken() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('auth_token');
@@ -42,6 +44,7 @@ class Chat extends StatefulWidget {
   final String userId;
   final String friendId;
   final String friendName;
+
   const Chat({
     Key? key,
     required this.userId,
@@ -58,108 +61,124 @@ class _ChatScreenState extends State<Chat> {
   final ScrollController _scrollController = ScrollController();
   List<ChatMessage> _messages = [];
   bool _isLoading = true;
-  int _lastMessageId = 0;
-  HttpClient? _httpClient;
   StreamSubscription<String>? _sseSubscription;
 
   @override
   void initState() {
     super.initState();
-    _loadMessages().then((_) {
-      if (_messages.isNotEmpty) {
-        _lastMessageId = int.tryParse(_messages.last.id) ?? 0;
-      }
-      _connectSSE();
+    _scrollController.addListener(_onScroll);
+    _fetchMessages(page: 1).then((_) {
+      _scrollToBottom();
+      // Kezdjük el az SSE előfizetést a valós idejű üzenetekhez.
+      _subscribeToSSE();
     });
   }
 
-  Future<void> _loadMessages() async {
-    String token = await _getToken();
-    setState(() {
-      _isLoading = true;
-    });
+  // Ha a lista tetejére görgetünk, pl. régebbi üzenetek betöltése
+  void _onScroll() {
+    if (_scrollController.position.pixels <=
+        _scrollController.position.minScrollExtent + 50) {
+      _fetchMessages(page: 1, prepend: true);
+    }
+  }
 
+  // Üzenetek lekérése a szerverről az API specifikációja alapján
+  Future<void> _fetchMessages({required int page, bool prepend = false}) async {
+    String token = await _getToken();
     try {
       final response = await http.get(
         Uri.parse(
-            'https://kovacscsabi.moriczcloud.hu/api/getchat/${widget.friendId}'),
+            'https://kovacscsabi.moriczcloud.hu/api/getchat/${widget.friendId}?page=$page'),
         headers: {'Authorization': 'Bearer $token'},
       );
-
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final dynamic decodedData = jsonDecode(response.body);
+        List<dynamic> dataList = decodedData['data'] ?? [];
+        List<ChatMessage> fetchedMessages = dataList
+            .map<ChatMessage>((json) => ChatMessage.fromJson(json))
+            .toList();
+
         setState(() {
-          _messages = data
-              .map<ChatMessage>((json) => ChatMessage.fromJson(json))
-              .toList();
+          if (prepend) {
+            _messages.insertAll(0, fetchedMessages);
+          } else {
+            _messages = fetchedMessages;
+          }
         });
       } else {
-        _showSnackBar(
-            'Hiba történt az üzenetek betöltésekor: ${response.body}');
+        _showSnackBar('Failed to fetch messages');
       }
     } catch (e) {
-      _showSnackBar('Hiba: $e');
+      _showSnackBar('Error: $e');
     } finally {
       setState(() {
         _isLoading = false;
       });
-      _scrollToBottom();
     }
   }
 
-  void _connectSSE() async {
-    print("sex?");
-    _httpClient = HttpClient();
-    // Paraméterként elküldjük a barát ID-t és az utolsó üzenet ID-t, amit eddig kaptunk.
-    var uri = Uri.parse(
-        'https://kovacscsabi.moriczcloud.hu/stream-chat/${widget.friendId}/$_lastMessageId');
+  // SSE-előfizetés a valós idejű üzenetekhez
+  void _subscribeToSSE() async {
+    String token = await _getToken();
+    final uri = Uri.parse(
+        'https://kovacscsabi.moriczcloud.hu/api/streamchat/${widget.friendId}');
+    final client = HttpClient();
     try {
-      var request = await _httpClient!.getUrl(uri);
-      // Az SSE kapcsolatoknak a "text/event-stream" fejléc szükséges.
-      request.headers.set(HttpHeaders.acceptHeader, "text/event-stream");
-      var response = await request.close();
+      final request = await client.getUrl(uri);
+      request.headers.add('Authorization', 'Bearer $token');
+      final response = await request.close();
 
-      // A válasz egy folyamatos szöveges stream, amely soronként érkezik.
-      response
+      _sseSubscription = response
           .transform(utf8.decoder)
-          .transform(LineSplitter())
-          .listen((line) {
-        if (line.startsWith("data:")) {
-          final dataStr = line.substring(5).trim();
-          try {
-            final data = jsonDecode(dataStr);
-            final newMessage = ChatMessage.fromJson(data);
-            final msgId = int.tryParse(newMessage.id) ?? _lastMessageId;
-            if (msgId > _lastMessageId) {
-              _lastMessageId = msgId;
+          .transform(const LineSplitter())
+          .listen((String line) {
+        if (line.startsWith('data:')) {
+          final jsonStr = line.substring(5).trim();
+          if (jsonStr.isNotEmpty) {
+            try {
+              final jsonData = jsonDecode(jsonStr);
+              final ChatMessage newMessage =
+                  ChatMessage.fromJson(jsonData);
               setState(() {
                 _messages.add(newMessage);
-                _messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
               });
               _scrollToBottom();
+            } catch (e) {
+              print('Hiba az üzenet dekódolása során: $e');
             }
-          } catch (e) {
-            print("Hiba az SSE adat feldolgozásában: $e");
           }
         }
+      }, onError: (error) {
+        print('SSE hiba: $error');
+        // Újracsatlakozás 5 másodperc múlva
+        Future.delayed(Duration(seconds: 5), () {
+          _subscribeToSSE();
+        });
+      }, onDone: () {
+        // Ha lezárult a kapcsolat, ismételjük meg
+        Future.delayed(Duration(seconds: 5), () {
+          _subscribeToSSE();
+        });
       });
     } catch (e) {
-      print("SSE kapcsolódási hiba: $e");
+      print('Hiba az SSE kapcsolat létesítése során: $e');
+      Future.delayed(Duration(seconds: 5), () {
+        _subscribeToSSE();
+      });
     }
   }
 
+  // Üzenet küldése
   void _sendMessage() async {
     String token = await _getToken();
-
     if (_messageController.text.trim().isEmpty) {
-      _showSnackBar('Nem küldhetsz üres üzenetet!');
+      _showSnackBar('Message cannot be empty');
       return;
     }
-
     final messageText = _messageController.text.trim();
     _messageController.clear();
 
-    // Optimista frissítés: az üzenet azonnal megjelenik.
+    // Optimista frissítés: ideiglenesen hozzáadjuk az elküldött üzenetet.
     final optimisticMessage = ChatMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
       senderId: widget.userId,
@@ -167,7 +186,6 @@ class _ChatScreenState extends State<Chat> {
       message: messageText,
       timestamp: DateTime.now(),
     );
-
     setState(() {
       _messages.add(optimisticMessage);
     });
@@ -176,25 +194,26 @@ class _ChatScreenState extends State<Chat> {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://kovacscsabi.moriczcloud.hu/api/postchat/${widget.userId}/${widget.friendId}/$messageText'),
-        headers: {'Authorization': 'Bearer $token'},
+            'https://kovacscsabi.moriczcloud.hu/api/postchat/${widget.friendId}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'chat': messageText}),
       );
-
-      if (response.statusCode != 201 && response.statusCode != 200) {
-        _showSnackBar(
-            'Nem sikerült elküldeni az üzenetet: ${response.body}');
+      if (response.statusCode != 200 && response.statusCode != 201) {
         setState(() {
           _messages.remove(optimisticMessage);
         });
       }
     } catch (e) {
-      _showSnackBar('Hiba: $e');
       setState(() {
         _messages.remove(optimisticMessage);
       });
     }
   }
 
+  // Lista legaljára ugrás, hogy a legfrissebb üzenet látható legyen
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -207,16 +226,17 @@ class _ChatScreenState extends State<Chat> {
     });
   }
 
+  // Hibaüzenetek megjelenítése Snackbar segítségével
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
-    _httpClient?.close(force: true);
     _sseSubscription?.cancel();
     super.dispose();
   }
@@ -226,63 +246,70 @@ class _ChatScreenState extends State<Chat> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.friendName),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _loadMessages,
-          ),
-        ],
       ),
       body: Column(
         children: [
           Expanded(
             child: _isLoading
                 ? Center(child: CircularProgressIndicator())
-                : _messages.isEmpty
-                    ? Center(child: Text('Még nincsenek üzenetek'))
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: EdgeInsets.all(8.0),
-                        itemCount: _messages.length,
-                        itemBuilder: (context, index) {
-                          final message = _messages[index];
-                          final isMe = message.senderId == widget.userId;
-                          return Align(
-                            alignment: isMe
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Container(
-                              margin: EdgeInsets.symmetric(vertical: 4.0),
-                              padding: EdgeInsets.all(12.0),
-                              decoration: BoxDecoration(
-                                color: isMe ? Colors.blue : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(12.0),
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: EdgeInsets.all(8.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      // Jobbra igazolás: ha az üzenet fogadója a beszélgetőpartner
+                      final bool isRightAligned =
+                          message.receiverId == widget.friendId;
+
+                      // Dátum formázás: ha az üzenet nem a mai napon történt, akkor a dátum is megjelenik.
+                      final now = DateTime.now();
+                      final bool showDate = message.timestamp.year != now.year ||
+                          message.timestamp.month != now.month ||
+                          message.timestamp.day != now.day;
+
+                      return Align(
+                        alignment: isRightAligned
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          margin: EdgeInsets.symmetric(vertical: 4.0),
+                          padding: EdgeInsets.all(12.0),
+                          decoration: BoxDecoration(
+                            color: isRightAligned
+                                ? Colors.blue
+                                : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                message.message,
+                                style: TextStyle(
+                                  color: isRightAligned
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    message.message,
-                                    style: TextStyle(
-                                      color: isMe ? Colors.white : Colors.black,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4.0),
-                                  Text(
-                                    '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
-                                    style: TextStyle(
-                                      color: isMe
-                                          ? Colors.white70
-                                          : Colors.black54,
-                                      fontSize: 10.0,
-                                    ),
-                                  ),
-                                ],
+                              SizedBox(height: 4.0),
+                              Text(
+                                showDate
+                                    ? '${message.timestamp.day}.${message.timestamp.month}.${message.timestamp.year} ${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}'
+                                    : '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
+                                style: TextStyle(
+                                  color: isRightAligned
+                                      ? Colors.white70
+                                      : Colors.black54,
+                                  fontSize: 10.0,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
           Container(
             padding: EdgeInsets.all(8.0),
@@ -292,15 +319,13 @@ class _ChatScreenState extends State<Chat> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: 'Írj üzenetet...',
+                      hintText: 'Type a message...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24.0),
                       ),
                       contentPadding: EdgeInsets.symmetric(
                           horizontal: 16.0, vertical: 8.0),
                     ),
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _sendMessage(),
                   ),
                 ),
                 SizedBox(width: 8.0),
@@ -316,18 +341,4 @@ class _ChatScreenState extends State<Chat> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    title: 'Real-time Chat App',
-    theme: ThemeData(
-      primarySwatch: Colors.blue,
-    ),
-    home: Chat(
-      userId: '123',
-      friendId: '456',
-      friendName: 'János',
-    ),
-  ));
 }
