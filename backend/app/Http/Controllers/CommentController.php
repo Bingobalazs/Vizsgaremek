@@ -47,7 +47,7 @@ class CommentController extends Controller
         $comment = Comment::create($validated);
 
         return response()->json([
-            'message' => 'Jó lesz!!',
+            'message' => 'Jó lesz!4!',
             'comment' => $comment,
         ], 201);
     }
