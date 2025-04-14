@@ -314,11 +314,7 @@
 
 <div class="container">
     <div class="profile-header">
-        @if($user->cover_photo)
-            <img src="{{ $user->cover_photo }}" alt="Cover" class="cover-photo">
-        @else
-            <div class="cover-photo" style="background: linear-gradient(45deg, var(--background), var(--accent))"></div>
-        @endif
+
 
 
         <div class="profile-picture-container">
@@ -331,7 +327,7 @@
     </div>
 
     <div class="glitch-container">
-        <h1 class="glitch">{{ $user->name }}</h1>
+        <h1 style="color: var(--accent)">{{ $user->name }}</h1>
     </div>
 
     <p style="margin-bottom: 40px; font-size: 1.2rem; color: var(--accent); font-family: 'Share Tech Mono', monospace;">
@@ -532,6 +528,7 @@
                 Education & Skills
             </h2>
 
+            <!-- Education (unchanged, assuming it works) -->
             @if($user->education)
                 @php
                     $education = json_decode($user->education, true);
@@ -552,40 +549,61 @@
                 @endif
             @endif
 
+            <!-- Skills -->
             @if($user->skills)
+                @php
+                    $skills = json_decode($user->skills, true);
+                @endphp
                 <div class="info-group">
                     <div class="info-label">Skills</div>
                     <div class="skill-tags">
-                        @foreach(explode(',', $user->skills) as $skill)
-                            <span class="skill-tag">{{ trim($skill) }}</span>
-                        @endforeach
+                        @if(is_array($skills))
+                            @foreach($skills as $skill)
+                                <span class="skill-tag">{{ $skill }}</span>
+                            @endforeach
+                        @else
+                            <span class="skill-tag">{{ $user->skills }}</span>
+                        @endif
                     </div>
                 </div>
             @endif
 
+            <!-- Certifications -->
             @if($user->certifications)
+                @php
+                    $certifications = json_decode($user->certifications, true);
+                @endphp
                 <div class="info-group">
                     <div class="info-label">Certifications</div>
                     <div class="info-value">
-                        @foreach(explode(',', $user->certifications) as $cert)
-                            @php
-                                $c = json_decode($cert);
-                            @endphp
-                            <div class="timeline-subtitle">{{ trim($c) }}</div>
-
-                        @endforeach
-
+                        @if(is_array($certifications))
+                            @foreach($certifications as $cert)
+                                <div class="timeline-subtitle">
+                                    {{ $cert['name'] ?? '' }} - {{ $cert['issuer'] ?? '' }} ({{ $cert['year'] ?? '' }})
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="timeline-subtitle">{{ $user->certifications }}</div>
+                        @endif
                     </div>
                 </div>
             @endif
 
+            <!-- Languages -->
             @if($user->languages)
+                @php
+                    $languages = json_decode($user->languages, true);
+                @endphp
                 <div class="info-group">
                     <div class="info-label">Languages</div>
                     <div class="skill-tags">
-                        @foreach(explode(',', $user->languages) as $language)
-                            <span class="skill-tag">{{ trim($language) }}</span>
-                        @endforeach
+                        @if(is_array($languages))
+                            @foreach($languages as $lang => $level)
+                                <span class="skill-tag">{{ $lang }} ({{ $level }})</span>
+                            @endforeach
+                        @else
+                            <span class="skill-tag">{{ $user->languages }}</span>
+                        @endif
                     </div>
                 </div>
             @endif

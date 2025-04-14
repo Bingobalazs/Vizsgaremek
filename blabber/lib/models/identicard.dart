@@ -14,18 +14,18 @@ class Identicard {
   String? pronouns;
   String? relationshipStatus;
   String? phone;
-  String? messagingApps; // JSON string
+  String? messagingApps;
   String? website;
-  String? socialHandles; // JSON string
+  String? socialHandles;
   String? currentWorkplace;
   String? jobTitle;
-  String? previousWorkplaces; // JSON string
-  String? education; // JSON string
-  String? skills; // JSON string
-  String? certifications; // JSON string
-  String? languages; // JSON string
+  String? previousWorkplaces;
+  String? education;
+  List<String>? skills; // Updated
+  String? certifications;
+  String? languages;
+  List<String>? hobbies; // Updated
   String? portfolioLink;
-  String? hobbies; // JSON string
   String? themePrimaryColor;
   String? themeAccentColor;
   String? themeBgColor;
@@ -55,8 +55,8 @@ class Identicard {
     this.skills,
     this.certifications,
     this.languages,
-    this.portfolioLink,
     this.hobbies,
+    this.portfolioLink,
     this.themePrimaryColor,
     this.themeAccentColor,
     this.themeBgColor,
@@ -85,11 +85,11 @@ class Identicard {
       jobTitle: json['job_title'],
       previousWorkplaces: json['previous_workplaces'],
       education: json['education'],
-      skills: json['skills'],
+      skills: json['skills'] != null ? List<String>.from(jsonDecode(json['skills'])) : null,
       certifications: json['certifications'],
       languages: json['languages'],
+      hobbies: json['hobbies'] != null ? List<String>.from(jsonDecode(json['hobbies'])) : null,
       portfolioLink: json['portfolio_link'],
-      hobbies: json['hobbies'],
       themePrimaryColor: json['theme_primary_color'],
       themeAccentColor: json['theme_accent_color'],
       themeBgColor: json['theme_bg_color'],

@@ -94,7 +94,7 @@ class ProfilePageState extends State<ProfilePage> {
       final bytes = await image.readAsBytes();
       request.files.add(
         http.MultipartFile.fromBytes(
-          'image',
+          'profile_picture',
           bytes,
           filename: image.name,
           contentType: MediaType('image', image.path.split('.').last),
