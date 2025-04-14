@@ -39,14 +39,17 @@ class CommentController extends Controller
     public function addComment(Request $request)
     {
         $validated = $request->validate([
-            'post_id'  => 'required|integer',
-            'post'     => 'required|boolean',
-            'comment'  => 'required|string',
-            'user_id'  => 'required|integer',
+            'post_id' => 'required|integer',
+            'comment' => 'required|string',
+            'user_id' => 'required|integer',
         ]);
 
-        $comment = ":(";
+        $comment = Comment::create($validated);
 
-        return response()->json($comment, 201);
+        return response()->json([
+            'message' => 'Jó lesz!!',
+            'comment' => $comment,
+        ], 201);
     }
-}
+
+    }
