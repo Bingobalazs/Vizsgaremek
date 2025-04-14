@@ -1,6 +1,6 @@
 <?php
 return [
-    'paths' => ['api/*', '/PixelArtSpotlight/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'uploads/*', 'sanctum/csrf-cookie', 'public/uploads/*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'https://balgalazs.moriczcloud.hu',

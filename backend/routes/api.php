@@ -35,6 +35,11 @@ Route::controller(SearchController::class)->group(function () {
 
     Route::get('/search/{query}', 'search');
 });
+
+Route::controller(FriendsController::class)->group(function () {
+
+    Route::get('/getUser/{userId}', 'getUserWithPosts');
+});
 // AUTH ONLY
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -48,9 +53,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::controller(ChatController::class)->group(function () {
 
-        Route::post('/postchat/{user_id}/{friend_id}/{chat}', 'postchat')->name('postchat');
+        Route::post('/postchat/{friend_id}', 'postchat')->name('postchat');
         Route::get('/getchat/{friend_id}', 'getchat')->name('getchat');
+        Route::get('/streamchat/{friend_id}', 'streamChat');
     });
+
     Route::get('stream-chat/{friend_id}/{lastMessageId}', [ChatController::class, 'streamChat']);
 
     Route::controller(FriendsController::class)->group(function () {
