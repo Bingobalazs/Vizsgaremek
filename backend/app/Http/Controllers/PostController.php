@@ -13,7 +13,6 @@ class PostController extends Controller
     // Get a paginated list of posts (e.g., a feed)
     public function index(Request $request)
     {
-
         // Get the authenticated user
         $user = Auth::user();
 
@@ -28,6 +27,16 @@ class PostController extends Controller
         // Fetch unseen posts first
         $unseenPosts = Post::with('user:id,name')
             ->whereNotIn('id', $seenPostIds)
+            // **Modified condition: Include posts if the user is public or is a friend**
+            ->whereHas('user', function ($query) use ($user) {
+                $query->where('public', true)
+                    ->orWhereHas('friends', function ($friendQuery) use ($user) {
+                        $friendQuery->where(function ($relation) use ($user) {
+                            $relation->where('user_id', $user->id)
+                                ->orWhere('other_user_id', $user->id); // Assuming friends table has user_id and friend_id columns
+                        });
+                    });
+            })
             ->orderBy('created_at', 'desc')
             ->skip($offset)
             ->take($perPage)
@@ -43,6 +52,16 @@ class PostController extends Controller
 
             $seenPosts = Post::with('user:id,name')
                 ->whereIn('id', $seenPostIds)
+                // **Modified condition: Include posts if the user is public or is a friend**
+                ->whereHas('user', function ($query) use ($user) {
+                    $query->where('public', true)
+                        ->orWhereHas('friends', function ($friendQuery) use ($user) {
+                            $friendQuery->where(function ($relation) use ($user) {
+                                $relation->where('user_id', $user->id)
+                                    ->orWhere('other_user_id', $user->id);
+                            });
+                        });
+                })
                 ->orderBy('created_at', 'desc')
                 ->skip($seenOffset)
                 ->take($remaining)
@@ -63,7 +82,16 @@ class PostController extends Controller
         });
 
         // Check if more posts exist
-        $totalPosts = Post::count();
+        $totalPosts = Post::whereHas('user', function ($query) use ($user) {
+            $query->where('public', true)
+                // **Modified condition here too**
+                ->orWhereHas('friends', function ($friendQuery) use ($user) {
+                    $friendQuery->where(function ($relation) use ($user) {
+                        $relation->where('user_id', $user->id)
+                            ->orWhere('other_user_id', $user->id);
+                    });
+                });
+        })->count();
         $hasMore = ($offset + $perPage) < $totalPosts;
 
         return response()->json([
@@ -72,6 +100,8 @@ class PostController extends Controller
             'has_more' => $hasMore
         ]);
     }
+
+
 
 
 
