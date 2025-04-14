@@ -30,7 +30,7 @@ class CommentController extends Controller
     {
         $commentReplies = Comment::where('post', 0)
             ->where('post_id', $commentId)
-            ->orderBy('created_at', 'asc')
+            ->orderBy('created_at', 'desc')
             ->get();
         
         return response()->json($commentReplies);
