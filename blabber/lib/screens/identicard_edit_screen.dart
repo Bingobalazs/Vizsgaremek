@@ -1,756 +1,512 @@
+
+
+import 'package:blabber/models/identicard.dart';
+import 'package:blabber/services/identicard_service.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:blabber/models/identicard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:intl/intl.dart'; // For date formatting
 
-import '../services/identicard_service.dart';
-
-
-
-// Define colors
-final accentColor = Color.fromRGBO(255, 32, 78, 1);
-final baseColor = Color.fromRGBO(0, 34, 77, 1);
-final textColor = Colors.white;
-
-class EditIdenticardScreen extends StatefulWidget {
-
-
-  const EditIdenticardScreen();
+class IdenticardScreen extends StatefulWidget {
+  const IdenticardScreen({Key? key}) : super(key: key);
 
   @override
-  State<EditIdenticardScreen> createState() => _EditIdenticardScreenState();
+  _IdenticardScreenState createState() => _IdenticardScreenState();
 }
 
-class _EditIdenticardScreenState extends State<EditIdenticardScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final IdenticardService _service = IdenticardService();
-  bool _exists = false;
-  bool _isLoading = true;
+class _IdenticardScreenState extends State<IdenticardScreen> {
+  bool isLoading = true;
+  bool exists = false;
+  Identicard? identicard;
+  String? token;
 
-  // Controllers for text fields
-  final _nameController = TextEditingController();
-  final _profilePictureController = TextEditingController();
-  final _coverPhotoController = TextEditingController();
-  final _bioController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _birthdayController = TextEditingController();
-  final _pronounsController = TextEditingController();
-  final _relationshipStatusController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _websiteController = TextEditingController();
-  final _currentWorkplaceController = TextEditingController();
-  final _jobTitleController = TextEditingController();
-  final _portfolioLinkController = TextEditingController();
-  final _themePrimaryColorController = TextEditingController();
-  final _themeAccentColorController = TextEditingController();
-  final _themeBgColorController = TextEditingController();
-  final _themeTextColorController = TextEditingController();
+  // Controllers for simple fields
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController bioController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
+  final TextEditingController birthdayController = TextEditingController();
+  final TextEditingController pronounsController = TextEditingController();
+  final TextEditingController relationshipStatusController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController websiteController = TextEditingController();
+  final TextEditingController currentWorkplaceController = TextEditingController();
+  final TextEditingController jobTitleController = TextEditingController();
+  final TextEditingController portfolioLinkController = TextEditingController();
 
-  List<String> _skills = [];
-  List<String> _hobbies = [];
-  Map<String, String> _messagingApps = {};
-  Map<String, String> _socialHandles = {};
-  List<Map<String, String>> _previousWorkplaces = [];
-  List<Map<String, String>> _education = [];
-  List<Map<String, String>> _certifications = [];
-  List<Map<String, String>> _languages = [];
-  String? _profileVisibility;
+  // State variables for complex fields
+  Map<String, String> messagingApps = {};
+  Map<String, String> socialHandles = {};
+  List<Workplace> previousWorkplaces = [];
+  List<Education> education = [];
+  List<String> skills = [];
+  List<Certification> certifications = [];
+  Map<String, String> languages = {};
+  List<String> hobbies = [];
+
+  // Color fields
+  Color primaryColor = Colors.blue;
+  Color accentColor = Colors.yellow;
+  Color bgColor = Colors.white;
+  Color textColor = Colors.black;
+
+  String profileVisibility = 'public';
 
   @override
   void initState() {
     super.initState();
     _loadData();
   }
-// Helper method to parse JSON arrays from strings with proper type handling
-  List<dynamic> parseJsonArray(dynamic value) {
-    if (value == null || value == "null") {
-      return [];
-    }
-
-    if (value is List) {
-      return value;
-    }
-
-    try {
-      final decoded = jsonDecode(value.toString());
-      if (decoded is List) {
-        return decoded;
-      }
-      return [];
-    } catch (e) {
-      print('Error parsing JSON array: $e');
-      return [];
-    }
-  }
-
-// Helper method to parse JSON maps from strings
-  Map<String, String> parseJsonMap(dynamic value) {
-    if (value == null || value == "null") {
-      return {};
-    }
-
-    if (value is Map) {
-      return Map<String, String>.from(
-          value.map((key, val) => MapEntry(key.toString(), val?.toString() ?? '')));
-    }
-
-    try {
-      final decoded = jsonDecode(value.toString());
-      if (decoded is Map) {
-        return Map<String, String>.from(
-            decoded.map((key, val) => MapEntry(key.toString(), val?.toString() ?? '')));
-      }
-      return {};
-    } catch (e) {
-      print('Error parsing JSON map: $e');
-      return {};
-    }
-  }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+    final prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('auth_token');
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No authentication token found')),
+      );
+      setState(() => isLoading = false);
+      return;
+    }
+
     try {
-      final exists = await _service.checkExists();
-      setState(() => _exists = exists);
+      exists = await IdenticardService.checkIdenticardExists(token!);
       if (exists) {
-        final identicard = await _service.getIdenticard();
-        setState(() {
-          _nameController.text = identicard.name ?? '';
-          _profilePictureController.text = identicard.profilePicture ?? '';
-          _coverPhotoController.text = identicard.coverPhoto ?? '';
-          _bioController.text = identicard.bio ?? '';
-          _locationController.text = identicard.location ?? '';
-          _birthdayController.text = identicard.birthday?.toIso8601String().split('T')[0] ?? '';
-          _pronounsController.text = identicard.pronouns ?? '';
-          _relationshipStatusController.text = identicard.relationshipStatus ?? '';
-          _phoneController.text = identicard.phone ?? '';
-          _websiteController.text = identicard.website ?? '';
-          _currentWorkplaceController.text = identicard.currentWorkplace ?? '';
-          _jobTitleController.text = identicard.jobTitle ?? '';
-          _portfolioLinkController.text = identicard.portfolioLink ?? '';
-          _themePrimaryColorController.text = identicard.themePrimaryColor ?? '';
-          _themeAccentColorController.text = identicard.themeAccentColor ?? '';
-          _themeBgColorController.text = identicard.themeBgColor ?? '';
-          _themeTextColorController.text = identicard.themeTextColor ?? '';
-
-          // Parse string fields first
-          final skills = parseJsonArray(identicard.skills);
-          final hobbies = parseJsonArray(identicard.hobbies);
-          _skills = skills.isNotEmpty ? skills.map((s) => s.toString()).toList() : [];
-          _hobbies = hobbies.isNotEmpty ? hobbies.map((h) => h.toString()).toList() : [];
-
-          // Handle map fields
-          _messagingApps = parseJsonMap(identicard.messagingApps);
-          _socialHandles = parseJsonMap(identicard.socialHandles);
-
-          // Handle complex objects
-          final previousWorkplaces = parseJsonArray(identicard.previousWorkplaces);
-          final education = parseJsonArray(identicard.education);
-          final certifications = parseJsonArray(identicard.certifications);
-          final languages = parseJsonArray(identicard.languages);
-
-          _previousWorkplaces = previousWorkplaces.isNotEmpty
-              ? previousWorkplaces.map((w) => Map<String, String>.from(
-              w.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''))
-          )).toList()
-              : [];
-
-          _education = education.isNotEmpty
-              ? education.map((e) => Map<String, String>.from(
-              e.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''))
-          )).toList()
-              : [];
-
-          _certifications = certifications.isNotEmpty
-              ? certifications.map((c) => Map<String, String>.from(
-              c.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''))
-          )).toList()
-              : [];
-
-          _languages = languages.isNotEmpty
-              ? languages.map((l) => Map<String, String>.from(
-              l.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''))
-          )).toList()
-              : [];
-
-          _profileVisibility = identicard.profileVisibility ?? 'public';
-        });
-      } else {
-        _profileVisibility = 'public'; // Default value if no Identicard exists
+        identicard = await IdenticardService.getIdenticard(token!);
+        if (identicard != null) {
+          _populateFields();
+        }
       }
     } catch (e) {
-      print('Detailed error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading data: $e')),
       );
     } finally {
-      setState(() => _isLoading = false);
+      setState(() => isLoading = false);
     }
   }
 
-  Future<void> _save() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      final identicard = Identicard(
-        name: _nameController.text.isEmpty ? null : _nameController.text,
-        profilePicture: _profilePictureController.text.isEmpty ? null : _profilePictureController.text,
-        coverPhoto: _coverPhotoController.text.isEmpty ? null : _coverPhotoController.text,
-        bio: _bioController.text.isEmpty ? null : _bioController.text,
-        location: _locationController.text.isEmpty ? null : _locationController.text,
-        birthday: _birthdayController.text.isEmpty ? null : DateTime.parse(_birthdayController.text),
-        pronouns: _pronounsController.text.isEmpty ? null : _pronounsController.text,
-        relationshipStatus: _relationshipStatusController.text.isEmpty ? null : _relationshipStatusController.text,
-        phone: _phoneController.text.isEmpty ? null : _phoneController.text,
-        messagingApps: _messagingApps.isEmpty ? null : _messagingApps,
-        website: _websiteController.text.isEmpty ? null : _websiteController.text,
-        socialHandles: _socialHandles.isEmpty ? null : _socialHandles,
-        currentWorkplace: _currentWorkplaceController.text.isEmpty ? null : _currentWorkplaceController.text,
-        jobTitle: _jobTitleController.text.isEmpty ? null : _jobTitleController.text,
-        previousWorkplaces: _previousWorkplaces.isEmpty ? null : _previousWorkplaces,
-        education: _education.isEmpty ? null : _education,
-        certifications: _certifications.isEmpty ? null : _certifications,
-        languages: _languages.isEmpty ? null : _languages,
-        portfolioLink: _portfolioLinkController.text.isEmpty ? null : _portfolioLinkController.text,
-        skills: _skills.isEmpty ? null : _skills,
-        hobbies: _hobbies.isEmpty ? null : _hobbies,
-        themePrimaryColor: _themePrimaryColorController.text.isEmpty ? null : _themePrimaryColorController.text,
-        themeAccentColor: _themeAccentColorController.text.isEmpty ? null : _themeAccentColorController.text,
-        themeBgColor: _themeBgColorController.text.isEmpty ? null : _themeBgColorController.text,
-        themeTextColor: _themeTextColorController.text.isEmpty ? null : _themeTextColorController.text,
-        profileVisibility: _profileVisibility,
-      );
-      try {
-        if (_exists) {
-          await _service.updateIdenticard(identicard);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Identicard updated successfully')),
-          );
-        } else {
-          await _service.addIdenticard(identicard);
-          setState(() => _exists = true); // Mark as existing after adding
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Identicard added successfully')),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save: $e')),
-        );
-      } finally {
-        setState(() => _isLoading = false);
+  void _populateFields() {
+    nameController.text = identicard!.name ?? '';
+    usernameController.text = identicard!.username ?? '';
+    bioController.text = identicard!.bio ?? '';
+    locationController.text = identicard!.location ?? '';
+    birthdayController.text = identicard!.birthday ?? '';
+    pronounsController.text = identicard!.pronouns ?? '';
+    relationshipStatusController.text = identicard!.relationshipStatus ?? '';
+    phoneController.text = identicard!.phone ?? '';
+    websiteController.text = identicard!.website ?? '';
+    currentWorkplaceController.text = identicard!.currentWorkplace ?? '';
+    jobTitleController.text = identicard!.jobTitle ?? '';
+    portfolioLinkController.text = identicard!.portfolioLink ?? '';
+
+    if (identicard!.messagingApps != null) {
+      messagingApps = Map<String, String>.from(jsonDecode(identicard!.messagingApps!));
+    }
+    if (identicard!.socialHandles != null) {
+      socialHandles = Map<String, String>.from(jsonDecode(identicard!.socialHandles!));
+    }
+    if (identicard!.previousWorkplaces != null) {
+      previousWorkplaces = (jsonDecode(identicard!.previousWorkplaces!) as List)
+          .map((item) => Workplace.fromJson(item))
+          .toList();
+    }
+    if (identicard!.education != null) {
+      education = (jsonDecode(identicard!.education!) as List)
+          .map((item) => Education.fromJson(item))
+          .toList();
+    }
+    if (identicard!.skills != null) {
+      skills = List<String>.from(jsonDecode(identicard!.skills!));
+    }
+    if (identicard!.certifications != null) {
+      certifications = (jsonDecode(identicard!.certifications!) as List)
+          .map((item) => Certification.fromJson(item))
+          .toList();
+    }
+    if (identicard!.languages != null) {
+      languages = Map<String, String>.from(jsonDecode(identicard!.languages!));
+    }
+    if (identicard!.hobbies != null) {
+      hobbies = List<String>.from(jsonDecode(identicard!.hobbies!));
+    }
+    if (identicard!.themePrimaryColor != null) {
+      primaryColor = Color(int.parse(identicard!.themePrimaryColor!.substring(1), radix: 16) + 0xFF000000);
+    }
+    if (identicard!.themeAccentColor != null) {
+      accentColor = Color(int.parse(identicard!.themeAccentColor!.substring(1), radix: 16) + 0xFF000000);
+    }
+    if (identicard!.themeBgColor != null) {
+      bgColor = Color(int.parse(identicard!.themeBgColor!.substring(1), radix: 16) + 0xFF000000);
+    }
+    if (identicard!.themeTextColor != null) {
+      textColor = Color(int.parse(identicard!.themeTextColor!.substring(1), radix: 16) + 0xFF000000);
+    }
+    profileVisibility = identicard!.profileVisibility ?? 'public';
+  }
+
+  Future<void> _saveData() async {
+    final data = {
+      'name': nameController.text,
+      'username': usernameController.text,
+      'bio': bioController.text,
+      'location': locationController.text,
+      'birthday': birthdayController.text,
+      'pronouns': pronounsController.text,
+      'relationship_status': relationshipStatusController.text,
+      'phone': phoneController.text,
+      'website': websiteController.text,
+      'current_workplace': currentWorkplaceController.text,
+      'job_title': jobTitleController.text,
+      'portfolio_link': portfolioLinkController.text,
+      'messaging_apps': jsonEncode(messagingApps),
+      'social_handles': jsonEncode(socialHandles),
+      'previous_workplaces': jsonEncode(previousWorkplaces.map((wp) => wp.toJson()).toList()),
+      'education': jsonEncode(education.map((ed) => ed.toJson()).toList()),
+      'skills': jsonEncode(skills),
+      'certifications': jsonEncode(certifications.map((cert) => cert.toJson()).toList()),
+      'languages': jsonEncode(languages),
+      'hobbies': jsonEncode(hobbies),
+      'theme_primary_color': '#${primaryColor.value.toRadixString(16).substring(2)}',
+      'theme_accent_color': '#${accentColor.value.toRadixString(16).substring(2)}',
+      'theme_bg_color': '#${bgColor.value.toRadixString(16).substring(2)}',
+      'theme_text_color': '#${textColor.value.toRadixString(16).substring(2)}',
+      'profile_visibility': profileVisibility,
+    };
+
+    try {
+      setState(() => isLoading = true);
+      if (exists) {
+        await IdenticardService.updateIdenticard(token!, data);
+      } else {
+        await IdenticardService.addIdenticard(token!, data);
+        exists = true;
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Data saved successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving data: $e')),
+      );
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        cardTheme: CardTheme(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
-            side: BorderSide(color: accentColor, width: 2),
+  void _showColorPicker(String field, Color initialColor, Function(Color) onColorChanged) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Pick a color for $field'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: initialColor,
+            onColorChanged: onColorChanged,
           ),
-          color: baseColor,
-          elevation: 0,
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Done'),
+          ),
+        ],
       ),
-      child: Scaffold(
-        backgroundColor: baseColor,
-        appBar: AppBar(
-          title: Text('Edit Identicard'),
-          backgroundColor: baseColor,
-          foregroundColor: textColor,
-        ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
+    );
+  }
+
+  void _showDatePicker() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        birthdayController.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
+
+  void _showMapEditorDialog(String title, Map<String, String> map, Function(Map<String, String>) onSave) {
+    final Map<String, String> tempMap = Map.from(map);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit $title'),
+        content: SingleChildScrollView(
+          child: StatefulBuilder(
+            builder: (context, setStateDialog) => Column(
               children: [
-                _buildPersonalInformationSection(),
-                SizedBox(height: 20),
-                _buildContactInformationSection(),
-                SizedBox(height: 20),
-                _buildWorkAndEducationSection(),
-                SizedBox(height: 20),
-                _buildSkillsAndInterestsSection(),
-                SizedBox(height: 20),
-                _buildThemeSettingsSection(),
-                SizedBox(height: 20),
+                ...tempMap.entries.map((entry) => Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: entry.key),
+                        decoration: const InputDecoration(labelText: 'Key'),
+                        onChanged: (value) {
+                          final oldValue = entry.value;
+                          tempMap.remove(entry.key);
+                          tempMap[value] = oldValue;
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: entry.value),
+                        decoration: const InputDecoration(labelText: 'Value'),
+                        onChanged: (value) => tempMap[entry.key] = value,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => setStateDialog(() => tempMap.remove(entry.key)),
+                    ),
+                  ],
+                )),
                 ElevatedButton(
-                  onPressed: _save,
-                  style: ElevatedButton.styleFrom(backgroundColor: accentColor),
-                  child: Text('Save', style: TextStyle(color: textColor)),
+                  onPressed: () => setStateDialog(() => tempMap[''] = ''),
+                  child: const Text('Add New'),
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPersonalInformationSection() {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Personal Information', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 255,
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _profilePictureController,
-              decoration: InputDecoration(labelText: 'Profile Picture URL', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 255,
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _coverPhotoController,
-              decoration: InputDecoration(labelText: 'Cover Photo URL', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 255,
-              validator: (value) => value != null && value.length > 255 ? 'Max 255 characters' : null,
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _bioController,
-              decoration: InputDecoration(labelText: 'Bio', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLines: 3,
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _locationController,
-              decoration: InputDecoration(labelText: 'Location', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 255,
-              validator: (value) => value != null && value.length > 255 ? 'Max 255 characters' : null,
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _birthdayController,
-              decoration: InputDecoration(labelText: 'Birthday (YYYY-MM-DD)', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              onTap: () async {
-                DateTime? picked = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-                if (picked != null) _birthdayController.text = picked.toIso8601String().split('T')[0];
-              },
-              validator: (value) {
-                if (value != null && value.isNotEmpty) {
-                  try {
-                    DateTime.parse(value);
-                  } catch (e) {
-                    return 'Invalid date format';
-                  }
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _pronounsController,
-              decoration: InputDecoration(labelText: 'Pronouns', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 50,
-              validator: (value) => value != null && value.length > 50 ? 'Max 50 characters' : null,
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _relationshipStatusController,
-              decoration: InputDecoration(labelText: 'Relationship Status', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 50,
-              validator: (value) => value != null && value.length > 50 ? 'Max 50 characters' : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContactInformationSection() {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Contact Information', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _phoneController,
-              decoration: InputDecoration(labelText: 'Phone', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 20,
-              validator: (value) => value != null && value.length > 20 ? 'Max 20 characters' : null,
-            ),
-            SizedBox(height: 10),
-            KeyValueListInput(
-              initialItems: _messagingApps,
-              onChanged: (newMap) => setState(() => _messagingApps = newMap),
-              keyLabel: 'App Name',
-              valueLabel: 'Handle',
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _websiteController,
-              decoration: InputDecoration(labelText: 'Website', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 255,
-              validator: (value) => value != null && value.length > 255 ? 'Max 255 characters' : null,
-            ),
-            SizedBox(height: 10),
-            KeyValueListInput(
-              initialItems: _socialHandles,
-              onChanged: (newMap) => setState(() => _socialHandles = newMap),
-              keyLabel: 'Platform',
-              valueLabel: 'Handle',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWorkAndEducationSection() {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Work and Education', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _currentWorkplaceController,
-              decoration: InputDecoration(labelText: 'Current Workplace', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 255,
-              validator: (value) => value != null && value.length > 255 ? 'Max 255 characters' : null,
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _jobTitleController,
-              decoration: InputDecoration(labelText: 'Job Title', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 255,
-              validator: (value) => value != null && value.length > 255 ? 'Max 255 characters' : null,
-            ),
-            SizedBox(height: 10),
-            StructuredListInput(
-              initialItems: _previousWorkplaces.map((item) => Map<String, String>.from(item)).toList(),
-              fields: ['company', 'position', 'duration'],
-              title: 'Workplaces',
-              onChanged: (newList) => setState(() => _previousWorkplaces = newList),
-            ),
-            SizedBox(height: 10),
-            StructuredListInput(
-              initialItems: _education.map((item) => Map<String, String>.from(item)).toList(),
-              fields: ['institution', 'degree', 'year'],
-              title: 'Education',
-              onChanged: (newList) => setState(() => _education = newList),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSkillsAndInterestsSection() {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Skills and Interests', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            StructuredListInput(
-              initialItems: _skills.map((skill) => {'skill': skill}).toList(),
-              fields: ['skill'],
-              title: 'Skills',
-              onChanged: (newList) => setState(() => _skills = newList.map((item) => item['skill']!).toList()),
-            ),
-            SizedBox(height: 10),
-            StructuredListInput(
-              initialItems: _certifications.map((item) => Map<String, String>.from(item)).toList(),
-              fields: ['name', 'issuer', 'date'],
-              title: 'Certifications',
-              onChanged: (newList) => setState(() => _certifications = newList),
-            ),
-            SizedBox(height: 10),
-            StructuredListInput(
-              initialItems: _languages.map((item) => Map<String, String>.from(item)).toList(),
-              fields: ['language', 'proficiency'],
-              onChanged: (newList) => setState(() => _languages = newList),
-              title: 'Languages',
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _portfolioLinkController,
-              decoration: InputDecoration(labelText: 'Portfolio Link', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              maxLength: 255,
-              validator: (value) => value != null && value.length > 255 ? 'Max 255 characters' : null,
-            ),
-            SizedBox(height: 10),
-            StructuredListInput(
-              initialItems: _hobbies.map((hobby) => {'hobby': hobby}).toList(),
-              fields: ['hobby'],
-              title: 'Hobbies',
-              onChanged: (newList) => setState(() => _hobbies = newList.map((item) => item['hobby']!).toList()),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThemeSettingsSection() {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Theme Settings', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _themePrimaryColorController,
-              decoration: InputDecoration(labelText: 'Primary Color (#RRGGBB)', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              validator: (value) {
-                if (value != null && value.isNotEmpty && !RegExp(r'^#([A-Fa-f0-9]{6})$').hasMatch(value)) {
-                  return 'Invalid hex color';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _themeAccentColorController,
-              decoration: InputDecoration(labelText: 'Accent Color (#RRGGBB)', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              validator: (value) {
-                if (value != null && value.isNotEmpty && !RegExp(r'^#([A-Fa-f0-9]{6})$').hasMatch(value)) {
-                  return 'Invalid hex color';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _themeBgColorController,
-              decoration: InputDecoration(labelText: 'Background Color (#RRGGBB)', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              validator: (value) {
-                if (value != null && value.isNotEmpty && !RegExp(r'^#([A-Fa-f0-9]{6})$').hasMatch(value)) {
-                  return 'Invalid hex color';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _themeTextColorController,
-              decoration: InputDecoration(labelText: 'Text Color (#RRGGBB)', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              validator: (value) {
-                if (value != null && value.isNotEmpty && !RegExp(r'^#([A-Fa-f0-9]{6})$').hasMatch(value)) {
-                  return 'Invalid hex color';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: _profileVisibility,
-              decoration: InputDecoration(labelText: 'Profile Visibility', labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-              dropdownColor: baseColor,
-              items: ['public', 'private'].map((v) => DropdownMenuItem(value: v, child: Text(v, style: TextStyle(color: textColor)))).toList(),
-              onChanged: (value) => setState(() => _profileVisibility = value),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Custom widget for key-value pairs
-class KeyValueListInput extends StatefulWidget {
-  final Map<String, String> initialItems;
-  final Function(Map<String, String>) onChanged;
-  final String keyLabel;
-  final String valueLabel;
-
-  const KeyValueListInput({
-    required this.initialItems,
-    required this.onChanged,
-    required this.keyLabel,
-    required this.valueLabel,
-    super.key,
-  });
-
-  @override
-  State<KeyValueListInput> createState() => _KeyValueListInputState();
-}
-
-class _KeyValueListInputState extends State<KeyValueListInput> {
-  late Map<String, String> items;
-
-  @override
-  void initState() {
-    super.initState();
-    items = Map.from(widget.initialItems);
-  }
-
-  void _addItem() async {
-    final keyController = TextEditingController();
-    final valueController = TextEditingController();
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Add ${widget.keyLabel}', style: TextStyle(color: textColor)),
-        backgroundColor: baseColor,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: keyController,
-              decoration: InputDecoration(labelText: widget.keyLabel, labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-            ),
-            TextField(
-              controller: valueController,
-              decoration: InputDecoration(labelText: widget.valueLabel, labelStyle: TextStyle(color: textColor)),
-              style: TextStyle(color: textColor),
-            ),
-          ],
-        ),
         actions: [
           TextButton(
             onPressed: () {
-              if (keyController.text.isNotEmpty && valueController.text.isNotEmpty) {
-                setState(() {
-                  items[keyController.text] = valueController.text;
-                  widget.onChanged(items);
-                });
-                Navigator.pop(context);
-              }
+              onSave(tempMap);
+              Navigator.pop(context);
             },
-            child: Text('Add', style: TextStyle(color: accentColor)),
+            child: const Text('Save'),
           ),
         ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('${widget.keyLabel}s', style: TextStyle(color: textColor)),
-        ...items.entries.map((e) => ListTile(
-          title: Text('${e.key}: ${e.value}', style: TextStyle(color: textColor)),
-          trailing: IconButton(
-            icon: Icon(Icons.delete, color: accentColor),
-            onPressed: () {
-              setState(() {
-                items.remove(e.key);
-                widget.onChanged(items);
-              });
-            },
-          ),
-        )),
-        TextButton(
-          onPressed: _addItem,
-          child: Text('Add ${widget.keyLabel}', style: TextStyle(color: accentColor)),
-        ),
-      ],
-    );
-  }
-}
-
-// Custom widget for structured lists with global styling
-class StructuredListInput extends StatefulWidget {
-  final List<Map<String, String>> initialItems;
-  final List<String> fields;
-  final String? title;
-  final Function(List<Map<String, String>>) onChanged;
-
-  const StructuredListInput({
-    required this.initialItems,
-    required this.fields,
-    required this.onChanged,
-    this.title,
-    super.key,
-  });
-
-  @override
-  State<StructuredListInput> createState() => _StructuredListInputState();
-}
-
-class _StructuredListInputState extends State<StructuredListInput> {
-  late List<Map<String, String>> items;
-
-  @override
-  void initState() {
-    super.initState();
-    items = List.from(widget.initialItems);
-  }
-
-  void _addItem() async {
-    final controllers = {for (var field in widget.fields) field: TextEditingController()};
-    await showDialog(
+  void _showListEditorDialog(String title, List<String> list, Function(List<String>) onSave) {
+    final List<String> tempList = List.from(list);
+    showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Add Item', style: TextStyle(color: textColor)),
-        backgroundColor: baseColor,
+        title: Text('Edit $title'),
         content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: widget.fields
-                .map((field) => Padding(
-              padding: EdgeInsets.only(bottom: 5), // Spacing in dialog
-              child: TextField(
-                controller: controllers[field],
-                decoration: InputDecoration(labelText: field, labelStyle: TextStyle(color: textColor)),
-                style: TextStyle(color: textColor),
-              ),
-            ))
-                .toList(),
+          child: StatefulBuilder(
+              builder: (context, setStateDialog) => Column(
+                  children: [
+                  ...tempList.map((item) => Row(
+          children: [
+          Expanded(
+          child: TextField(
+          controller: TextEditingController(text: item),
+          decoration: const InputDecoration(labelText: 'Item'),
+          onChanged: (value) => tempList[tempList.indexOf(item)] = value,
+        ),
+      ),
+      IconButton(
+        icon: const Icon(Icons.delete),
+        onPressed: () => setStateDialog(() => tempList.remove(item)),
+      ),
+      ],
+    )),
+    ElevatedButton(
+    onPressed: () => setStateDialog(() => tempList.add('')),
+    child: const Text('Add New'),
+    ),
+    ],
+    ),
+    ),
+    ),
+    actions: [
+    TextButton(
+    onPressed: () {
+    onSave(tempList);
+    Navigator.pop(context);
+    },
+    child: const Text('Save'),
+    ),
+    ],
+    ),
+    );
+    }
+
+  void _showWorkplaceEditorDialog() {
+    final List<Workplace> tempList = List.from(previousWorkplaces);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Previous Workplaces'),
+        content: SingleChildScrollView(
+          child: StatefulBuilder(
+            builder: (context, setStateDialog) => Column(
+              children: [
+                ...tempList.map((wp) => Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: wp.company),
+                        decoration: const InputDecoration(labelText: 'Company'),
+                        onChanged: (value) => wp.company = value,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: wp.position),
+                        decoration: const InputDecoration(labelText: 'Position'),
+                        onChanged: (value) => wp.position = value,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: wp.duration),
+                        decoration: const InputDecoration(labelText: 'Duration'),
+                        onChanged: (value) => wp.duration = value,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => setStateDialog(() => tempList.remove(wp)),
+                    ),
+                  ],
+                )),
+                ElevatedButton(
+                  onPressed: () => setStateDialog(() => tempList.add(Workplace(company: '', position: '', duration: ''))),
+                  child: const Text('Add New'),
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () {
-              final newItem = {for (var field in widget.fields) field: controllers[field]!.text};
-              if (newItem.values.every((v) => v.isNotEmpty)) {
-                setState(() {
-                  items.add(newItem);
-                  widget.onChanged(items);
-                });
-                Navigator.pop(context);
-              }
+              setState(() => previousWorkplaces = tempList);
+              Navigator.pop(context);
             },
-            child: Text('Add', style: TextStyle(color: accentColor)),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEducationEditorDialog() {
+    final List<Education> tempList = List.from(education);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Education'),
+        content: SingleChildScrollView(
+          child: StatefulBuilder(
+            builder: (context, setStateDialog) => Column(
+              children: [
+                ...tempList.map((ed) => Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: ed.institution),
+                        decoration: const InputDecoration(labelText: 'Institution'),
+                        onChanged: (value) => ed.institution = value,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: ed.degree),
+                        decoration: const InputDecoration(labelText: 'Degree'),
+                        onChanged: (value) => ed.degree = value,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: ed.year),
+                        decoration: const InputDecoration(labelText: 'Year'),
+                        onChanged: (value) => ed.year = value,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => setStateDialog(() => tempList.remove(ed)),
+                    ),
+                  ],
+                )),
+                ElevatedButton(
+                  onPressed: () => setStateDialog(() => tempList.add(Education(institution: '', degree: '', year: ''))),
+                  child: const Text('Add New'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() => education = tempList);
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCertificationEditorDialog() {
+    final List<Certification> tempList = List.from(certifications);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Certifications'),
+        content: SingleChildScrollView(
+          child: StatefulBuilder(
+            builder: (context, setStateDialog) => Column(
+              children: [
+                ...tempList.map((cert) => Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: cert.name),
+                        decoration: const InputDecoration(labelText: 'Name'),
+                        onChanged: (value) => cert.name = value,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: cert.issuer),
+                        decoration: const InputDecoration(labelText: 'Issuer'),
+                        onChanged: (value) => cert.issuer = value,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: TextEditingController(text: cert.year),
+                        decoration: const InputDecoration(labelText: 'Year'),
+                        onChanged: (value) => cert.year = value,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => setStateDialog(() => tempList.remove(cert)),
+                    ),
+                  ],
+                )),
+                ElevatedButton(
+                  onPressed: () => setStateDialog(() => tempList.add(Certification(name: '', issuer: '', year: ''))),
+                  child: const Text('Add New'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() => certifications = tempList);
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -759,42 +515,298 @@ class _StructuredListInputState extends State<StructuredListInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8.0), // Consistent padding
-      decoration: BoxDecoration(
-        color: baseColor.withOpacity(0.8), // Slightly transparent base color for contrast
-        border: Border.all(color: accentColor, width: 1), // Subtle border
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.title ?? widget.fields.join(', '), // Use custom title if provided, else default to fields            style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 5),
-          ...items.asMap().entries.map((entry) => Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.0),
-            child: ListTile(
-              title: Text(
-                widget.fields.length == 1 ? entry.value[widget.fields[0]]! : entry.value.toString(),
-                style: TextStyle(color: textColor),
-              ),
-              trailing: IconButton(
-                icon: Icon(Icons.delete, color: accentColor),
-                onPressed: () {
-                  setState(() {
-                    items.removeAt(entry.key);
-                    widget.onChanged(items);
-                  });
-                },
-              ),
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Edit Identicard')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    prefixIcon: Icon(Icons.alternate_email),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: bioController,
+                  decoration: const InputDecoration(
+                    labelText: 'Bio',
+                    prefixIcon: Icon(Icons.description),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: locationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Location',
+                    prefixIcon: Icon(Icons.location_on),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: birthdayController,
+                  decoration: const InputDecoration(
+                    labelText: 'Birthday',
+                    prefixIcon: Icon(Icons.cake),
+                  ),
+                  readOnly: true,
+                  onTap: _showDatePicker,
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: pronounsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Pronouns',
+                    prefixIcon: Icon(Icons.person_outline),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: relationshipStatusController,
+                  decoration: const InputDecoration(
+                    labelText: 'Relationship Status',
+                    prefixIcon: Icon(Icons.favorite),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone',
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: websiteController,
+                  decoration: const InputDecoration(
+                    labelText: 'Website',
+                    prefixIcon: Icon(Icons.language),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: currentWorkplaceController,
+                  decoration: const InputDecoration(
+                    labelText: 'Current Workplace',
+                    prefixIcon: Icon(Icons.business),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: jobTitleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Job Title',
+                    prefixIcon: Icon(Icons.work),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  controller: portfolioLinkController,
+                  decoration: const InputDecoration(
+                    labelText: 'Portfolio Link',
+                    prefixIcon: Icon(Icons.link),
+                  ),
+                ),
+                const SizedBox(height: 24.0),
+
+                // Responsive grid layout for buttons
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final buttonWidth = constraints.maxWidth > 600 ?
+                    (constraints.maxWidth - 16) / 3 : // 3 buttons per row on larger screens
+                    (constraints.maxWidth - 8) / 2;   // 2 buttons per row on smaller screens
+
+                    return Wrap(
+                      spacing: 8.0,
+                      runSpacing: 12.0,
+                      children: [
+                        SizedBox(
+                          width: buttonWidth,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showMapEditorDialog('Messaging Apps', messagingApps, (map) => setState(() => messagingApps = map)),
+                            icon: const Icon(Icons.message),
+                            label: const Text('Messaging Apps'),
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: buttonWidth,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showMapEditorDialog('Social Handles', socialHandles, (map) => setState(() => socialHandles = map)),
+                            icon: const Icon(Icons.public),
+                            label: const Text('Social Handles'),
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: buttonWidth,
+                          child: ElevatedButton.icon(
+                            onPressed: _showWorkplaceEditorDialog,
+                            icon: const Icon(Icons.business_center),
+                            label: const Text('Previous Workplaces'),
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: buttonWidth,
+                          child: ElevatedButton.icon(
+                            onPressed: _showEducationEditorDialog,
+                            icon: const Icon(Icons.school),
+                            label: const Text('Education'),
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: buttonWidth,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showListEditorDialog('Skills', skills, (list) => setState(() => skills = list)),
+                            icon: const Icon(Icons.psychology),
+                            label: const Text('Skills'),
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: buttonWidth,
+                          child: ElevatedButton.icon(
+                            onPressed: _showCertificationEditorDialog,
+                            icon: const Icon(Icons.card_membership),
+                            label: const Text('Certifications'),
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: buttonWidth,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showMapEditorDialog('Languages', languages, (map) => setState(() => languages = map)),
+                            icon: const Icon(Icons.translate),
+                            label: const Text('Languages'),
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: buttonWidth,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showListEditorDialog('Hobbies', hobbies, (list) => setState(() => hobbies = list)),
+                            icon: const Icon(Icons.interests),
+                            label: const Text('Hobbies'),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 24.0),
+
+                // Color pickers section
+                Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 12.0),
+                          child: Text('Theme Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.color_lens),
+                          title: const Text('Primary Color'),
+                          trailing: CircleAvatar(backgroundColor: primaryColor),
+                          onTap: () => _showColorPicker('Primary Color', primaryColor, (color) => setState(() => primaryColor = color)),
+                        ),
+                        const SizedBox(height: 8.0),
+
+                        ListTile(
+                          leading: const Icon(Icons.brush),
+                          title: const Text('Accent Color'),
+                          trailing: CircleAvatar(backgroundColor: accentColor),
+                          onTap: () => _showColorPicker('Accent Color', accentColor, (color) => setState(() => accentColor = color)),
+                        ),
+                        const SizedBox(height: 8.0),
+
+                        ListTile(
+                          leading: const Icon(Icons.format_paint),
+                          title: const Text('Background Color'),
+                          trailing: CircleAvatar(backgroundColor: bgColor),
+                          onTap: () => _showColorPicker('Background Color', bgColor, (color) => setState(() => bgColor = color)),
+                        ),
+                        const SizedBox(height: 8.0),
+
+                        ListTile(
+                          leading: const Icon(Icons.text_fields),
+                          title: const Text('Text Color'),
+                          trailing: CircleAvatar(backgroundColor: textColor),
+                          onTap: () => _showColorPicker('Text Color', textColor, (color) => setState(() => textColor = color)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+
+                // Profile visibility dropdown
+                DropdownButtonFormField<String>(
+                  value: profileVisibility,
+                  items: ['public', 'private'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) => setState(() => profileVisibility = value!),
+                  decoration: const InputDecoration(
+                    labelText: 'Profile Visibility',
+                    prefixIcon: Icon(Icons.visibility),
+                  ),
+                ),
+                const SizedBox(height: 32.0),
+
+                // Save button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: _saveData,
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save Profile', style: TextStyle(fontSize: 16)),
+                  ),
+                ),
+              ],
             ),
-          )),
-          TextButton(
-            onPressed: _addItem,
-            child: Text('Add Item', style: TextStyle(color: accentColor)),
           ),
-        ],
+        ),
       ),
     );
   }

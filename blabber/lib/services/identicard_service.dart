@@ -1,61 +1,62 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:blabber/models/identicard.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class IdenticardService {
-  final String baseUrl = 'https://kovacscsabi.moriczcloud.hu/api/identicard';
+  static const String baseUrl = 'https://kovacscsabi.moriczcloud.hu/api/identicard';
 
-  Future<Map<String, String>> _getHeaders() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-  }
-
-  Future<bool> checkExists() async {
-    final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/check'), headers: headers);
+  // Check if Identicard exists
+  static Future<bool> checkIdenticardExists(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/check'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body)['exists'] ?? false;
-    } else {
-      throw Exception('Failed to check Identicard existence');
+      final json = jsonDecode(response.body);
+      return json['exists'] ?? false;
     }
+    throw Exception('Failed to check Identicard');
   }
 
-  Future<Identicard> getIdenticard() async {
-    final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/get'), headers: headers);
+  // Fetch Identicard data
+  static Future<Identicard?> getIdenticard(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/get'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
     if (response.statusCode == 200) {
       return Identicard.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to fetch Identicard');
     }
+    return null; // Return null if no Identicard exists
   }
 
-  Future<void> addIdenticard(Identicard identicard) async {
-    final headers = await _getHeaders();
+  // Add new Identicard
+  static Future<void> addIdenticard(String token, Map<String, dynamic> data) async {
     final response = await http.post(
       Uri.parse('$baseUrl/add'),
-      headers: headers,
-      body: jsonEncode(identicard.toJson()),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(data),
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to add Identicard');
+      throw Exception('Failed to add Identicard: ${response.body}');
     }
   }
 
-  Future<void> updateIdenticard(Identicard identicard) async {
-    final headers = await _getHeaders();
+  // Update existing Identicard
+  static Future<void> updateIdenticard(String token, Map<String, dynamic> data) async {
     final response = await http.put(
       Uri.parse('$baseUrl/update'),
-      headers: headers,
-      body: jsonEncode(identicard.toJson()),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(data),
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to update Identicard');
+      throw Exception('Failed to update Identicard: ${response.body}');
     }
   }
 }

@@ -1,27 +1,31 @@
 import 'dart:convert';
 
+// Main Identicard model
 class Identicard {
+  int? userId;
+  int? id;
   String? name;
-  String? profilePicture;
-  String? coverPhoto;
+  String? username;
+  String? createdAt;
+  String? updatedAt;
   String? bio;
   String? location;
-  DateTime? birthday;
+  String? birthday;
   String? pronouns;
   String? relationshipStatus;
   String? phone;
-  Map<String, String>? messagingApps;
+  String? messagingApps; // JSON string
   String? website;
-  Map<String, String>? socialHandles;
+  String? socialHandles; // JSON string
   String? currentWorkplace;
   String? jobTitle;
-  List<Map<String, String>>? previousWorkplaces;
-  List<Map<String, String>>? education;
-  List<String>? skills;
-  List<Map<String, String>>? certifications;
-  List<Map<String, String>>? languages;
+  String? previousWorkplaces; // JSON string
+  String? education; // JSON string
+  String? skills; // JSON string
+  String? certifications; // JSON string
+  String? languages; // JSON string
   String? portfolioLink;
-  List<String>? hobbies;
+  String? hobbies; // JSON string
   String? themePrimaryColor;
   String? themeAccentColor;
   String? themeBgColor;
@@ -29,9 +33,12 @@ class Identicard {
   String? profileVisibility;
 
   Identicard({
+    this.userId,
+    this.id,
     this.name,
-    this.profilePicture,
-    this.coverPhoto,
+    this.username,
+    this.createdAt,
+    this.updatedAt,
     this.bio,
     this.location,
     this.birthday,
@@ -57,76 +64,32 @@ class Identicard {
     this.profileVisibility,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'profile_picture': profilePicture,
-      'cover_photo': coverPhoto,
-      'bio': bio,
-      'location': location,
-      'birthday': birthday?.toIso8601String(),
-      'pronouns': pronouns,
-      'relationship_status': relationshipStatus,
-      'phone': phone,
-      'messaging_apps': jsonEncode(messagingApps),
-      'website': website,
-      'social_handles': jsonEncode(socialHandles),
-      'current_workplace': currentWorkplace,
-      'job_title': jobTitle,
-      'previous_workplaces': jsonEncode(previousWorkplaces),
-      'education': jsonEncode(education),
-      'skills': skills,
-      'certifications': jsonEncode(certifications),
-      'languages': jsonEncode(languages),
-      'portfolio_link': portfolioLink,
-      'hobbies': hobbies,
-      'theme_primary_color': themePrimaryColor,
-      'theme_accent_color': themeAccentColor,
-      'theme_bg_color': themeBgColor,
-      'theme_text_color': themeTextColor,
-      'profile_visibility': profileVisibility,
-    };
-  }
-
   factory Identicard.fromJson(Map<String, dynamic> json) {
     return Identicard(
+      userId: json['user_id'],
+      id: json['id'],
       name: json['name'],
-      profilePicture: json['profile_picture'],
-      coverPhoto: json['cover_photo'],
+      username: json['username'],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
       bio: json['bio'],
       location: json['location'],
-      birthday: json['birthday'] != null ? DateTime.parse(json['birthday']) : null,
+      birthday: json['birthday'],
       pronouns: json['pronouns'],
       relationshipStatus: json['relationship_status'],
       phone: json['phone'],
-      messagingApps: json['messaging_apps'] != null
-          ? Map<String, String>.from(jsonDecode(json['messaging_apps']))
-          : null,
+      messagingApps: json['messaging_apps'],
       website: json['website'],
-      socialHandles: json['social_handles'] != null
-          ? Map<String, String>.from(jsonDecode(json['social_handles']))
-          : null,
+      socialHandles: json['social_handles'],
       currentWorkplace: json['current_workplace'],
       jobTitle: json['job_title'],
-      previousWorkplaces: json['previous_workplaces'] != null
-          ? List<Map<String, String>>.from(
-          jsonDecode(json['previous_workplaces']).map((x) => Map<String, String>.from(x)))
-          : null,
-      education: json['education'] != null
-          ? List<Map<String, String>>.from(
-          jsonDecode(json['education']).map((x) => Map<String, String>.from(x)))
-          : null,
-      skills: json['skills'] != null ? List<String>.from(json['skills']) : null,
-      certifications: json['certifications'] != null
-          ? List<Map<String, String>>.from(
-          jsonDecode(json['certifications']).map((x) => Map<String, String>.from(x)))
-          : null,
-      languages: json['languages'] != null
-          ? List<Map<String, String>>.from(
-          jsonDecode(json['languages']).map((x) => Map<String, String>.from(x)))
-          : null,
+      previousWorkplaces: json['previous_workplaces'],
+      education: json['education'],
+      skills: json['skills'],
+      certifications: json['certifications'],
+      languages: json['languages'],
       portfolioLink: json['portfolio_link'],
-      hobbies: json['hobbies'] != null ? List<String>.from(json['hobbies']) : null,
+      hobbies: json['hobbies'],
       themePrimaryColor: json['theme_primary_color'],
       themeAccentColor: json['theme_accent_color'],
       themeBgColor: json['theme_bg_color'],
@@ -134,4 +97,67 @@ class Identicard {
       profileVisibility: json['profile_visibility'],
     );
   }
+}
+
+// Sub-model for previous_workplaces
+class Workplace {
+  String company;
+  String position;
+  String duration;
+
+  Workplace({required this.company, required this.position, required this.duration});
+
+  Map<String, dynamic> toJson() => {
+    'company': company,
+    'position': position,
+    'duration': duration,
+  };
+
+  factory Workplace.fromJson(Map<String, dynamic> json) => Workplace(
+    company: json['company'],
+    position: json['position'],
+    duration: json['duration'],
+  );
+}
+
+// Sub-model for education
+class Education {
+  String institution;
+  String degree;
+  String year;
+
+  Education({required this.institution, required this.degree, required this.year});
+
+  Map<String, dynamic> toJson() => {
+    'institution': institution,
+    'degree': degree,
+    'year': year,
+  };
+
+  factory Education.fromJson(Map<String, dynamic> json) => Education(
+    institution: json['institution'],
+    degree: json['degree'],
+    year: json['year'],
+  );
+}
+
+// Sub-model for certifications
+class Certification {
+  String name;
+  String issuer;
+  String year;
+
+  Certification({required this.name, required this.issuer, required this.year});
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'issuer': issuer,
+    'year': year,
+  };
+
+  factory Certification.fromJson(Map<String, dynamic> json) => Certification(
+    name: json['name'],
+    issuer: json['issuer'],
+    year: json['year'],
+  );
 }

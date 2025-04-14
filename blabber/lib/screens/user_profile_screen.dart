@@ -17,8 +17,8 @@ class ProfilePage extends StatefulWidget {
 
   static String routeName = 'profile';
   static String routePath = '/profile';
-  static const accentColor = Color.fromRGBO(255, 32, 78, 1);
-  static const baseColor = Color.fromRGBO(0, 34, 77, 1);
+
+
 
   @override
   State<ProfilePage> createState() => ProfilePageState();
@@ -30,7 +30,8 @@ class ProfilePageState extends State<ProfilePage> {
   bool isLoading = true;
   String? error;
   Map<String, dynamic>? userData;
-
+  static const accentColor = Color.fromRGBO(255, 32, 78, 1);
+  static const baseColor = Color.fromRGBO(0, 34, 77, 1);
   @override
   void initState() {
     super.initState();
@@ -244,7 +245,7 @@ class ProfilePageState extends State<ProfilePage> {
                               _buildActionButton(icon: Icons.edit_note_rounded,
                                  label:  'szerkesztés',
                                   targetScreen:
-                                  EditIdenticardScreen()
+                                  IdenticardScreen()
                               ),
                               _buildActionButton(
                                   icon: Icons.qr_code,
