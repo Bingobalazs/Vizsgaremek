@@ -112,11 +112,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('like/{post}', [LikeController::class, 'toggleLike']); // Átállítja a like-ot
 
 
-    /*  Nincs még commentcontroller
-    Route::get('count/comment/{post}', [CommentController::class, 'countComments']);
-    Route::get('count/like/{post}', [LikeController::class, 'countComments']);
-         // Megszámolja a kommenteket egy adott poszt alatt (frontend like és komment counter badge-hez kell
-    */
+    Route::controller(\App\Http\Controllers\PfpController::class)->group(function () {
+        Route::post('pfp/set', 'update');
+
+
+    });
+        /*  Nincs még commentcontroller
+        Route::get('count/comment/{post}', [CommentController::class, 'countComments']);
+        Route::get('count/like/{post}', [LikeController::class, 'countComments']);
+             // Megszámolja a kommenteket egy adott poszt alatt (frontend like és komment counter badge-hez kell
+        */
 
 });
 

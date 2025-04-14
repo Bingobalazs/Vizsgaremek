@@ -35,6 +35,9 @@ class IdentiController extends Controller
 
     public function update(Request $request)
     {
+        try {
+
+
         $user = Auth::user();
 
         $validatedData = $request->validate([
@@ -74,7 +77,28 @@ class IdentiController extends Controller
 
         $identicard->update($validatedData);
 
+
+
         return response()->json(['message' => 'Identicard updated successfully', 'data' => $identicard]);
+
+    }
+    catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $e->errors(),
+        ], 422);
+    }
+    catch (ModelNotFoundException $e) {
+        return response()->json([
+            'message' => 'Identicard not found',
+        ], 404);
+    }
+    catch (\Exception $e) {
+        return response()->json([
+            'message' => 'An error occurred',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
     }
 
 
@@ -115,6 +139,8 @@ class IdentiController extends Controller
             'theme_text_color' => 'nullable|string|regex:/^#([A-Fa-f0-9]{6})$/',
             'profile_visibility' => 'nullable|in:public,private',
         ]);
+
+
 
         $identicard = Identicard::create(array_merge($validatedData, ['user_id' => $user->id]));
 
