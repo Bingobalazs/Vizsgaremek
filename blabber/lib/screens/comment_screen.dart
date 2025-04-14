@@ -64,13 +64,10 @@ class _CommentScreenState extends State<CommentScreen> {
     String token = await _getToken();
     final url =
         'https://kovacscsabi.moriczcloud.hu/api/getcomments/${widget.postId}';
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
+    final response = await http.get(Uri.parse(url), headers: {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    });
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
       return jsonData.map((json) => Comment.fromJson(json)).toList();
@@ -117,7 +114,7 @@ class _CommentScreenState extends State<CommentScreen> {
         centerTitle: true,
         elevation: 4,
       ),
-      // Alapértelmezett, fehér háttér
+      // Alapértelmezett háttér (a theme szerint)
       body: Column(
         children: [
           // Hozzászólások listája
@@ -141,7 +138,7 @@ class _CommentScreenState extends State<CommentScreen> {
                   itemBuilder: (context, index) {
                     final comment = comments[index];
                     return Card(
-                      color: Colors.white, // Fehér card háttér
+                      color: Colors.white, // Fehér card hátteret biztosít
                       margin: const EdgeInsets.symmetric(vertical: 6.0),
                       elevation: 3,
                       shape: RoundedRectangleBorder(
@@ -153,9 +150,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         title: Text(
                           comment.userName,
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                              fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 6.0),
@@ -178,16 +173,17 @@ class _CommentScreenState extends State<CommentScreen> {
           ),
           const Divider(height: 1),
           // Új hozzászólás beviteli rész
+          // A containerből eltávolítottuk a fehér backgroundot, így az átlátszó marad
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: Colors.white,
+            // Itt nem adunk meg explicit háttérszínt, így az átlátszó marad
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _commentController,
                     style: const TextStyle(
-                        color: Colors.black), // Input mező szövege fekete
+                        color: Colors.black), // Bekapcsolva fekete szöveg
                     decoration: InputDecoration(
                       hintText: 'Írd ide a hozzászólást...',
                       hintStyle: const TextStyle(color: Colors.black45),
@@ -217,8 +213,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         } catch (error) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Hiba a hozzászólás küldésekor"),
-                            ),
+                                content: Text("Hiba a hozzászólás küldésekor")),
                           );
                         }
                       }
