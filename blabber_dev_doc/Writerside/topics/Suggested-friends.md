@@ -1,3 +1,0 @@
-# Suggested friends
-
-Start typing here...

@@ -7,9 +7,9 @@
                  start-page="Introduction.md">
 
     <toc-element topic="Introduction.md"/>
+    <toc-element topic="Tesztelési-terv.md"/>
     <toc-element toc-title="APIs">
         <toc-element topic="Posts.md"/>
     </toc-element>
     <toc-element topic="Profile-datas.md"/>
-    <toc-element topic="Suggested-friends.md"/>
 </instance-profile>
