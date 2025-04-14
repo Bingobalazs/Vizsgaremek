@@ -44,12 +44,12 @@ class CommentScreen extends StatefulWidget {
 }
 
 class _CommentScreenState extends State<CommentScreen> {
-  // Lokális lista a hozzászólások számára
   List<Comment> _comments = [];
   bool _isLoading = true;
   final TextEditingController _commentController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
-  /// Lekéri az auth token-t a SharedPreferences-ből
+  // Lekéri az auth token-t a SharedPreferences-ből
   Future<String> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -63,7 +63,6 @@ class _CommentScreenState extends State<CommentScreen> {
     _fetchComments();
   }
 
-  /// Lekéri a hozzászólásokat a backendről és frissíti a _comments listát
   Future<void> _fetchComments() async {
     try {
       String token = await _getToken();
@@ -77,8 +76,10 @@ class _CommentScreenState extends State<CommentScreen> {
         final List<dynamic> jsonData = json.decode(response.body);
         setState(() {
           _comments = jsonData.map((json) => Comment.fromJson(json)).toList();
+          _comments.sort((a, b) => a.createdAt.compareTo(b.createdAt));
           _isLoading = false;
         });
+        _scrollToBottom();
       } else {
         setState(() {
           _isLoading = false;
@@ -93,7 +94,6 @@ class _CommentScreenState extends State<CommentScreen> {
     }
   }
 
-  /// Küld egy új hozzászólást a backendnek, majd frissíti a hozzászólások listáját
   Future<void> _addComment(String commentText) async {
     String token = await _getToken();
     final url = 'https://kovacscsabi.moriczcloud.hu/api/addcomment';
@@ -107,7 +107,7 @@ class _CommentScreenState extends State<CommentScreen> {
         "post_id": widget.postId.toString(),
         "comment": commentText,
         "user_id":
-            "34", // Cseréld le a tényleges bejelentkezett felhasználó ID-jára
+            "34", // Cseréld le a bejelentkezett felhasználó tényleges ID-jára!
       },
     );
     if (response.statusCode == 201 || response.statusCode == 200) {
@@ -117,22 +117,33 @@ class _CommentScreenState extends State<CommentScreen> {
           final data = resJson['comment'];
           final newComment = Comment.fromJson(data);
           setState(() {
-            _comments.insert(0, newComment);
+            _comments.add(newComment);
+            _comments.sort((a, b) => a.createdAt.compareTo(b.createdAt));
           });
         } else {
-          // Ha a "comment" kulcs nem található, akkor újra lekérjük a hozzászólásokat
           await _fetchComments();
         }
       } catch (e) {
-        // JSON dekódolás sikertelen, így újra lekérjük a hozzászólásokat
         await _fetchComments();
       }
+      _scrollToBottom();
     } else {
       throw Exception('Error adding comment: ${response.statusCode}');
     }
   }
 
-  /// Egyszerű dátum formázás
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   String _formatDate(DateTime dt) {
     return "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} "
         "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
@@ -140,53 +151,78 @@ class _CommentScreenState extends State<CommentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // A maximum szélességet érdemes beállítani, hogy nagyon hosszú szöveg esetén se nyúljon túl.
+    final maxCardWidth = MediaQuery.of(context).size.width * 0.9;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Hozzászólások"),
         centerTitle: true,
         elevation: 4,
       ),
-      // Alapértelmezett háttér (light theme esetén fehér)
       body: Column(
         children: [
-          // Hozzászólások listája
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _comments.isEmpty
                     ? const Center(child: Text("Nincsenek hozzászólások."))
                     : ListView.builder(
+                        controller: _scrollController,
                         padding: const EdgeInsets.all(8.0),
                         itemCount: _comments.length,
                         itemBuilder: (context, index) {
                           final comment = _comments[index];
-                          return Card(
-                            color: Colors.white,
-                            margin: const EdgeInsets.symmetric(vertical: 6.0),
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(12.0),
-                              // Profilkép nélkül
-                              title: Text(
-                                comment.userName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                // A kártya a képernyő 90%-án belül enged terjedni, de ha a tartalom rövidebb,
+                                // csak annyi helyet foglal el.
+                                maxWidth: maxCardWidth,
                               ),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 6.0),
-                                child: Text(
-                                  comment.comment,
-                                  style: const TextStyle(color: Colors.black87),
+                              child: IntrinsicWidth(
+                                child: Card(
+                                  color: Colors.white,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 6.0),
+                                  elevation: 3,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          comment.userName,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          comment.comment,
+                                          style: const TextStyle(
+                                              color: Colors.black87),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Text(
+                                            _formatDate(comment.createdAt),
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black87),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              trailing: Text(
-                                _formatDate(comment.createdAt),
-                                style: const TextStyle(
-                                    fontSize: 12, color: Colors.black87),
                               ),
                             ),
                           );
@@ -194,10 +230,8 @@ class _CommentScreenState extends State<CommentScreen> {
                       ),
           ),
           const Divider(height: 1),
-          // Új hozzászólás beviteli rész
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            // Itt nem adunk meg explicit háttérszínt, így az alapértelmezett (átlátszó vagy teema szerinti) marad
             child: Row(
               children: [
                 Expanded(
@@ -251,6 +285,7 @@ class _CommentScreenState extends State<CommentScreen> {
   @override
   void dispose() {
     _commentController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 }
