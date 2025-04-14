@@ -61,6 +61,7 @@ class _ChatScreenState extends State<Chat> {
   final ScrollController _scrollController = ScrollController();
   List<ChatMessage> _messages = [];
   bool _isLoading = true;
+  StreamSubscription<String>? _sseSubscription;
 
   @override
   void initState() {
@@ -68,6 +69,8 @@ class _ChatScreenState extends State<Chat> {
     _scrollController.addListener(_onScroll);
     _fetchMessages(page: 1).then((_) {
       _scrollToBottom();
+      // Kezdjük el az SSE előfizetést a valós idejű üzenetekhez.
+      _subscribeToSSE();
     });
   }
 
@@ -114,6 +117,57 @@ class _ChatScreenState extends State<Chat> {
     }
   }
 
+  // SSE-előfizetés a valós idejű üzenetekhez
+  void _subscribeToSSE() async {
+    String token = await _getToken();
+    final uri = Uri.parse(
+        'https://kovacscsabi.moriczcloud.hu/api/streamchat/${widget.friendId}');
+    final client = HttpClient();
+    try {
+      final request = await client.getUrl(uri);
+      request.headers.add('Authorization', 'Bearer $token');
+      final response = await request.close();
+
+      _sseSubscription = response
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .listen((String line) {
+        if (line.startsWith('data:')) {
+          final jsonStr = line.substring(5).trim();
+          if (jsonStr.isNotEmpty) {
+            try {
+              final jsonData = jsonDecode(jsonStr);
+              final ChatMessage newMessage =
+                  ChatMessage.fromJson(jsonData);
+              setState(() {
+                _messages.add(newMessage);
+              });
+              _scrollToBottom();
+            } catch (e) {
+              print('Hiba az üzenet dekódolása során: $e');
+            }
+          }
+        }
+      }, onError: (error) {
+        print('SSE hiba: $error');
+        // Újracsatlakozás 5 másodperc múlva
+        Future.delayed(Duration(seconds: 5), () {
+          _subscribeToSSE();
+        });
+      }, onDone: () {
+        // Ha lezárult a kapcsolat, ismételjük meg
+        Future.delayed(Duration(seconds: 5), () {
+          _subscribeToSSE();
+        });
+      });
+    } catch (e) {
+      print('Hiba az SSE kapcsolat létesítése során: $e');
+      Future.delayed(Duration(seconds: 5), () {
+        _subscribeToSSE();
+      });
+    }
+  }
+
   // Üzenet küldése
   void _sendMessage() async {
     String token = await _getToken();
@@ -125,7 +179,6 @@ class _ChatScreenState extends State<Chat> {
     _messageController.clear();
 
     // Optimista frissítés: ideiglenesen hozzáadjuk az elküldött üzenetet.
-    // Itt a receiverId a beszélgetés partnerének azonosítója, így később a feltétel szerint jobbra lesz igazítva.
     final optimisticMessage = ChatMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
       senderId: widget.userId,
@@ -184,6 +237,7 @@ class _ChatScreenState extends State<Chat> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _sseSubscription?.cancel();
     super.dispose();
   }
 
@@ -204,8 +258,7 @@ class _ChatScreenState extends State<Chat> {
                     itemCount: _messages.length,
                     itemBuilder: (context, index) {
                       final message = _messages[index];
-                      // Ha a paraméterként kapott friendId megegyezik
-                      // az apiból kapott to_id-vel (receiverId), akkor jobbra igazítjuk.
+                      // Jobbra igazolás: ha az üzenet fogadója a beszélgetőpartner
                       final bool isRightAligned =
                           message.receiverId == widget.friendId;
 
