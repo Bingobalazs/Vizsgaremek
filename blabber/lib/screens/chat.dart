@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-// Az alábbi import kifejezetten mobilos (dart:io) részekhez
+// Mobil platformon a dart:io HttpClient használata, ezért ezt importáljuk.
 import 'dart:io' show HttpClient;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-// A web esetén szükséges import
+// Web esetén csak akkor kell importálni a dart:html csomagot.
 import 'dart:html' as html;
 
 /// Chat üzenet modellje
@@ -37,7 +37,7 @@ class ChatMessage {
   }
 }
 
-/// Token lekérése
+/// A token SharedPreferences-ből történő lekérése
 Future<String> _getToken() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('auth_token');
@@ -45,7 +45,7 @@ Future<String> _getToken() async {
   return token;
 }
 
-/// Chat képernyő – átdolgozott SSE implementációval
+/// Chat képernyő – itt végezzük el a getchat, postchat és streamchat hívásokat
 class Chat extends StatefulWidget {
   final String userId;
   final String friendId;
@@ -59,10 +59,10 @@ class Chat extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<Chat> createState() => _ChatScreenState();
+  State<Chat> createState() => _ChatState();
 }
 
-class _ChatScreenState extends State<Chat> {
+class _ChatState extends State<Chat> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -72,7 +72,7 @@ class _ChatScreenState extends State<Chat> {
   bool _hasMore = true;
   int _currentPage = 1;
 
-  // Csak mobilos esetben használjuk a dart:io-alapú SSE stream-et
+  // Saját SSE stream-nél mobilos esetben a dart:io based subscription
   StreamSubscription<String>? _sseSubscription;
 
   @override
@@ -82,12 +82,15 @@ class _ChatScreenState extends State<Chat> {
     _initChat();
   }
 
+  /// Elsőként az aktuális (legfrissebb) üzeneteket töltjük be,
+  /// majd elindítjuk az SSE kapcsolatot.
   void _initChat() async {
     await _fetchMessages(page: _currentPage, prepend: false);
     _scrollToBottom();
     _subscribeToSSE();
   }
 
+  /// Ha a lista tetejére görgetünk, akkor próbáljuk betölteni a régebbi üzeneteket.
   void _onScroll() {
     if (_scrollController.position.pixels <=
         _scrollController.position.minScrollExtent + 50) {
@@ -108,6 +111,7 @@ class _ChatScreenState extends State<Chat> {
     });
   }
 
+  /// Üzenetek lekérése a szerverről (GET /api/getchat/{friendId}?page=X)
   Future<void> _fetchMessages({required int page, bool prepend = false}) async {
     try {
       String token = await _getToken();
@@ -152,21 +156,20 @@ class _ChatScreenState extends State<Chat> {
     }
   }
 
-  /// SSE előfizetés – platformfüggetlen megoldás
+  /// SSE előfizetés a streamChat API-hoz.
+  /// Mobilos környezetben HttpClient-et használunk, és a kért headerhez hozzáadjuk az
+  /// 'Authorization': 'Bearer $token' értéket, míg weben a token a query paraméterben lesz.
   void _subscribeToSSE() async {
     try {
       String token = await _getToken();
-      // A legutolsó üzenet id-je, így csak az újak kerülnek beküldésre
+      // A legutolsó üzenet ID-ja alapján indítjuk, hogy csak az újak legyenek elküldve.
       String lastMessageId = _messages.isNotEmpty ? _messages.last.id : '0';
       final url =
           'https://kovacscsabi.moriczcloud.hu/api/streamchat/${widget.friendId}?lastMessageId=$lastMessageId';
 
       if (kIsWeb) {
-        // FONTOS: Böngészőkben az EventSource nem támogatja a custom HTTP fejlécet,
-        // ezért a token-t a query paraméterek között kell elküldeni.
-        // Ha mindenképp header-t szeretnél, akkor azt csak mobilon tudod megtenni.
-        final modifiedUrl =
-            '$url&token=$token'; // token query paraméterként
+        // Flutter Web esetén az EventSource nem támogat egyedi header-eket, ezért a token a query paraméterben kerül átadásra.
+        final modifiedUrl = '$url&token=$token';
         try {
           final eventSource = html.EventSource(modifiedUrl);
           eventSource.onMessage.listen((html.MessageEvent event) {
@@ -175,6 +178,7 @@ class _ChatScreenState extends State<Chat> {
                 final jsonData = jsonDecode(event.data);
                 final ChatMessage newMessage =
                     ChatMessage.fromJson(jsonData);
+                // Duplikáció elkerülése
                 bool exists = _messages.any((msg) => msg.id == newMessage.id);
                 if (!exists) {
                   setState(() {
@@ -196,54 +200,52 @@ class _ChatScreenState extends State<Chat> {
           _scheduleSSEReconnect();
         }
       } else {
-        // Mobil platform (iOS/Android): itt lehetőség van a header Authorization beállítására.
-        try {
-          final client = HttpClient();
-          final request = await client.getUrl(Uri.parse(url));
-          request.headers.add('Authorization', 'Bearer $token');
-          final response = await request.close();
-          if (response.statusCode != 200) {
-            throw Exception('SSE válaszkód: ${response.statusCode}');
-          }
-          _sseSubscription = response
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .listen(
-            (String line) {
-              if (line.startsWith('data:')) {
-                final jsonStr = line.substring(5).trim();
-                if (jsonStr.isNotEmpty) {
-                  try {
-                    final jsonData = jsonDecode(jsonStr);
-                    final ChatMessage newMessage =
-                        ChatMessage.fromJson(jsonData);
-                    bool exists =
-                        _messages.any((msg) => msg.id == newMessage.id);
-                    if (!exists) {
-                      setState(() {
-                        _messages.add(newMessage);
-                      });
-                      _scrollToBottom();
-                    }
-                  } catch (e) {
-                    print('Hiba SSE üzenet dekódolásakor: $e');
+        // Mobil (iOS/Android) esetén a HttpClient-et használjuk,
+        // itt Explicit módon hozzáadjuk az Authorization header-t.
+        final client = HttpClient();
+        final request = await client.getUrl(Uri.parse(url));
+        request.headers.add('Authorization', 'Bearer $token');
+        final response = await request.close();
+
+        if (response.statusCode != 200) {
+          throw Exception('SSE válaszkód: ${response.statusCode}');
+        }
+
+        _sseSubscription = response
+            .transform(utf8.decoder)
+            .transform(const LineSplitter())
+            .listen(
+          (String line) {
+            if (line.startsWith('data:')) {
+              final jsonStr = line.substring(5).trim();
+              if (jsonStr.isNotEmpty) {
+                try {
+                  final jsonData = jsonDecode(jsonStr);
+                  final ChatMessage newMessage =
+                      ChatMessage.fromJson(jsonData);
+                  bool exists =
+                      _messages.any((msg) => msg.id == newMessage.id);
+                  if (!exists) {
+                    setState(() {
+                      _messages.add(newMessage);
+                    });
+                    _scrollToBottom();
                   }
+                } catch (e) {
+                  print('Hiba SSE üzenet dekódolásakor (mobil): $e');
                 }
               }
-            },
-            onError: (error) {
-              print('SSE hiba (mobil): $error');
-              _scheduleSSEReconnect();
-            },
-            onDone: () {
-              print('SSE kapcsolat lezárult (mobil).');
-              _scheduleSSEReconnect();
-            },
-          );
-        } catch (e) {
-          print('Hiba az SSE kapcsolódásakor (mobil): $e');
-          _scheduleSSEReconnect();
-        }
+            }
+          },
+          onError: (error) {
+            print('SSE hiba (mobil): $error');
+            _scheduleSSEReconnect();
+          },
+          onDone: () {
+            print('SSE kapcsolat lezárult (mobil).');
+            _scheduleSSEReconnect();
+          },
+        );
       }
     } catch (e) {
       print('Hiba az SSE kapcsolat létrehozásakor: $e');
@@ -251,6 +253,7 @@ class _ChatScreenState extends State<Chat> {
     }
   }
 
+  /// Újrakapcsolódás az SSE-hez 5 másodperces késéssel
   void _scheduleSSEReconnect() {
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
@@ -259,6 +262,7 @@ class _ChatScreenState extends State<Chat> {
     });
   }
 
+  /// Üzenet küldése (POST /api/postchat/{friendId})
   void _sendMessage() async {
     try {
       String token = await _getToken();
@@ -268,6 +272,7 @@ class _ChatScreenState extends State<Chat> {
         return;
       }
       _messageController.clear();
+      // Optimista frissítés: ideiglenesen hozzáadjuk az üzenetet
       final optimisticMessage = ChatMessage(
         id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
         senderId: widget.userId,
@@ -282,14 +287,12 @@ class _ChatScreenState extends State<Chat> {
 
       final url = Uri.parse(
           'https://kovacscsabi.moriczcloud.hu/api/postchat/${widget.friendId}');
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'chat': messageText}),
-      );
+      final response = await http.post(url,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({'chat': messageText}));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         _showSnackBar('Hiba az üzenet elküldésekor. (${response.statusCode})');
@@ -306,6 +309,7 @@ class _ChatScreenState extends State<Chat> {
     }
   }
 
+  /// Automatikus scrollozás a lista legaljára, ha új üzenet érkezik
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -384,9 +388,10 @@ class _ChatScreenState extends State<Chat> {
                                 Text(
                                   message.message,
                                   style: TextStyle(
-                                      color: isRightAligned
-                                          ? Colors.white
-                                          : Colors.black),
+                                    color: isRightAligned
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
                                 ),
                                 const SizedBox(height: 4.0),
                                 Text(
@@ -420,8 +425,8 @@ class _ChatScreenState extends State<Chat> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24.0),
                       ),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
                     ),
                   ),
                 ),
