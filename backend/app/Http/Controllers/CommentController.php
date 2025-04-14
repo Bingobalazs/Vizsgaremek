@@ -38,7 +38,7 @@ class CommentController extends Controller
 
     public function addComment(Request $request)
     {
-        $validated = $request->validate([
+        /*$validated = $request->validate([
             'post_id' => 'required|integer',
             'comment' => 'required|string',
             'user_id' => 'required|integer',
@@ -49,7 +49,7 @@ class CommentController extends Controller
         return response()->json([
             'message' => 'Jó lesz!4!',
             'comment' => $comment,
-        ], 201);
+        ], 201);*/
+        return response()->json(['message' => 'Jó lesz!4!']);
     }
-
-    }
+}
