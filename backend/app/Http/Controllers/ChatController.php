@@ -50,6 +50,14 @@ class ChatController extends Controller
         return response()->json($messagesArray);
     }
 
+    public function getUserId()
+    {
+        $user = auth()->user();
+        $user_id = $user->id;
+
+        return $user_id;
+    }
+
     // SSE végpont a valós idejű kommunikációhoz
     public function streamChat(Request $request, $friend_id)
     {
