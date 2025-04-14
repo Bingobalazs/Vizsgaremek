@@ -168,14 +168,14 @@ class _PostWidgetState extends State<PostWidget> {
                           IconButton(
                             icon: Icon(
                               Icons.comment,
-                              color: whiteColor,
+                              color: whiteColor, // Fehér színű ikon
                             ),
                             onPressed: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      CommentScreen(userId: widget.post.userId),
+                                      CommentScreen(postId: widget.post.id),
                                 ),
                               );
                             },
