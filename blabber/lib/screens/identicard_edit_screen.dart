@@ -231,7 +231,16 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
   }
 
   void _showMapEditorDialog(String title, Map<String, String> map, Function(Map<String, String>) onSave) {
-    final Map<String, String> tempMap = Map.from(map);
+    // Clone the map safely
+    final Map<String, String> tempMap = Map<String, String>.from(map);
+
+    // Extract entries and create text controllers
+    final List<MapEntry<String, String>> entries = tempMap.entries.toList();
+    final List<TextEditingController> keyControllers =
+    entries.map((e) => TextEditingController(text: e.key)).toList();
+    final List<TextEditingController> valueControllers =
+    entries.map((e) => TextEditingController(text: e.value)).toList();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -240,34 +249,48 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
           child: StatefulBuilder(
             builder: (context, setStateDialog) => Column(
               children: [
-                ...tempMap.entries.map((entry) => Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: TextEditingController(text: entry.key),
-                        decoration: const InputDecoration(labelText: 'Key'),
-                        onChanged: (value) {
-                          final oldValue = entry.value;
-                          tempMap.remove(entry.key);
-                          tempMap[value] = oldValue;
-                        },
+                ...List.generate(entries.length, (index) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: keyControllers[index],
+                          decoration: const InputDecoration(labelText: 'Key'),
+                          onChanged: (newKey) {
+                            setStateDialog(() {
+                              entries[index] = MapEntry(newKey, entries[index].value);
+                            });
+                          },
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: TextEditingController(text: entry.value),
-                        decoration: const InputDecoration(labelText: 'Value'),
-                        onChanged: (value) => tempMap[entry.key] = value,
+                      Expanded(
+                        child: TextField(
+                          controller: valueControllers[index],
+                          decoration: const InputDecoration(labelText: 'Value'),
+                          onChanged: (newValue) {
+                            setStateDialog(() {
+                              entries[index] = MapEntry(entries[index].key, newValue);
+                            });
+                          },
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => setStateDialog(() => tempMap.remove(entry.key)),
-                    ),
-                  ],
-                )),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => setStateDialog(() {
+                          entries.removeAt(index);
+                          keyControllers.removeAt(index);
+                          valueControllers.removeAt(index);
+                        }),
+                      ),
+                    ],
+                  );
+                }),
                 ElevatedButton(
-                  onPressed: () => setStateDialog(() => tempMap[''] = ''),
+                  onPressed: () => setStateDialog(() {
+                    entries.add(const MapEntry('', ''));
+                    keyControllers.add(TextEditingController());
+                    valueControllers.add(TextEditingController());
+                  }),
                   child: const Text('Add New'),
                 ),
               ],
@@ -277,7 +300,15 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              onSave(tempMap);
+              final Map<String, String> resultMap = {};
+              for (int i = 0; i < entries.length; i++) {
+                final key = keyControllers[i].text;
+                final value = valueControllers[i].text;
+                if (key.isNotEmpty) {
+                  resultMap[key] = value;
+                }
+              }
+              onSave(resultMap);
               Navigator.pop(context);
             },
             child: const Text('Save'),
@@ -286,6 +317,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
       ),
     );
   }
+
 
   void _showListEditorDialog(String title, List<String> list, Function(List<String>) onSave) {
     final List<String> tempList = List.from(list);

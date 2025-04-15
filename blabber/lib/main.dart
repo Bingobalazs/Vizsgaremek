@@ -23,9 +23,43 @@ Future<bool> isLoggedIn() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final baseColor = Color.fromRGBO(0, 34, 77, 1);
+    final accentColor = Color.fromRGBO(255, 32, 78, 1);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+
+      dialogTheme: DialogTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero, // No border radius
+      ),
+      backgroundColor: baseColor, // Dialog background
+      surfaceTintColor: Colors.transparent, // Surface tint
+      titleTextStyle: TextStyle(
+        color: Colors.white, // Title text
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+      ),
+      contentTextStyle: TextStyle(
+        color: Colors.white, // Content text
+        fontSize: 16,
+      ),
+      actionsPadding: EdgeInsets.all(8), // Padding for actions
+      elevation: 24, // Shadow elevation
+    ),
+    // Button styles for dialog actions
+    textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(
+    foregroundColor: Colors.white, // Button text/icon color
+    backgroundColor: Colors.transparent, // Button background
+    disabledForegroundColor: Colors.grey, // Disabled button text
+    ),
+    ),
+    iconTheme: IconThemeData(
+    color: Colors.black, // Icons in dialog
+    ),
+
+
         cardTheme: CardTheme(
           color: Color.fromRGBO(0, 34, 77, 1),
           elevation: 0,
