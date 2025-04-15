@@ -115,7 +115,7 @@ class _ChatsState extends State<Chats> {
                         ),
                         SizedBox(width: 8),
                         ElevatedButton(
-                          child: Text('Új gomb'),
+                          child: Text('Ki ez?'),
                           onPressed: () {
                             Navigator.push(
                               context,

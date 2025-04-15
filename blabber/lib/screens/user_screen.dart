@@ -1,8 +1,8 @@
-//Nem tudom a user_profile_screen mit csinál, de azt nem mertem átírni
-
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:blabber/models/Post.dart';
+import 'package:blabber/widgets/post_widget.dart'; // Ellenőrizd a helyes import útvonalat!
 import 'package:intl/intl.dart';
 
 class UserScreen extends StatelessWidget {
@@ -10,14 +10,11 @@ class UserScreen extends StatelessWidget {
 
   const UserScreen({Key? key, required this.userId}) : super(key: key);
 
-  // Függvény, ami lekéri a JSON adatokat a megadott URL-ről.
+  // Lekéri a felhasználó adatait a megadott URL-ről.
   Future<Map<String, dynamic>> fetchUserData() async {
-    // Az URL-ben dinamikusan behelyettesítjük a userId-t.
     final url = 'https://kovacscsabi.moriczcloud.hu/api/getUser/$userId';
     final response = await http.get(Uri.parse(url));
-
     if (response.statusCode == 200) {
-      // A JSON szöveget egy Map-é alakítjuk.
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
       throw Exception('Nem sikerült betölteni az adatokat.');
@@ -27,15 +24,18 @@ class UserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Felhasználó Profil'),
+      ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: fetchUserData(),
         builder: (context, snapshot) {
-          // Amíg nem érkezett a válasz, egy körbeforgó indikátort mutatunk.
+          // Amíg a válasz meg nem érkezik, mutatunk egy körbeforgó indikátort.
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
 
-          // Hiba esetén megjelenítjük az üzenetet.
+          // Hiba esetén megjelenítjük a hibát.
           if (snapshot.hasError) {
             return Center(child: Text('Hiba: ${snapshot.error}'));
           }
@@ -52,43 +52,46 @@ class UserScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    '${user['name']}',
-                    style: TextStyle(fontSize: 30),
+                    user['name'],
+                    style: const TextStyle(fontSize: 30),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    '${user['email']}',
-                    style: TextStyle(fontSize: 15),
+                    user['email'],
+                    style: const TextStyle(fontSize: 15),
                   ),
-                  SizedBox(height: 16),
-                  Divider(),
-                  SizedBox(height: 16),
-                  Text(
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  const Text(
                     'Posztok:',
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
-                  // A posztok listáját ListView.builder-rel jelenítjük meg,
-                  // melynek scrollozását a SingleChildScrollView illeti át.
+                  // A posztok megjelenítése PostWidget segítségével.
                   ListView.builder(
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: postsData.length,
                     itemBuilder: (context, index) {
-                      final post = postsData[index] as Map<String, dynamic>;
+                      final postJson = postsData[index] as Map<String, dynamic>;
 
-                      DateTime createdAt = DateTime.parse(post['created_at']);
-                      String formattedDate =
-                          DateFormat('yyyy MM dd - HH:mm').format(createdAt);
-
-                      return ListTile(
-                        title: Text(
-                          post['content'] ?? '',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                        subtitle: Text('${formattedDate}'),
+                      // Létrehozunk egy Post objektumot, alapértelmezett értékekkel a hiányzó adatokhoz.
+                      final post = Post(
+                        id: postJson['id'],
+                        content: postJson['content'] ?? '',
+                        mediaUrl: postJson['media_url'],
+                        createdAt: postJson['created_at'],
+                        userName:
+                            user['name'], // A felhasználó neve a posztokhoz
+                        isLiked: false, // Alapértelmezett: nem tetszett
+                        likeCount: 0, // Alapértelmezett: 0 like
+                        isUnseen:
+                            false, // Alapértelmezett: már látta, azaz false
                       );
+
+                      return PostWidget(post: post);
                     },
                   ),
                 ],

@@ -160,7 +160,7 @@ class _ChatState extends State<Chat> {
   /// Mobilos környezetben HttpClient-et használunk, és a kért headerhez hozzáadjuk az
   /// 'Authorization': 'Bearer $token' értéket, míg weben a token a query paraméterben lesz.
   void _subscribeToSSE() async {
-    try {
+    /*try {
       String token = await _getToken();
       // A legutolsó üzenet ID-ja alapján indítjuk, hogy csak az újak legyenek elküldve.
       String lastMessageId = _messages.isNotEmpty ? _messages.last.id : '0';
@@ -250,7 +250,7 @@ class _ChatState extends State<Chat> {
     } catch (e) {
       print('Hiba az SSE kapcsolat létrehozásakor: $e');
       _scheduleSSEReconnect();
-    }
+    }*/
   }
 
   /// Újrakapcsolódás az SSE-hez 5 másodperces késéssel
@@ -367,8 +367,8 @@ class _ChatState extends State<Chat> {
                         final now = DateTime.now();
                         final bool showDate =
                             message.timestamp.year != now.year ||
-                            message.timestamp.month != now.month ||
-                            message.timestamp.day != now.day;
+                                message.timestamp.month != now.month ||
+                                message.timestamp.day != now.day;
                         return Align(
                           alignment: isRightAligned
                               ? Alignment.centerRight
