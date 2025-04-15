@@ -75,19 +75,24 @@ class _ChatState extends State<Chat> {
   // Saját SSE stream-nél mobilos esetben a dart:io based subscription
   StreamSubscription<String>? _sseSubscription;
 
+  // Timer a pollinghoz, hogy minden másodpercben lekérje a GET API-t
+  Timer? _pollTimer;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
     _initChat();
+    _startPolling(); // Polling indítása
   }
 
   /// Elsőként az aktuális (legfrissebb) üzeneteket töltjük be,
-  /// majd elindítjuk az SSE kapcsolatot.
+  /// majd elindítjuk a SSE kapcsolatot (további logikaként megtartható, de most a pollingot használjuk)
   void _initChat() async {
     await _fetchMessages(page: _currentPage, prepend: false);
     _scrollToBottom();
-    _subscribeToSSE();
+    // Ha nem használjuk az SSE-t, ezt akár kikommentelhetjük:
+    // _subscribeToSSE();
   }
 
   /// Ha a lista tetejére görgetünk, akkor próbáljuk betölteni a régebbi üzeneteket.
@@ -156,11 +161,10 @@ class _ChatState extends State<Chat> {
     }
   }
 
-  /// SSE előfizetés a streamChat API-hoz.
-  /// Mobilos környezetben HttpClient-et használunk, és a kért headerhez hozzáadjuk az
-  /// 'Authorization': 'Bearer $token' értéket, míg weben a token a query paraméterben lesz.
+  /// Az alábbi kód az SSE reconnection logikát tartalmazza, ha esetleg SSE-t használnánk
   void _subscribeToSSE() async {
-    /*try {
+    /*
+    try {
       String token = await _getToken();
       // A legutolsó üzenet ID-ja alapján indítjuk, hogy csak az újak legyenek elküldve.
       String lastMessageId = _messages.isNotEmpty ? _messages.last.id : '0';
@@ -250,7 +254,8 @@ class _ChatState extends State<Chat> {
     } catch (e) {
       print('Hiba az SSE kapcsolat létrehozásakor: $e');
       _scheduleSSEReconnect();
-    }*/
+    }
+    */
   }
 
   /// Újrakapcsolódás az SSE-hez 5 másodperces késéssel
@@ -259,6 +264,52 @@ class _ChatState extends State<Chat> {
       if (mounted) {
         _subscribeToSSE();
       }
+    });
+  }
+
+  /// A polling metódus, mely minden másodpercben meghívja a getchat API-t,
+  /// és ha új üzeneteket tartalmaz, azokat hozzáfűzi a _messages listához.
+  Future<void> _pollNewMessages() async {
+    try {
+      String token = await _getToken();
+      // Feltételezzük, hogy a 1. oldal a legfrissebb üzeneteket tartalmazza
+      final url = Uri.parse(
+          'https://kovacscsabi.moriczcloud.hu/api/getchat/${widget.friendId}?page=1');
+      final response = await http.get(url, headers: {
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        final dynamic decodedData = jsonDecode(response.body);
+        List<dynamic> dataList = decodedData['data'] ?? [];
+        List<ChatMessage> fetchedMessages = dataList
+            .map<ChatMessage>((json) => ChatMessage.fromJson(json))
+            .toList();
+
+        // Szűrés: csak azokat az üzeneteket adjuk hozzá, amelyek még nem szerepelnek
+        final currentMessageIds = _messages.map((msg) => msg.id).toSet();
+        List<ChatMessage> newMessages = fetchedMessages
+            .where((msg) => !currentMessageIds.contains(msg.id))
+            .toList();
+
+        if (newMessages.isNotEmpty) {
+          setState(() {
+            _messages.addAll(newMessages);
+          });
+          _scrollToBottom();
+        }
+      } else {
+        print('Polling hiba: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Polling hiba: $e');
+    }
+  }
+
+  /// Elindítja a Timer.periodic-et, ami minden másodpercben meghívja a _pollNewMessages()-t.
+  void _startPolling() {
+    _pollTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _pollNewMessages();
     });
   }
 
@@ -335,6 +386,7 @@ class _ChatState extends State<Chat> {
     _messageController.dispose();
     _scrollController.dispose();
     _sseSubscription?.cancel();
+    _pollTimer?.cancel(); // Leállítjuk a polling Timer-t
     super.dispose();
   }
 
