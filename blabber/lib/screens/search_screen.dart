@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:blabber/models/Post.dart';
 import 'package:blabber/widgets/post_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:blabber/screens/other_user_screen.dart'; // Győződj meg róla, hogy a helyes elérési út van megadva
+import 'package:blabber/screens/user_screen.dart'; // Győződj meg róla, hogy a helyes elérési út van megadva
 
 // Define your color palette - replace these with your actual colors
 const Color primaryColor = Color(0xFF007BFF);
@@ -81,9 +81,6 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _hasMorePosts = true;
   final ScrollController _scrollController = ScrollController();
   String _currentQuery = '';
-
-  /// Ez a halmaz tárolja azon felhasználók azonosítóját, akiknél a "Részletek" gomb már meg lett nyomva.
-  final Set<int> _pressedUserIds = {};
 
   @override
   void initState() {
@@ -344,12 +341,9 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  /// Az alábbi metódus épít egy személy kártyát, amelynek "Részletek" gombja
-  /// csak egyszer nyomtatható meg. Amint egy gombot megnyomtak, annak a felhasználó ID-je bekerül a _pressedUserIds halmazba,
-  /// és onnantól kezdve a gomb le lesz tiltva.
+  /// Az alábbi metódus épít egy személy kártyát, amely a keresési találatok részeként jelenik meg.
+  /// A "Részletek" gomb mostantól az OtherUserScreen-re navigál.
   Widget _buildPersonCard(UserData user, BuildContext context) {
-    // Ellenőrizzük, hogy a gomb el lett-e már nyomva az adott felhasználónál
-    final isDisabled = _pressedUserIds.contains(user.id);
     return Column(
       children: [
         Container(
@@ -378,20 +372,15 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         const SizedBox(height: 8),
         ElevatedButton.icon(
-          onPressed: isDisabled
-              ? null
-              : () {
-                  setState(() {
-                    _pressedUserIds.add(user.id);
-                  });
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          OtherUserScreen(userId: user.id.toString()),
-                    ),
-                  );
-                },
+          onPressed: () {
+            // Navigáljunk az OtherUserScreen-re a felhasználó azonosítójával
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserScreen(userId: user.id.toString()),
+              ),
+            );
+          },
           icon: const Icon(Icons.remove_red_eye, size: 16),
           label: const Text(
             'Részletek',

@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:blabber/models/Post.dart';
 import 'package:blabber/widgets/post_widget.dart'; // Ellenőrizd a helyes import útvonalat!
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class OtherUserScreen extends StatelessWidget {
   final String userId;
@@ -26,14 +25,14 @@ class OtherUserScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Felhasználó Profil'),
+        title: Text('Felhasználó Profil'),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: fetchUserData(),
         builder: (context, snapshot) {
           // Amíg a válasz meg nem érkezik, mutatunk egy körbeforgó indikátort.
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
 
           // Hiba esetén megjelenítjük a hibát.
@@ -53,70 +52,34 @@ class OtherUserScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Felhasználói adatok megjelenítése
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 8),
-                          Text(
-                            user['name'],
-                            style: const TextStyle(fontSize: 30),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            user['email'],
-                            style: const TextStyle(fontSize: 15),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 8),
+                            Text(
+                              user['name'],
+                              style: const TextStyle(fontSize: 30),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              user['email'],
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            const SizedBox(height: 16),
+                          ]),
                       Image(
-                        width: 100,
-                        height: 100,
-                        image: NetworkImage(
-                          'https://kovacscsabi.moriczcloud.hu/${user['pfp_url']}',
-                        ),
-                      ),
+                          width: 100,
+                          height: 100,
+                          image: NetworkImage(
+                            'https://kovacscsabi.moriczcloud.hu/${user['pfp_url']}',
+                          )),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // Jelölés gomb hozzáadása:
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        final token = prefs.getString('auth_token');
-                        final url =
-                            'https://kovacscsabi.moriczcloud.hu/api/jeloles/$userId';
-                        try {
-                          final response = await http.post(
-                            Uri.parse(url),
-                            headers: {'Authorization': 'Bearer $token'},
-                          );
-                          if (response.statusCode == 200) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Sikeres jelölés!')),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Jelölés sikertelen. Hiba kód: ${response.statusCode}')),
-                            );
-                          }
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Hiba: $e')),
-                          );
-                        }
-                      },
-                      child: const Text("Jelölés"),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+
                   const Divider(),
                   const SizedBox(height: 16),
                   const Text(
@@ -130,6 +93,7 @@ class OtherUserScreen extends StatelessWidget {
                     itemCount: postsData.length,
                     itemBuilder: (context, index) {
                       final postJson = postsData[index] as Map<String, dynamic>;
+
                       // Létrehozunk egy Post objektumot, alapértelmezett értékekkel a hiányzó adatokhoz.
                       final post = Post(
                         id: postJson['id'],

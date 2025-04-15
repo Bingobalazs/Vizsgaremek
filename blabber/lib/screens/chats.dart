@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'user_screen.dart';
 import 'chat.dart'; // Importáljuk a chat képernyőt
+import 'other_user_screen.dart';
 
 class Chats extends StatefulWidget {
   @override
@@ -120,7 +121,7 @@ class _ChatsState extends State<Chats> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => UserScreen(
+                                builder: (context) => OtherUserScreen(
                                   userId: request['id'].toString(),
                                 ),
                               ),
