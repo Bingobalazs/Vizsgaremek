@@ -321,6 +321,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                   child: Text('Regisztráció', style: TextStyle(fontSize: 18)),
                 ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegistrationPage()),
+                  );
+                },
+                child: Text(
+                  'Van fiókom, belépek',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ],
           ),
         ),

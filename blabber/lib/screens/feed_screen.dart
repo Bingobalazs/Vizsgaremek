@@ -5,6 +5,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../widgets/post_widget.dart';
 
+
 class FeedScreen extends StatefulWidget {
   const FeedScreen({Key? key}) : super(key: key);
 
@@ -82,6 +83,8 @@ class _FeedScreenState extends State<FeedScreen> {
       body: RefreshIndicator(
         onRefresh: _refreshPosts,
         child: ListView.separated(
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.vertical,
           controller: _scrollController,
           padding: const EdgeInsets.all(10.0),
           itemCount: _posts.length + (_hasMore ? 1 : 0),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:blabber/models/Post.dart';
+import 'package:blabber/screens/user_screen.dart';
 import 'package:blabber/services/posts_api_service.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -13,14 +14,14 @@ class PostWidget extends StatefulWidget {
 }
 
 class _PostWidgetState extends State<PostWidget> {
-  late Future<bool> isLikedFuture;
+
   late Future<int> commentCountFuture;
   bool _hasViewed = false; // To ensure we mark view only once
 
   @override
   void initState() {
     super.initState();
-    isLikedFuture = PostsApiService().checkLike(widget.post.id);
+
     commentCountFuture = PostsApiService().getCommentCount(widget.post.id);
   }
 
@@ -29,7 +30,7 @@ class _PostWidgetState extends State<PostWidget> {
     DateTime postDate = DateTime.parse(createdAt);
     DateTime now = DateTime.now();
     int days = now.difference(postDate).inDays;
-    return days == 0 ? 'Today' : '$days days ago';
+    return days == 0 ? 'Ma' : '$days napja';
   }
 
   // Call the view API when the post is visible
@@ -68,19 +69,37 @@ class _PostWidgetState extends State<PostWidget> {
                 children: [
                   // Top bar with poster's name and post age
                   Container(
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: widget.post.isUnseen ? accentColor : darkColor,
                       border: Border(
                         bottom: BorderSide(color: accentColor),
                       ),
                     ),
-                    padding: const EdgeInsets.all(8.0),
-                    width: double.infinity,
-                    child: Text(
-                      '${widget.post.userName} • ${_calculateDaysAgo(widget.post.createdAt)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                    child: InkWell(
+                      splashColor: accentColor,
+                      highlightColor: accentColor,
+                      hoverColor: accentColor,
+                      focusColor: accentColor,
+
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                UserScreen(userId: widget.post.userId.toString()),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          '${widget.post.userName} • ${_calculateDaysAgo(widget.post.createdAt)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
