@@ -31,11 +31,6 @@ Route::post('/tokens/create', function (Request $request) {
     return ['token' => $token->plainTextToken];
 });
 
-Route::controller(SearchController::class)->group(function () {
-
-    Route::get('/search/{query}', 'search');
-});
-
 Route::controller(FriendsController::class)->group(function () {
 
     Route::get('/getUser/{userId}', 'getUserWithPosts');
@@ -59,6 +54,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/getchat/{friend_id}', 'getchat')->name('getchat');
         Route::get('/streamchat/{friend_id}', 'streamChat');
         Route::get('/getuserid', 'getUserId');
+    });
+    
+    Route::controller(SearchController::class)->group(function () {
+
+        Route::get('/search/{query}', 'search');
     });
 
     Route::get('stream-chat/{friend_id}/{lastMessageId}', [ChatController::class, 'streamChat']);
