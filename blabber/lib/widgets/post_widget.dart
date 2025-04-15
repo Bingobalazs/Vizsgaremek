@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:blabber/models/Post.dart';
 import 'package:blabber/services/posts_api_service.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
 class PostWidget extends StatefulWidget {
   final Post post;
 
@@ -68,12 +69,11 @@ class _PostWidgetState extends State<PostWidget> {
                   // Top bar with poster's name and post age
                   Container(
                     decoration: BoxDecoration(
-                      color: widget.post.isUnseen? accentColor : darkColor,
+                      color: widget.post.isUnseen ? accentColor : darkColor,
                       border: Border(
                         bottom: BorderSide(color: accentColor),
                       ),
                     ),
-
                     padding: const EdgeInsets.all(8.0),
                     width: double.infinity,
                     child: Text(
@@ -86,7 +86,8 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                   // Post content or media
                   if (widget.post.mediaUrl != null) ...[
-                    Image.network('https://kovacscsabi.moriczcloud.hu/' + widget.post.mediaUrl!),
+                    Image.network('https://kovacscsabi.moriczcloud.hu/' +
+                        widget.post.mediaUrl!),
                     Container(
                       height: 2,
                       color: accentColor,
@@ -119,7 +120,8 @@ class _PostWidgetState extends State<PostWidget> {
                   ],
                   // Like and Comment buttons
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -132,18 +134,24 @@ class _PostWidgetState extends State<PostWidget> {
                                 widget.post.isLiked
                                     ? Icons.thumb_up_off_alt_sharp
                                     : Icons.thumb_up_off_alt_outlined,
-                                color: widget.post.isLiked ? accentColor : whiteColor,
+                                color: widget.post.isLiked
+                                    ? accentColor
+                                    : whiteColor,
                               ),
                               onPressed: () async {
                                 try {
-                                  bool newLikeStatus = await PostsApiService().toggleLike(widget.post.id);
+                                  bool newLikeStatus = await PostsApiService()
+                                      .toggleLike(widget.post.id);
                                   setState(() {
                                     widget.post.isLiked = newLikeStatus;
-                                    widget.post.likeCount += newLikeStatus ? 1 : -1;
+                                    widget.post.likeCount +=
+                                        newLikeStatus ? 1 : -1;
                                   });
                                 } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error toggling like: $e')),
+                                    SnackBar(
+                                        content:
+                                            Text('Error toggling like: $e')),
                                   );
                                 }
                               },
@@ -156,7 +164,7 @@ class _PostWidgetState extends State<PostWidget> {
                         ),
                         // Comment Button
 
-                 /*
+                        /*
                        FutureBuilder<int>(
                           future: commentCountFuture,
                           builder: (context, snapshot) {

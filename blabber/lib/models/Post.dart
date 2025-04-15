@@ -1,13 +1,12 @@
-
 class Post {
   final int id;
   final String content;
   final String? mediaUrl;
   final String createdAt;
   final String userName;
-   bool isLiked;
-   bool isUnseen;
-   int likeCount;
+  bool isLiked;
+  bool isUnseen;
+  int likeCount;
 
   Post({
     required this.id,
