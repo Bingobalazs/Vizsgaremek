@@ -316,7 +316,7 @@
 
 
 
-
+{{--
         <div class="profile-picture-container">
             @if($user->profile_picture)
                 <img src="{{ $user->profile_picture }}" alt="{{ $user->name }}" class="profile-picture">
@@ -324,6 +324,8 @@
                 <div class="profile-picture" style="background: linear-gradient(135deg, var(--primary), var(--accent))"></div>
             @endif
         </div>
+
+--}}
 
 
     <div class="glitch-container">
