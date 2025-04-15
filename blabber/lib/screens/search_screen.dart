@@ -124,6 +124,9 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _fetchSearchResults(String query, {int page = 1}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
     setState(() {
       if (page == 1) {
         _isLoading = true;
@@ -137,7 +140,10 @@ class _SearchScreenState extends State<SearchScreen> {
         'https://kovacscsabi.moriczcloud.hu/api/search/$query?page=$page');
 
     try {
-      final response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
       if (response.statusCode == 200) {
         final decodedJson = jsonDecode(response.body);
