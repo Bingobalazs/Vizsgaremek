@@ -317,7 +317,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
                   print('Hozzászólás gomb megnyomva');
                 },
                 icon: Icon(Icons.comment_sharp, size: 15),
-                label: Text('Szólj hozzá...'),
+                label: Text('Szólj hozzá'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: darkColor,
                   foregroundColor: whiteColor,
@@ -327,25 +327,17 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
               Row(
                 children: [
                   // Módosítás gomb
-                  ElevatedButton.icon(
+                  IconButton (
                     onPressed: () => _showUpdateDialog(post),
-                    icon: Icon(Icons.edit_sharp, size: 15),
-                    label: Text('MÓDOSÍTÁS'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accentColor,
-                      foregroundColor: whiteColor,
-                    ),
+                    icon: Icon(Icons.edit_sharp, size: 15, color: accentColor),
+
                   ),
                   SizedBox(width: 8),
                   // Törlés gomb
-                  ElevatedButton.icon(
+                  IconButton(
                     onPressed: () => deletePost(post.id),
-                    icon: Icon(Icons.delete_sharp, size: 15),
-                    label: Text('TÖRLÉS'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accentColor,
-                      foregroundColor: whiteColor,
-                    ),
+                    icon: Icon(Icons.delete_sharp, size: 15, color: accentColor),
+
                   ),
                 ],
               ),

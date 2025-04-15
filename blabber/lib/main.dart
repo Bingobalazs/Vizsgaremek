@@ -26,8 +26,28 @@ class MyApp extends StatelessWidget {
     final baseColor = Color.fromRGBO(0, 34, 77, 1);
     final accentColor = Color.fromRGBO(255, 32, 78, 1);
     return MaterialApp(
+      title: 'Blabber',
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/register': (context) => RegistrationPage(),
+        '/home': (context) => HomePage(),
+        '/search': (context) => SearchScreen(),
+        '/feed': (context) => FeedScreen(),
+        '/add_post': (context) => AddPostScreen(),
+        '/chat': (context) => Chats(),
+        '/profile': (context) => ProfilePage(),
+        '/friend_suggestions': (context) => FriendSuggestionsScreen(),
+        '/identicard_edit': (context) => IdenticardScreen(),
+      },
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          color: accentColor,
+          circularTrackColor:Colors.white,
+          strokeWidth: 2,
+
+
+        ),
 
       dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(
@@ -56,7 +76,7 @@ class MyApp extends StatelessWidget {
     ),
     ),
     iconTheme: IconThemeData(
-    color: Colors.black, // Icons in dialog
+    color: Colors.white, // Icons in dialog
     ),
 
 

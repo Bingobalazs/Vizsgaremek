@@ -1,5 +1,6 @@
 class Post {
   final int id;
+  final int? userId;
   final String content;
   final String? mediaUrl;
   final String createdAt;
@@ -10,6 +11,7 @@ class Post {
 
   Post({
     required this.id,
+    this.userId,
     required this.content,
     this.mediaUrl,
     required this.createdAt,
@@ -22,6 +24,7 @@ class Post {
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json['id'],
+      userId: json['user']['id'],
       content: json['content'],
       mediaUrl: json['media_url'],
       createdAt: json['created_at'],

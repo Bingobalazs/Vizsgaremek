@@ -52,17 +52,41 @@ class UserScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
-                  Text(
-                    user['name'],
-                    style: const TextStyle(fontSize: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 8),
+                        Text(
+                          user['name'],
+                          style: const TextStyle(fontSize: 30),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          user['email'],
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                        const SizedBox(height: 16),
+                        ]
+                    ),
+                    Image(
+                      width: 100,
+                      height: 100,
+                      image: NetworkImage(
+                        'https://kovacscsabi.moriczcloud.hu/${user['pfp_url']}',
+                      )
+                      ),
+
+                  ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    user['email'],
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                  const SizedBox(height: 16),
+
+
+
+
+
                   const Divider(),
                   const SizedBox(height: 16),
                   const Text(

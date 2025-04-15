@@ -160,22 +160,27 @@ class ProfilePageState extends State<ProfilePage> {
                           color: baseColor,
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Image.network(
-                        "https://kovacscsabi.moriczcloud.hu/${userData?['pfp_url']}" ?? 'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Image.network(
-                            'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
+                      child: isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Image.network(
+                                "https://kovacscsabi.moriczcloud.hu/${userData?['pfp_url']}" ??
+                                    'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Image.network(
+                                  'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
                     ),
+
                     // Add the edit button
                     GestureDetector(
                       onTap: () async {
@@ -199,24 +204,30 @@ class ProfilePageState extends State<ProfilePage> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(
-                  userData?['name'] ?? 'Jelentkezz be!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Roboto Mono',
-                    fontSize: 24,
-                    color: accentColor,
-                  ),
-                ),
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : Text(
+                        userData?['name'] ?? 'Jelentkezz be!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Roboto Mono',
+                          fontSize: 24,
+                          color: accentColor,
+                        ),
+                      ),
               ),
-              Text(
-                userData?['email']?? 'Jelentkezz be!',
-                style: TextStyle(
-                  fontFamily: 'Roboto Mono',
-                  fontSize: 16,
-                  color: Colors.grey[600],
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : Text(
+                      userData?['email'] ?? 'Jelentkezz be!',
+                      style: TextStyle(
+                        fontFamily: 'Roboto Mono',
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
                 ),
-              ),
+
+
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 50),
@@ -288,6 +299,7 @@ class ProfilePageState extends State<ProfilePage> {
               ),
             ],
           ),
+
         ),
       ),
     );

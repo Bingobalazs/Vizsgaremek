@@ -1,6 +1,7 @@
 
 
 import 'package:blabber/models/identicard.dart';
+import 'package:blabber/screens/user_profile_screen.dart';
 import 'package:blabber/services/identicard_service.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -575,6 +576,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Name',
                     prefixIcon: Icon(Icons.person),
+                    prefixIconColor: ProfilePageState.accentColor,
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -584,6 +586,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Username',
                     prefixIcon: Icon(Icons.alternate_email),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -593,6 +596,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Bio',
                     prefixIcon: Icon(Icons.description),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -602,6 +606,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Location',
                     prefixIcon: Icon(Icons.location_on),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -611,6 +616,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Birthday',
                     prefixIcon: Icon(Icons.cake),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                   readOnly: true,
                   onTap: _showDatePicker,
@@ -622,6 +628,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Pronouns',
                     prefixIcon: Icon(Icons.person_outline),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -631,6 +638,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Relationship Status',
                     prefixIcon: Icon(Icons.favorite),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -640,6 +648,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Phone',
                     prefixIcon: Icon(Icons.phone),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -649,6 +658,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Website',
                     prefixIcon: Icon(Icons.language),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -658,6 +668,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Current Workplace',
                     prefixIcon: Icon(Icons.business),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -667,6 +678,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Job Title',
                     prefixIcon: Icon(Icons.work),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -676,6 +688,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Portfolio Link',
                     prefixIcon: Icon(Icons.link),
+                    prefixIconColor: ProfilePageState.accentColor
                   ),
                 ),
                 const SizedBox(height: 24.0),
@@ -774,6 +787,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
+
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Padding(
@@ -781,6 +795,8 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           child: Text('Theme Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         ),
                         ListTile(
+                          textColor: Colors.white,
+                          iconColor: Colors.white,
                           leading: const Icon(Icons.color_lens),
                           title: const Text('Primary Color'),
                           trailing: CircleAvatar(backgroundColor: primaryColor),
@@ -789,6 +805,8 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                         const SizedBox(height: 8.0),
 
                         ListTile(
+                          textColor: Colors.white,
+                          iconColor: Colors.white,
                           leading: const Icon(Icons.brush),
                           title: const Text('Accent Color'),
                           trailing: CircleAvatar(backgroundColor: accentColor),
@@ -797,6 +815,8 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                         const SizedBox(height: 8.0),
 
                         ListTile(
+                          textColor: Colors.white,
+                          iconColor: Colors.white,
                           leading: const Icon(Icons.format_paint),
                           title: const Text('Background Color'),
                           trailing: CircleAvatar(backgroundColor: bgColor),
@@ -805,6 +825,8 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                         const SizedBox(height: 8.0),
 
                         ListTile(
+                          textColor: Colors.white,
+                          iconColor: Colors.white,
                           leading: const Icon(Icons.text_fields),
                           title: const Text('Text Color'),
                           trailing: CircleAvatar(backgroundColor: textColor),

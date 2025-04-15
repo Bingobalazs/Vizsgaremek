@@ -31,4 +31,10 @@ class PfpController extends Controller
     }
 
 
+    public static function getPfpUrl($id)
+    {
+        $user = User::findOrFail($id);
+
+        return $user->pfp_url;
+    }
 }
