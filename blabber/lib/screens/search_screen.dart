@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:blabber/models/Post.dart';
 import 'package:blabber/widgets/post_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:blabber/screens/other_user_screen.dart'; // Győződj meg róla, hogy a helyes elérési út van megadva
 
 // Define your color palette - replace these with your actual colors
 const Color primaryColor = Color(0xFF007BFF);
@@ -20,7 +21,6 @@ Future<String> _getToken() async {
   if (token == null) throw Exception('Nincs bejelentkezve');
   return token;
 }
-
 
 // Define your text styles - replace these with your actual styles
 final TextStyle titleMediumStyle = TextStyle(
@@ -81,6 +81,9 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _hasMorePosts = true;
   final ScrollController _scrollController = ScrollController();
   String _currentQuery = '';
+
+  /// Ez a halmaz tárolja azon felhasználók azonosítóját, akiknél a "Részletek" gomb már meg lett nyomva.
+  final Set<int> _pressedUserIds = {};
 
   @override
   void initState() {
@@ -149,21 +152,25 @@ class _SearchScreenState extends State<SearchScreen> {
             _allPosts = searchResult.posts.data;
             _displayedPosts = _allPosts.take(10).toList();
             _postCurrentPage = 1;
-            _hasMorePosts = searchResult.posts.pagination?.currentPage != null &&
-                searchResult.posts.pagination?.lastPage != null &&
-                searchResult.posts.pagination!.currentPage < searchResult.posts.pagination!.lastPage;
+            _hasMorePosts =
+                searchResult.posts.pagination?.currentPage != null &&
+                    searchResult.posts.pagination?.lastPage != null &&
+                    searchResult.posts.pagination!.currentPage <
+                        searchResult.posts.pagination!.lastPage;
           } else {
             _allPosts.addAll(searchResult.posts.data);
             _displayedPosts = _allPosts;
-            _hasMorePosts = searchResult.posts.pagination?.currentPage != null &&
-                searchResult.posts.pagination?.lastPage != null &&
-                searchResult.posts.pagination!.currentPage < searchResult.posts.pagination!.lastPage;
+            _hasMorePosts =
+                searchResult.posts.pagination?.currentPage != null &&
+                    searchResult.posts.pagination?.lastPage != null &&
+                    searchResult.posts.pagination!.currentPage <
+                        searchResult.posts.pagination!.lastPage;
           }
         });
       } else {
         setState(() {
           _errorMessage =
-          'Failed to fetch data. Status code: ${response.statusCode}';
+              'Failed to fetch data. Status code: ${response.statusCode}';
           _hasMorePosts = false;
         });
       }
@@ -208,7 +215,6 @@ class _SearchScreenState extends State<SearchScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-
                 // Search Field
                 Container(
                   width: double.infinity,
@@ -219,11 +225,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     decoration: InputDecoration(
                       hintText: 'Keress embereket és posztokat...',
                       hintStyle:
-                      bodyMediumStyle.copyWith(color: secondaryTextColor),
+                          bodyMediumStyle.copyWith(color: secondaryTextColor),
                       filled: true,
                       fillColor: secondaryColor,
                       prefixIcon:
-                      Icon(Icons.search_rounded, color: accentColor),
+                          Icon(Icons.search_rounded, color: accentColor),
                       enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: accentColor, width: 1),
                         borderRadius: BorderRadius.zero,
@@ -266,10 +272,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: _users
                           .map(
                             (user) => Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: _buildPersonCard(user, context),
-                        ),
-                      )
+                              padding: const EdgeInsets.only(right: 16.0),
+                              child: _buildPersonCard(user, context),
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
@@ -281,7 +287,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ],
                 // Posts Section
-                if (!_isLoading && (_displayedPosts.isNotEmpty || _isLoadingMorePosts || !_hasMorePosts)) ...[
+                if (!_isLoading &&
+                    (_displayedPosts.isNotEmpty ||
+                        _isLoadingMorePosts ||
+                        !_hasMorePosts)) ...[
                   const SizedBox(height: 12),
                   Text('Bejegyzések', style: titleMediumStyle),
                   const SizedBox(height: 12),
@@ -314,7 +323,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                 ],
-                if (!_isLoading && _users.isEmpty && _displayedPosts.isEmpty && _errorMessage.isEmpty && _textController.text.length > 1)
+                if (!_isLoading &&
+                    _users.isEmpty &&
+                    _displayedPosts.isEmpty &&
+                    _errorMessage.isEmpty &&
+                    _textController.text.length > 1)
                   const Expanded(
                     child: Center(
                       child: Text(
@@ -331,12 +344,12 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  /// Az alábbi metódus épít egy személy kártyát, amelynek "Részletek" gombja
+  /// csak egyszer nyomtatható meg. Amint egy gombot megnyomtak, annak a felhasználó ID-je bekerül a _pressedUserIds halmazba,
+  /// és onnantól kezdve a gomb le lesz tiltva.
   Widget _buildPersonCard(UserData user, BuildContext context) {
-    bool _isMarked = false;
-    //TODO: ez nem működik így majd talán ha lesz api
-    // Lehet inkább egyszerűbb lenne nem itt jelölni, csak a részletes oldalon
-
-
+    // Ellenőrizzük, hogy a gomb el lett-e már nyomva az adott felhasználónál
+    final isDisabled = _pressedUserIds.contains(user.id);
     return Column(
       children: [
         Container(
@@ -345,9 +358,9 @@ class _SearchScreenState extends State<SearchScreen> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.cover,
-              image:
-              NetworkImage('https://picsum.photos/500/500?person=${user.id}'),
-              //TODO: Replace with actual image
+              image: NetworkImage(
+                  'https://picsum.photos/500/500?person=${user.id}'),
+              //TODO: Replace with actual image if available
             ),
             shape: BoxShape.rectangle,
             border: Border.all(color: accentColor, width: 2),
@@ -365,64 +378,31 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         const SizedBox(height: 8),
         ElevatedButton.icon(
-          onPressed: () async {
-            setState(() {
-              _isLoading = true;
-            });
-
-            try {
-              String token = await _getToken();
-
-              final response = await http.post(
-                Uri.parse('https://kovacscsabi.moriczcloud.hu/api/jeloles/${user.id}'),
-                headers: {
-                  'Authorization': 'Bearer $token',
-                  'Content-Type': 'application/json',
+          onPressed: isDisabled
+              ? null
+              : () {
+                  setState(() {
+                    _pressedUserIds.add(user.id);
+                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          OtherUserScreen(userId: user.id.toString()),
+                    ),
+                  );
                 },
-              );
-
-              if (response.statusCode == 200) {
-                setState(() {
-                  _isMarked = true;
-                  _isLoading = false;
-                });
-              } else {
-                // Handle error
-                print('Failed to mark: ${response.statusCode}');
-                setState(() {
-                  _isLoading = false;
-                });
-              }
-            } catch (e) {
-              print('Error: $e');
-              setState(() {
-                _isLoading = false;
-              });
-            }
-          },
-          label: Text(
-              _isMarked ? 'Mégse' : 'Jelölés',
-              style: TextStyle(fontSize: 12)
-          ),
-          icon: _isLoading
-              ? SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2,
-            ),
-          )
-              : Icon(
-              _isMarked ? Icons.close : Icons.add,
-              size: 16
+          icon: const Icon(Icons.remove_red_eye, size: 16),
+          label: const Text(
+            'Részletek',
+            style: TextStyle(fontSize: 12),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: _isMarked ? Colors.red : accentColor,
+            backgroundColor: accentColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
             elevation: 0,
           ),
         ),
@@ -432,7 +412,6 @@ class _SearchScreenState extends State<SearchScreen> {
 }
 
 /// Models for the API response ///
-
 class SearchResult {
   final UsersResult users;
   final PaginatedPostsResult posts;
@@ -460,7 +439,7 @@ class UsersResult {
   factory UsersResult.fromJson(Map<String, dynamic> json) {
     final List<dynamic> dataList = json['data'];
     final List<UserData> users =
-    dataList.map((item) => UserData.fromJson(item)).toList();
+        dataList.map((item) => UserData.fromJson(item)).toList();
     return UsersResult(
       data: users,
     );
@@ -477,12 +456,11 @@ class PaginatedPostsResult {
     if (json is Map<String, dynamic>) {
       final List<dynamic> dataList = json['data'];
       final List<Post> posts =
-      dataList.map((item) => Post.fromJson(item)).toList();
+          dataList.map((item) => Post.fromJson(item)).toList();
       return PaginatedPostsResult(
         data: posts,
-        pagination: json.containsKey('links')
-            ? Pagination.fromJson(json)
-            : null,
+        pagination:
+            json.containsKey('links') ? Pagination.fromJson(json) : null,
       );
     } else {
       // Handle case where 'posts' might directly be a list (though your structure suggests otherwise)
