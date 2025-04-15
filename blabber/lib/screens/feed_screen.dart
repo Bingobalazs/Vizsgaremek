@@ -3,13 +3,11 @@ import 'package:blabber/models/Post.dart';
 import 'package:blabber/services/posts_api_service.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-
 import '../widgets/post_widget.dart';
 
 
-
 class FeedScreen extends StatefulWidget {
-  const FeedScreen({super.key});
+  const FeedScreen({Key? key}) : super(key: key);
 
   @override
   State<FeedScreen> createState() => _FeedScreenState();
@@ -36,15 +34,17 @@ class _FeedScreenState extends State<FeedScreen> {
     super.dispose();
   }
 
-  // Detect if we've scrolled close to the bottom
+  // Ha már a lista aljához közelítünk, betöltjük a következő posztcsomagot
   void _scrollListener() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
-        !_isLoading && _hasMore) {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        _hasMore) {
       _loadPosts();
     }
   }
 
-  // Load posts from the API and update our list
+  // Posztok betöltése az API-ból
   Future<void> _loadPosts() async {
     setState(() {
       _isLoading = true;
@@ -67,7 +67,7 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
-  // Allow pull-to-refresh
+  // Pull-to-refresh funkció
   Future<void> _refreshPosts() async {
     setState(() {
       _posts.clear();
@@ -83,6 +83,8 @@ class _FeedScreenState extends State<FeedScreen> {
       body: RefreshIndicator(
         onRefresh: _refreshPosts,
         child: ListView.separated(
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.vertical,
           controller: _scrollController,
           padding: const EdgeInsets.all(10.0),
           itemCount: _posts.length + (_hasMore ? 1 : 0),
@@ -90,15 +92,15 @@ class _FeedScreenState extends State<FeedScreen> {
             if (index < _posts.length) {
               return PostWidget(post: _posts[index]);
             } else {
-              // Display a loading indicator at the bottom
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
+              // Alsó mutató, ha még töltünk
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
                 child: Center(child: CircularProgressIndicator()),
               );
             }
           },
           separatorBuilder: (context, index) {
-            // Insert a separator if transitioning from unseen to seen posts
+            // Ha az elválasztó olyan posztok között kerül, ahol a látottság változik
             if (index < _posts.length - 1) {
               if (_posts[index].isUnseen && !_posts[index + 1].isUnseen) {
                 return Column(
@@ -118,6 +120,3 @@ class _FeedScreenState extends State<FeedScreen> {
     );
   }
 }
-
-
-

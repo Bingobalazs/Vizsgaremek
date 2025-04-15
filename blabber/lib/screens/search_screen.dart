@@ -17,7 +17,7 @@ const Color errorColor = Colors.red;
 Future<String> _getToken() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('auth_token');
-  if (token == null) throw Exception('No token found');
+  if (token == null) throw Exception('Nincs bejelentkezve');
   return token;
 }
 
@@ -207,6 +207,8 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 16),
+
                 // Search Field
                 Container(
                   width: double.infinity,
@@ -215,7 +217,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     focusNode: _textFieldFocusNode,
                     autofocus: false,
                     decoration: InputDecoration(
-                      hintText: 'Search people, posts, and more...',
+                      hintText: 'Keress embereket és posztokat...',
                       hintStyle:
                       bodyMediumStyle.copyWith(color: secondaryTextColor),
                       filled: true,

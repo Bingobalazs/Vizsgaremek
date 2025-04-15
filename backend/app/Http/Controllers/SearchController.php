@@ -20,7 +20,6 @@ class SearchController extends Controller
                 ->where('content', 'like', "%{$query}%")
                 ->paginate(10)
             : Post::paginate(10);
-        //TODO: felhasználó nevének hozzáadása outputhoz, hogy a frontend úgy mutassa a posztokat
 
 // Keep the pagination data by storing it separately
         $paginationData = $posts->toArray();

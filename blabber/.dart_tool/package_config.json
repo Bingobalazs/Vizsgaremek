@@ -386,6 +386,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "scroll_snap_list",
+      "rootUri": "file:///C:/Users/baluv/AppData/Local/Pub/Cache/hosted/pub.dev/scroll_snap_list-0.9.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "share_plus",
       "rootUri": "file:///C:/Users/baluv/AppData/Local/Pub/Cache/hosted/pub.dev/share_plus-10.1.4",
       "packageUri": "lib/",
@@ -578,7 +584,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-04-14T16:56:37.004555Z",
+  "generated": "2025-04-15T15:50:21.183575Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///C:/tools/flutter",
