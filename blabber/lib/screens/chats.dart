@@ -174,7 +174,7 @@ class _ChatsState extends State<Chats> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => UserScreen(
+                                builder: (context) => OtherUserScreen(
                                   userId: user['user_id'].toString(),
                                 ),
                               ),

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:blabber/models/Post.dart';
-import 'package:blabber/widgets/post_widget.dart'; // Ellenőrizd a helyes import útvonalat!
+import 'package:blabber/widgets/post_widget.dart';
+// Ellenőrizd a helyes import útvonalat!
 import 'package:intl/intl.dart';
 
 class OtherUserScreen extends StatelessWidget {
@@ -14,6 +15,7 @@ class OtherUserScreen extends StatelessWidget {
   Future<Map<String, dynamic>> fetchUserData() async {
     final url = 'https://kovacscsabi.moriczcloud.hu/api/getUser/$userId';
     final response = await http.get(Uri.parse(url));
+
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -25,14 +27,14 @@ class OtherUserScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Felhasználó Profil'),
+        title: const Text('Felhasználó Profil'),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: fetchUserData(),
         builder: (context, snapshot) {
           // Amíg a válasz meg nem érkezik, mutatunk egy körbeforgó indikátort.
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           // Hiba esetén megjelenítjük a hibát.
@@ -55,31 +57,33 @@ class OtherUserScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Felhasználó neve és email-je
                       Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 8),
-                            Text(
-                              user['name'],
-                              style: const TextStyle(fontSize: 30),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              user['email'],
-                              style: const TextStyle(fontSize: 15),
-                            ),
-                            const SizedBox(height: 16),
-                          ]),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          Text(
+                            user['name'],
+                            style: const TextStyle(fontSize: 30),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            user['email'],
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                      // Felhasználó profilképe
                       Image(
-                          width: 100,
-                          height: 100,
-                          image: NetworkImage(
-                            'https://kovacscsabi.moriczcloud.hu/${user['pfp_url']}',
-                          )),
+                        width: 100,
+                        height: 100,
+                        image: NetworkImage(
+                          'https://kovacscsabi.moriczcloud.hu/${user['pfp_url']}',
+                        ),
+                      ),
                     ],
                   ),
-
                   const Divider(),
                   const SizedBox(height: 16),
                   const Text(
@@ -93,7 +97,6 @@ class OtherUserScreen extends StatelessWidget {
                     itemCount: postsData.length,
                     itemBuilder: (context, index) {
                       final postJson = postsData[index] as Map<String, dynamic>;
-
                       // Létrehozunk egy Post objektumot, alapértelmezett értékekkel a hiányzó adatokhoz.
                       final post = Post(
                         id: postJson['id'],
@@ -101,13 +104,12 @@ class OtherUserScreen extends StatelessWidget {
                         mediaUrl: postJson['media_url'],
                         createdAt: postJson['created_at'],
                         userName:
-                            user['name'], // A felhasználó neve a posztokhoz
-                        isLiked: false, // Alapértelmezett: nem tetszett
-                        likeCount: 0, // Alapértelmezett: 0 like
+                            user['name'], // A felhasználó neve a posztokhoz is.
+                        isLiked: false, // Alapértelmezett: nem tetszett.
+                        likeCount: 0, // Alapértelmezett: 0 like.
                         isUnseen:
-                            false, // Alapértelmezett: már látta, azaz false
+                            false, // Alapértelmezett: már látta, azaz false.
                       );
-
                       return PostWidget(post: post);
                     },
                   ),
