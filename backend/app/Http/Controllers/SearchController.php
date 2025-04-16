@@ -9,45 +9,46 @@ namespace App\Http\Controllers;
 
 class SearchController extends Controller
 {
-
     public function search($query)
     {
-        //$query = $request->input('query');
-
-
         $posts = $query
             ? Post::with('user:id,name')
                 ->where('content', 'like', "%{$query}%")
                 ->paginate(10)
             : Post::paginate(10);
 
-// Keep the pagination data by storing it separately
+        // A pagination adatokat külön tároljuk
         $paginationData = $posts->toArray();
         $paginationMeta = [
             'current_page' => $paginationData['current_page'],
-            'last_page' => $paginationData['last_page'],
-            'per_page' => $paginationData['per_page'],
-            'total' => $paginationData['total'],
-            'links' => $paginationData['links'] ?? null,
+            'last_page'    => $paginationData['last_page'],
+            'per_page'     => $paginationData['per_page'],
+            'total'        => $paginationData['total'],
+            'links'        => $paginationData['links'] ?? null,
         ];
 
-// Now transform the items
+        // Átalakítjuk az elemeket, hogy beépítsük az egyedi tulajdonságokat
         $transformedItems = $posts->getCollection()->map(function ($post) {
-            $post->is_liked = $post->isLikedByUser(Auth::id());
+            $post->is_liked   = $post->isLikedByUser(Auth::id());
             $post->like_count = $post->likes()->count();
             return $post;
         });
 
-// Replace the original collection with the transformed items
+        // Lecseréljük az eredeti kollekciót az átalakított kollekcióra
         $posts->setCollection($transformedItems);
 
-        $users = $query
-            ? User::where('name', 'like', "%{$query}%")->paginate(10)
-            : User::paginate(10);
+        // A bejelentkezett felhasználó kizárása a felhasználók listájából:
+        $usersQuery = User::where('id', '!=', Auth::id());
+
+        if ($query) {
+            $usersQuery->where('name', 'like', "%{$query}%");
+        }
+        $users = $usersQuery->paginate(10);
 
         return response()->json([
             'posts' => $posts,
             'users' => $users,
         ]);
     }
+
 }
