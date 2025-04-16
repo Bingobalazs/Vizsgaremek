@@ -106,8 +106,12 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                   // Post content or media
                   if (widget.post.mediaUrl != null) ...[
+                    Center(
+                      child:
                     Image.network('https://kovacscsabi.moriczcloud.hu/' +
                         widget.post.mediaUrl!),
+
+                    ),
                     Container(
                       height: 2,
                       color: accentColor,
@@ -193,11 +197,13 @@ class _PostWidgetState extends State<PostWidget> {
                           builder: (context) =>
                               CommentScreen(postId: widget.post.id),
                         ),
+
                       );
                     },
                   ),
                           ],
                         ),
+
                       ],
                     ),
                   ),
