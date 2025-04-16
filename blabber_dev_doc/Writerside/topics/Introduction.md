@@ -11,18 +11,18 @@ Nincsenek felesleges sallangok, nem akar mindent tudni rólad, és garantáltan 
 
 ## 2. Főbb Funkciók és Modulok
 ### 🔹 Felhasználói Profilok
-- Regisztráció és bejelentkezés (pl. email/jelszó)
-- Saját profil szerkesztése (profilkép, bio, egyéb adatok)
+- Regisztráció és bejelentkezés (email/jelszó)
+- Saját profil szerkesztése (profilkép, email cím, elérhetőség(privát/nyilvános) )
 - Mások profiljának megtekintése
 
 ### 📝 Posztolás és Feed
 - Szöveges és képes posztok létrehozása
 - Posztokhoz való hozzászólás, like és reakciók
-- Hírfolyam (feed), amely a barátok posztjait mutatja időrendi vagy relevancia sorrendben
+- Hírfolyam (feed), amely a barátok és más felhasználók posztjait mutatja időrendi  sorrendben
 
 ### 👥 Ismerősök és Keresés
 - Ismerősök hozzáadása és eltávolítása
-- Ismerősök keresése név vagy ajánlások alapján
+- Ismerősök keresése név alapján
 - Ismerősök listájának megtekintése
 
 ### 💬 Chat (Üzenetküldés)
@@ -34,14 +34,13 @@ Nincsenek felesleges sallangok, nem akar mindent tudni rólad, és garantáltan 
 ### 🆔 IdentiCard – Megosztható Profiloldal
 - Egyedi link saját profiloldalhoz
 - Kapcsolati adatok megosztása (pl. email, telefon, közösségi média)
-- Ismerősök egyszerű hozzáadása
-- Profil testreszabása (pl. borítókép, színtéma)
+- Profil testreszabása (pl. színtéma)
 
 ## 3. Technológiai Stack
 ### Backend
-- Laravel vagy Node.js (Express) – API fejlesztés
-- MySQL vagy PostgreSQL – adatbázis
-- WebSockets vagy Firebase – valós idejű üzenetküldés
+- Laravel – API fejlesztés
+- MySQL  – adatbázis
+- SSE – valós idejű üzenetküldés
 
 ### Frontend
 - Flutter – mobil, web, desktop app fejlesztes
@@ -76,15 +75,6 @@ Nincsenek felesleges sallangok, nem akar mindent tudni rólad, és garantáltan 
 ✅ Hibajavítások  
 ✅ Teljesítmény optimalizálás  
 ✅ Biztonsági ellenőrzések
-
-## 5. Kiegészítő Funkciók
-Olyan Funckiók, melyek határidőre nem biztos hogy vegvalósulnak  
-🔹 Témaválasztás  
-🔹 Csoportos chat  
-🔹 Értesítések (pl. új ismerős, like, komment)  
-🔹 Trending oldal (népszerű nyílvános posztok)  
-🔹 Posztok megosztása (pl. facebook, twitter, linkedin)  
-🔹 Posztok újraközlése (megosztás a blabberen belül)
 
 ## 6. Összegzés
 Blabber egy könnyen használható és modern közösségi média platform lesz, amely a felhasználók számára interaktív élményt nyújt. A fejlesztés során a felhasználói élmény, a teljesítmény és a biztonság kiemelt szerepet kap.

@@ -90,18 +90,20 @@ class api_AuthController extends Controller
         $to = $data['email'];
         $subject = "Regisztrációs kód";
         $message = "
+                <body style='background-color: #0b203b'>
 
-                    <h1>Üdv a Hazsnáltautónál!</h1>
+                    <h1>Üdv a Blabberen!</h1>
                     <p>A regisztráció véglegesítéséhez szükséged lesz az alábbi kódra:</p>
 
-                    <h2 style=' text-align: center; color: #007FFF;'>
+                    <h2 style=' text-align: center; color: #fd204d;'>
                    <strong>{$data['code']}</strong></h2>
 
                     <p>Köszönjük a regisztrációt!</p>
-                    <a href='kovacscsabi.moriczcloud.hu'>Tovább a hazsnáltautóra</a>
+                    <a href='kovacscsabi.moriczcloud.hu/blabber'>Tovább a blabberre</a>
+                </body>
                     ";
 
-        $headers = 'From: anyad@sex.com' . "\r\n" .
+        $headers = 'From: blabber@moriczcloud.com' . "\r\n" .
             'Content-Type: text/html; charset=UTF-8'. "\r\n" .
             'X-Mailer: PHP/' . phpversion();
 
