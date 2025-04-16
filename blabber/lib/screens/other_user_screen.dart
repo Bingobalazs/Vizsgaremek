@@ -2,66 +2,24 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:blabber/models/Post.dart';
-import 'package:blabber/widgets/post_widget.dart'; // Ellenőrizd a helyes import útvonalat!
+import 'package:blabber/widgets/post_widget.dart';
+// Ellenőrizd a helyes import útvonalat!
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class UserScreen extends StatefulWidget {
+class OtherUserScreen extends StatelessWidget {
   final String userId;
 
-  const UserScreen({Key? key, required this.userId}) : super(key: key);
-
-  @override
-  _OtherUserScreenState createState() => _OtherUserScreenState();
-}
-
-class _OtherUserScreenState extends State<UserScreen> {
-  bool _isMarked = false;
+  const OtherUserScreen({Key? key, required this.userId}) : super(key: key);
 
   // Lekéri a felhasználó adatait a megadott URL-ről.
   Future<Map<String, dynamic>> fetchUserData() async {
-    final url =
-        'https://kovacscsabi.moriczcloud.hu/api/getUser/${widget.userId}';
+    final url = 'https://kovacscsabi.moriczcloud.hu/api/getUser/$userId';
     final response = await http.get(Uri.parse(url));
+
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
       throw Exception('Nem sikerült betölteni az adatokat.');
-    }
-  }
-
-  // Jelölés végrehajtása: az API POST kérésével
-  Future<void> markUser() async {
-    // Azonnal beállítjuk az állapotot, így a gomb eltűnik a UI-ból
-    setState(() {
-      _isMarked = true;
-    });
-
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-    final url =
-        'https://kovacscsabi.moriczcloud.hu/api/jeloles/${widget.userId}';
-
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sikeres jelölés!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Jelölés sikertelen. Hiba kód: ${response.statusCode}')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Hiba: $e')),
-      );
     }
   }
 
@@ -96,10 +54,10 @@ class _OtherUserScreenState extends State<UserScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Felhasználói adatok megjelenítése
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Felhasználó neve és email-je
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -116,6 +74,7 @@ class _OtherUserScreenState extends State<UserScreen> {
                           const SizedBox(height: 16),
                         ],
                       ),
+                      // Felhasználó profilképe
                       Image(
                         width: 100,
                         height: 100,
@@ -125,16 +84,6 @@ class _OtherUserScreenState extends State<UserScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // Jelölés gomb: csak akkor jelenik meg, ha még nincs jelölve
-                  if (!_isMarked)
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: markUser,
-                        child: const Text("Jelölés"),
-                      ),
-                    ),
-                  const SizedBox(height: 16),
                   const Divider(),
                   const SizedBox(height: 16),
                   const Text(
@@ -154,12 +103,13 @@ class _OtherUserScreenState extends State<UserScreen> {
                         content: postJson['content'] ?? '',
                         mediaUrl: postJson['media_url'],
                         createdAt: postJson['created_at'],
-                        userName: user['name'],
-                        isLiked: false,
-                        likeCount: 0,
-                        isUnseen: false,
+                        userName:
+                            user['name'], // A felhasználó neve a posztokhoz is.
+                        isLiked: false, // Alapértelmezett: nem tetszett.
+                        likeCount: 0, // Alapértelmezett: 0 like.
+                        isUnseen:
+                            false, // Alapértelmezett: már látta, azaz false.
                       );
-
                       return PostWidget(post: post);
                     },
                   ),
