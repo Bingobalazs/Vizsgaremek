@@ -85,6 +85,7 @@ class api_AuthController extends Controller
         $data['email'] = $request->email;
         $data['password'] = Hash::make($request->password);
         $data['code'] = rand(100000, 999999);
+        $data['pfp_url'] = "uploads/1744789807_default_profil.png";
 
 
         $to = $data['email'];
