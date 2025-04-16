@@ -447,7 +447,7 @@ class _ChatState extends State<Chat> {
                                 const SizedBox(height: 4.0),
                                 Text(
                                   showDate
-                                      ? '${message.timestamp.day}.${message.timestamp.month}.${message.timestamp.year} ${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}'
+                                      ? '${message.timestamp.month.toString().padLeft(2, '0')}. ${message.timestamp.day.toString().padLeft(2, '0')}. ${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}'
                                       : '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
                                   style: TextStyle(
                                     color: isRightAligned

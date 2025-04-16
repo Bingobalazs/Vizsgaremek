@@ -3,6 +3,7 @@ import 'package:blabber/models/Post.dart';
 import 'package:blabber/screens/user_screen.dart';
 import 'package:blabber/services/posts_api_service.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import '../screens/comment_screen.dart';
 
 class PostWidget extends StatefulWidget {
   final Post post;
@@ -151,6 +152,7 @@ class _PostWidgetState extends State<PostWidget> {
                         // Like Button
                         Row(
                           mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             IconButton(
                               icon: Icon(
@@ -183,9 +185,25 @@ class _PostWidgetState extends State<PostWidget> {
                               '${widget.post.likeCount}',
                               style: TextStyle(color: whiteColor),
                             ),
+                            IconButton(
+                    icon: Icon(
+                      Icons.comment,
+                      color: whiteColor,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CommentScreen(postId: widget.post.id),
+                        ),
+
+                      );
+                    },
+                  ),
                           ],
                         ),
-                        // Comment Button
+
                       ],
                     ),
                   ),
