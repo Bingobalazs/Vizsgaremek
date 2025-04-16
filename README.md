@@ -16,11 +16,13 @@ Fő funkciók: posztolás, ismerősök kezelése, privát üzenetküldés, sajá
 
 ### 📺 Projektet bemutató [Prezentáció](https://docs.google.com/presentation/d/17ffRCkn21zYOjnDLvpyTitU3kk8nWF6hCCFe-RtMBmw/edit?usp=sharing)
 
+## Adatbázis 
+[Dump fájl](dumptxt.txt)
 
-
-## Adatbázis ábra
+### Adatbázis ábra
 Így lehetne ábrázolni a programhoz tartozó mySQL adatbázist, táblákat, mezőket és kapcsolatokat
 ![Adatbázis ábra](https://balgalazs.moriczcloud.hu/docs/blabber/adatbazis.svg)
+
 
 
 > [!WARNING]
