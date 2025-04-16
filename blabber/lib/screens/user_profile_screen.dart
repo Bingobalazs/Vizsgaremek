@@ -11,6 +11,7 @@ import '../main.dart';
 import 'identishare_screen.dart';
 import 'own_posts_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:blabber/screens/friends_list_screen.dart';
 
 
 
@@ -281,7 +282,7 @@ class ProfilePageState extends State<ProfilePage> {
                   children: [
                     _buildActionButton(icon: Icons.people_sharp,
                         label: 'barátok',
-                        targetScreen:  HomePage(),
+                        targetScreen:  FriendsList(),
                         backgroundColor: accentColor,
                         iconColor: baseColor),
                     _buildActionButton(icon: Icons.grid_on_sharp,

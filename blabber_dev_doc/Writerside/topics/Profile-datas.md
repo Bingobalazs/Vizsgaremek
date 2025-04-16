@@ -8,8 +8,6 @@ Az oldalon megjelenik az általad megadott **információ**.
 ### 🔹 Alapvető információk
 - **Teljes név**
 - **Felhasználónév**
-- **Profilkép**
-- **Borítókép/banner**
 - **Rólam / Bemutatkozás**
 - **Helyszín** (város, ország)
 - **Születésnap/Életkor**

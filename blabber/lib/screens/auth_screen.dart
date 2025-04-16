@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
 
       } else {
         setState(() {
-          _errorMessage = response.data['message'];
+          _errorMessage = response.data['error'];
         });
       }
     } catch (e) {
@@ -92,6 +92,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+
               Text(
                 "Bejelentkezés",
                 textAlign: TextAlign.center,
