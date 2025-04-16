@@ -148,6 +148,7 @@ class _PostWidgetState extends State<PostWidget> {
                         // Like Button
                         Row(
                           mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             IconButton(
                               icon: Icon(
@@ -180,12 +181,7 @@ class _PostWidgetState extends State<PostWidget> {
                               '${widget.post.likeCount}',
                               style: TextStyle(color: whiteColor),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
+                            IconButton(
                     icon: Icon(
                       Icons.comment,
                       color: whiteColor,
@@ -199,6 +195,11 @@ class _PostWidgetState extends State<PostWidget> {
                         ),
                       );
                     },
+                  ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
