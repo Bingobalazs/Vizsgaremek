@@ -177,8 +177,7 @@ class _CommentScreenState extends State<CommentScreen> {
                             alignment: Alignment.centerLeft,
                             child: ConstrainedBox(
                               constraints: BoxConstraints(
-                                // A kártya a képernyő 90%-án belül enged terjedni, de ha a tartalom rövidebb,
-                                // csak annyi helyet foglal el.
+                               
                                 maxWidth: maxCardWidth,
                               ),
                               child: IntrinsicWidth(
