@@ -105,8 +105,12 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                   // Post content or media
                   if (widget.post.mediaUrl != null) ...[
+                    Center(
+                      child:
                     Image.network('https://kovacscsabi.moriczcloud.hu/' +
                         widget.post.mediaUrl!),
+
+                    ),
                     Container(
                       height: 2,
                       color: accentColor,
@@ -182,35 +186,6 @@ class _PostWidgetState extends State<PostWidget> {
                           ],
                         ),
                         // Comment Button
-
-                        /*
-                       FutureBuilder<int>(
-                          future: commentCountFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return CircularProgressIndicator(color: accentColor);
-                            } else if (snapshot.hasError) {
-                              return Icon(Icons.error, color: accentColor);
-                            }
-                            int count = snapshot.data ?? 0;
-                            return TextButton.icon(
-                              icon: Icon(Icons.comment, color: darkColor),
-                              label: Text(
-                                'Szólj hozzá... ($count)',
-                                style: TextStyle(color: darkColor),
-                              ),
-                              style: TextButton.styleFrom(
-                                backgroundColor: whiteColor,
-                                side: BorderSide(color: accentColor),
-                                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                              ),
-                              onPressed: () {
-                                // Navigation to comments screen can be added here.
-                              },
-                            );
-                          },
-                        ),
-                        */
                       ],
                     ),
                   ),

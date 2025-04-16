@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 // Mobil platformon a dart:io HttpClient használata, ezért ezt importáljuk.
 import 'dart:io' show HttpClient;
+import 'package:blabber/screens/search_screen.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 // Web esetén a dart:html importálása szükséges.
 import 'dart:html' as html;
+import 'package:blabber/main.dart';
 
 /// Chat üzenet modellje
 class ChatMessage {
@@ -427,9 +429,9 @@ class _ChatState extends State<Chat> {
                             padding: const EdgeInsets.all(12.0),
                             decoration: BoxDecoration(
                               color: isRightAligned
-                                  ? Colors.blue
-                                  : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(12.0),
+                                  ? accentColor
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(0),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

@@ -708,7 +708,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           width: buttonWidth,
                           child: ElevatedButton.icon(
                             onPressed: () => _showMapEditorDialog('Messaging Apps', messagingApps, (map) => setState(() => messagingApps = map)),
-                            icon: const Icon(Icons.message),
+                            icon: const Icon(Icons.message, color: Colors.white),
                             label: const Text('Messaging Apps'),
                           ),
                         ),
@@ -717,7 +717,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           width: buttonWidth,
                           child: ElevatedButton.icon(
                             onPressed: () => _showMapEditorDialog('Social Handles', socialHandles, (map) => setState(() => socialHandles = map)),
-                            icon: const Icon(Icons.public),
+                            icon: const Icon(Icons.public, color: Colors.white),
                             label: const Text('Social Handles'),
                           ),
                         ),
@@ -726,7 +726,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           width: buttonWidth,
                           child: ElevatedButton.icon(
                             onPressed: _showWorkplaceEditorDialog,
-                            icon: const Icon(Icons.business_center),
+                            icon: const Icon(Icons.business_center, color: Colors.white),
                             label: const Text('Previous Workplaces'),
                           ),
                         ),
@@ -735,7 +735,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           width: buttonWidth,
                           child: ElevatedButton.icon(
                             onPressed: _showEducationEditorDialog,
-                            icon: const Icon(Icons.school),
+                            icon: const Icon(Icons.school, color: Colors.white),
                             label: const Text('Education'),
                           ),
                         ),
@@ -744,7 +744,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           width: buttonWidth,
                           child: ElevatedButton.icon(
                             onPressed: () => _showListEditorDialog('Skills', skills, (list) => setState(() => skills = list)),
-                            icon: const Icon(Icons.psychology),
+                            icon: const Icon(Icons.psychology, color: Colors.white),
                             label: const Text('Skills'),
                           ),
                         ),
@@ -753,7 +753,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           width: buttonWidth,
                           child: ElevatedButton.icon(
                             onPressed: _showCertificationEditorDialog,
-                            icon: const Icon(Icons.card_membership),
+                            icon: const Icon(Icons.card_membership, color: Colors.white),
                             label: const Text('Certifications'),
                           ),
                         ),
@@ -762,7 +762,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           width: buttonWidth,
                           child: ElevatedButton.icon(
                             onPressed: () => _showMapEditorDialog('Languages', languages, (map) => setState(() => languages = map)),
-                            icon: const Icon(Icons.translate),
+                            icon: const Icon(Icons.translate, color: Colors.white),
                             label: const Text('Languages'),
                           ),
                         ),
@@ -771,7 +771,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                           width: buttonWidth,
                           child: ElevatedButton.icon(
                             onPressed: () => _showListEditorDialog('Hobbies', hobbies, (list) => setState(() => hobbies = list)),
-                            icon: const Icon(Icons.interests),
+                            icon: const Icon(Icons.interests, color: Colors.white),
                             label: const Text('Hobbies'),
                           ),
                         ),
@@ -844,13 +844,17 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   items: ['public', 'private'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value),
+                      child: Text(value, style: const TextStyle(color: ProfilePageState.accentColor)),
+
                     );
                   }).toList(),
                   onChanged: (value) => setState(() => profileVisibility = value!),
                   decoration: const InputDecoration(
                     labelText: 'Profile Visibility',
                     prefixIcon: Icon(Icons.visibility),
+                    prefixIconColor: ProfilePageState.accentColor,
+
+
                   ),
                 ),
                 const SizedBox(height: 32.0),
@@ -861,7 +865,7 @@ class _IdenticardScreenState extends State<IdenticardScreen> {
                   height: 50,
                   child: ElevatedButton.icon(
                     onPressed: _saveData,
-                    icon: const Icon(Icons.save),
+                    icon: const Icon(Icons.save , color: Colors.white),
                     label: const Text('Save Profile', style: TextStyle(fontSize: 16)),
                   ),
                 ),

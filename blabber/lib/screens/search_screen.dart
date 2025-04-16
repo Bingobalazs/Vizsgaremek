@@ -359,7 +359,7 @@ class _SearchScreenState extends State<SearchScreen> {
             image: DecorationImage(
               fit: BoxFit.cover,
               image: NetworkImage(
-                  'https://picsum.photos/500/500?person=${user.id}'),
+                  'https://kovacscsabi.moriczcloud.hu/${user.pfp_url}'),
               //TODO: Replace with actual image if available
             ),
             shape: BoxShape.rectangle,
@@ -387,7 +387,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             );
           },
-          icon: const Icon(Icons.remove_red_eye, size: 16),
+          icon: const Icon(Icons.remove_red_eye, size: 16, color: Colors.white),
           label: const Text(
             'Részletek',
             style: TextStyle(fontSize: 12),
@@ -482,16 +482,20 @@ class Pagination {
 class UserData {
   final int id;
   final String name;
+  final String? pfp_url;
 
   UserData({
     required this.id,
     required this.name,
+    this.pfp_url,
+
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
       id: json['id'],
       name: json['name'],
+      pfp_url: json['pfp_url'],
     );
   }
 }
