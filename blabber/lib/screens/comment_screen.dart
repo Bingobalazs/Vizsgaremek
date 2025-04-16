@@ -107,7 +107,7 @@ class _CommentScreenState extends State<CommentScreen> {
         "post_id": widget.postId.toString(),
         "comment": commentText,
         "user_id":
-            "34", // Cseréld le a bejelentkezett felhasználó tényleges ID-jára!
+            widget.postId, // Cseréld le a bejelentkezett felhasználó tényleges ID-jára!
       },
     );
     if (response.statusCode == 201 || response.statusCode == 200) {
