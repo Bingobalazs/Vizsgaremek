@@ -35,7 +35,7 @@ class api_AuthController extends Controller
         if (!$user || !Hash::check($loginRequest->password, $user->password)) {
             return response()->json([
                 'error' => 'Password or email incorrect'
-            ]);
+            ], 401);
         }
 
 
@@ -50,7 +50,7 @@ class api_AuthController extends Controller
             'token' => $token,
             'user' => $user,
             'message' => 'Successfully logged in'
-        ]);
+        ], 200);
     }
 
 
