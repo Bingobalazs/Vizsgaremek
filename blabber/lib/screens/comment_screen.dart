@@ -106,8 +106,6 @@ class _CommentScreenState extends State<CommentScreen> {
       body: {
         "post_id": widget.postId.toString(),
         "comment": commentText,
-        "user_id":
-            widget.postId, // Cseréld le a bejelentkezett felhasználó tényleges ID-jára!
       },
     );
     if (response.statusCode == 201 || response.statusCode == 200) {
@@ -177,7 +175,6 @@ class _CommentScreenState extends State<CommentScreen> {
                             alignment: Alignment.centerLeft,
                             child: ConstrainedBox(
                               constraints: BoxConstraints(
-                               
                                 maxWidth: maxCardWidth,
                               ),
                               child: IntrinsicWidth(
