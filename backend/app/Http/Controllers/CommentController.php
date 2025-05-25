@@ -43,7 +43,6 @@ class CommentController extends Controller
             'comment' => 'required|string',
             'user_id' => 'required|integer',
         ]);
-        $validated['post'] = 1;
 
         $comment = Comment::create($validated);
 
