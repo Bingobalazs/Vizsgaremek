@@ -51,7 +51,6 @@ class CommentController extends Controller
 
         return response()->json([
             'message' => 'Jó lesz!4!',
-            'comment' => $comment,
         ], 201);
     }
 }
