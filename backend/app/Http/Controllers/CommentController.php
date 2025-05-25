@@ -47,7 +47,7 @@ class CommentController extends Controller
         ]);
         $validated['user_id'] = $user->id;
 
-        $comment = Comment::create($validated);
+        //$comment = Comment::create($validated);
 
         return response()->json([
             'message' => 'Jó lesz!4!',
