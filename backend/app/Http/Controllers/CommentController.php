@@ -38,11 +38,13 @@ class CommentController extends Controller
 
     public function addComment(Request $request)
     {
+        $user = Auth::user();
+
         $validated = $request->validate([
             'post_id' => 'required|integer',
             'comment' => 'required|string',
-            'user_id' => 'required|integer',
         ]);
+        $validated['user_id'] = $user->id;
 
         $comment = Comment::create($validated);
 
