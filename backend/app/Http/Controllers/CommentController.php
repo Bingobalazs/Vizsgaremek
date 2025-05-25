@@ -41,16 +41,17 @@ class CommentController extends Controller
     {
         $user = Auth::user();
 
-        /*$validated = $request->validate([
+        $validated = $request->validate([
             'post_id' => 'required|integer',
             'comment' => 'required|string',
-        ]);*/
-        //$validated['user_id'] = $user->id;
+        ]);
+        $validated['user_id'] = $user->id;
 
-        //$comment = Comment::create($validated);
+        $comment = Comment::create($validated);
 
         return response()->json([
             'message' => 'Jó lesz!4!',
+            'comment' => $comment,
         ], 201);
     }
 }
