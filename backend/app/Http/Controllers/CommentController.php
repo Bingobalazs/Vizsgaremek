@@ -45,7 +45,7 @@ class CommentController extends Controller
             'post_id' => 'required|integer',
             'comment' => 'required|string',
         ]);
-        $validated['user_id'] = $user->id;
+        //$validated['user_id'] = $user->id;
 
         //$comment = Comment::create($validated);
 
