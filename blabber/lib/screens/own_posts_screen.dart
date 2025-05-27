@@ -314,7 +314,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Hozzászólás gomb (jelenleg csak nyomtat egy üzenetet)
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
