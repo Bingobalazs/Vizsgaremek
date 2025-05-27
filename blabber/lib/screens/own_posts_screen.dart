@@ -27,7 +27,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
   int _currentPage = 1;
   String? _errorMessage;
 
-  // Állítsd be a saját API URL-edet itt!
   final String baseUrl = 'https://kovacscsabi.moriczcloud.hu/api/';
   final ScrollController _scrollController = ScrollController();
 
@@ -35,8 +34,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
   void initState() {
     super.initState();
     _loadPosts();
-
-    // Add scroll listener to detect when user reaches the bottom
     _scrollController.addListener(_scrollListener);
   }
 
@@ -47,7 +44,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
     super.dispose();
   }
 
-  // Scroll listener to check if user has reached the bottom
   void _scrollListener() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
@@ -57,7 +53,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
     }
   }
 
-  // Lekéri a posztokat az own/posts végpontról
   Future<void> _loadPosts() async {
     if (_isLoading) return;
 
@@ -84,16 +79,14 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
 
         setState(() {
           _posts.clear();
-          _posts
-              .addAll(jsonResponse.map((post) => Post.fromJson(post)).toList());
+          _posts.addAll(jsonResponse.map((post) => Post.fromJson(post)).toList());
           _currentPage = 1;
           _isLoading = false;
         });
       } else {
         setState(() {
           _hasError = true;
-          _errorMessage =
-              'Nem sikerült a posztok betöltése (${response.statusCode})';
+          _errorMessage = 'Nem sikerült a posztok betöltése (${response.statusCode})';
           _isLoading = false;
         });
       }
@@ -106,7 +99,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
     }
   }
 
-  // Loads more posts for pagination
   Future<void> _loadMorePosts() async {
     if (_isLoading || !_hasMore) return;
 
@@ -131,16 +123,14 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
         _hasMore = body['has_more'] ?? false;
 
         setState(() {
-          _posts
-              .addAll(jsonResponse.map((post) => Post.fromJson(post)).toList());
+          _posts.addAll(jsonResponse.map((post) => Post.fromJson(post)).toList());
           _currentPage = nextPage;
           _isLoading = false;
         });
       } else {
         setState(() {
           _hasError = true;
-          _errorMessage =
-              'Nem sikerült további posztok betöltése (${response.statusCode})';
+          _errorMessage = 'Nem sikerült további posztok betöltése (${response.statusCode})';
           _isLoading = false;
         });
       }
@@ -153,12 +143,10 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
     }
   }
 
-  // Törli a posztot a post/{postid} végponton keresztül
   Future<void> deletePost(int postId) async {
     final token = await _getToken();
 
-    final response =
-        await http.delete(Uri.parse('${baseUrl}posts/$postId'), headers: {
+    final response = await http.delete(Uri.parse('${baseUrl}posts/$postId'), headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     });
@@ -172,7 +160,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
     }
   }
 
-  // Módosítja a posztot a post/{postid} végponton keresztül
   Future<void> updatePost(int postId, String newContent) async {
     final token = await _getToken();
 
@@ -199,7 +186,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
     }
   }
 
-  // Egy egyszerű dialógus, ahol módosítható a poszt tartalma
   void _showUpdateDialog(Post post) {
     final TextEditingController controller =
         TextEditingController(text: post.content);
@@ -213,9 +199,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
         ),
         title: Text(
           'Poszt módosítása',
-          style: TextStyle(
-            color: accentColor,
-          ),
+          style: TextStyle(color: accentColor),
         ),
         content: TextField(
           style: TextStyle(color: whiteColor),
@@ -248,7 +232,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
   final darkColor = const Color(0xFF00224D);
   final whiteColor = Colors.white;
 
-  // Egy poszt widgetjének megjelenítése
   Widget _buildPostItem(Post post) {
     return Container(
       margin: EdgeInsets.all(8),
@@ -279,20 +262,13 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
             ),
           ),
           if (post.mediaUrl != null) ...[
-            Image.network(
-                'https://kovacscsabi.moriczcloud.hu/' + post.mediaUrl!),
-            Container(
-              height: 2,
-              color: accentColor,
-            ),
+            Image.network('https://kovacscsabi.moriczcloud.hu/' + post.mediaUrl!),
+            Container(height: 2, color: accentColor),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 post.content,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),
           ] else ...[
@@ -303,10 +279,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
                 child: Text(
                   post.content,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: accentColor,
-                    fontSize: 25,
-                  ),
+                  style: TextStyle(color: accentColor, fontSize: 25),
                 ),
               ),
             ),
@@ -319,8 +292,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          CommentScreen(postId: widget.post.id),
+                      builder: (context) => CommentScreen(postId: post.id),
                     ),
                   );
                 },
@@ -334,17 +306,14 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
               ),
               Row(
                 children: [
-                  // Módosítás gomb
                   IconButton(
                     onPressed: () => _showUpdateDialog(post),
                     icon: Icon(Icons.edit_sharp, size: 15, color: accentColor),
                   ),
                   SizedBox(width: 8),
-                  // Törlés gomb
                   IconButton(
                     onPressed: () => deletePost(post.id),
-                    icon:
-                        Icon(Icons.delete_sharp, size: 15, color: accentColor),
+                    icon: Icon(Icons.delete_sharp, size: 15, color: accentColor),
                   ),
                 ],
               ),
