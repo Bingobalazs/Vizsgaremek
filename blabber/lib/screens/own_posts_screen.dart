@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/Post.dart';
+import '../screens/comment_screen.dart';
 
 Future<String> _getToken() async {
   final prefs = await SharedPreferences.getInstance();
@@ -48,7 +49,8 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
 
   // Scroll listener to check if user has reached the bottom
   void _scrollListener() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       if (!_isLoading && _hasMore) {
         _loadMorePosts();
       }
@@ -82,14 +84,16 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
 
         setState(() {
           _posts.clear();
-          _posts.addAll(jsonResponse.map((post) => Post.fromJson(post)).toList());
+          _posts
+              .addAll(jsonResponse.map((post) => Post.fromJson(post)).toList());
           _currentPage = 1;
           _isLoading = false;
         });
       } else {
         setState(() {
           _hasError = true;
-          _errorMessage = 'Nem sikerült a posztok betöltése (${response.statusCode})';
+          _errorMessage =
+              'Nem sikerült a posztok betöltése (${response.statusCode})';
           _isLoading = false;
         });
       }
@@ -127,14 +131,16 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
         _hasMore = body['has_more'] ?? false;
 
         setState(() {
-          _posts.addAll(jsonResponse.map((post) => Post.fromJson(post)).toList());
+          _posts
+              .addAll(jsonResponse.map((post) => Post.fromJson(post)).toList());
           _currentPage = nextPage;
           _isLoading = false;
         });
       } else {
         setState(() {
           _hasError = true;
-          _errorMessage = 'Nem sikerült további posztok betöltése (${response.statusCode})';
+          _errorMessage =
+              'Nem sikerült további posztok betöltése (${response.statusCode})';
           _isLoading = false;
         });
       }
@@ -151,13 +157,11 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
   Future<void> deletePost(int postId) async {
     final token = await _getToken();
 
-    final response = await http.delete(
-        Uri.parse('${baseUrl}posts/$postId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        }
-    );
+    final response =
+        await http.delete(Uri.parse('${baseUrl}posts/$postId'), headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
 
     if (response.statusCode == 200) {
       setState(() {
@@ -198,7 +202,7 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
   // Egy egyszerű dialógus, ahol módosítható a poszt tartalma
   void _showUpdateDialog(Post post) {
     final TextEditingController controller =
-    TextEditingController(text: post.content);
+        TextEditingController(text: post.content);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -213,7 +217,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
             color: accentColor,
           ),
         ),
-
         content: TextField(
           style: TextStyle(color: whiteColor),
           controller: controller,
@@ -224,7 +227,6 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
           maxLines: 15,
           keyboardType: TextInputType.multiline,
         ),
-
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -277,7 +279,8 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
             ),
           ),
           if (post.mediaUrl != null) ...[
-            Image.network('https://kovacscsabi.moriczcloud.hu/' + post.mediaUrl!),
+            Image.network(
+                'https://kovacscsabi.moriczcloud.hu/' + post.mediaUrl!),
             Container(
               height: 2,
               color: accentColor,
@@ -314,7 +317,13 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
               // Hozzászólás gomb (jelenleg csak nyomtat egy üzenetet)
               ElevatedButton.icon(
                 onPressed: () {
-                  print('Hozzászólás gomb megnyomva');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          CommentScreen(postId: widget.post.id),
+                    ),
+                  );
                 },
                 icon: Icon(Icons.comment_sharp, size: 15),
                 label: Text('Szólj hozzá'),
@@ -327,17 +336,16 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
               Row(
                 children: [
                   // Módosítás gomb
-                  IconButton (
+                  IconButton(
                     onPressed: () => _showUpdateDialog(post),
                     icon: Icon(Icons.edit_sharp, size: 15, color: accentColor),
-
                   ),
                   SizedBox(width: 8),
                   // Törlés gomb
                   IconButton(
                     onPressed: () => deletePost(post.id),
-                    icon: Icon(Icons.delete_sharp, size: 15, color: accentColor),
-
+                    icon:
+                        Icon(Icons.delete_sharp, size: 15, color: accentColor),
                   ),
                 ],
               ),
@@ -364,42 +372,42 @@ class _OwnPostsScreenState extends State<OwnPostsScreen> {
       ),
       body: _hasError
           ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('$_errorMessage'),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadPosts,
-              child: Text('Újrapróbálkozás'),
-            ),
-          ],
-        ),
-      )
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('$_errorMessage'),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadPosts,
+                    child: Text('Újrapróbálkozás'),
+                  ),
+                ],
+              ),
+            )
           : RefreshIndicator(
-        onRefresh: _refreshPosts,
-        child: _posts.isEmpty && _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _posts.isEmpty
-            ? const Center(child: Text('Nincsenek posztok'))
-            : ListView.builder(
-          controller: _scrollController,
-          itemCount: _posts.length + (_hasMore ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == _posts.length) {
-              return _hasMore
-                  ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-                  : const SizedBox();
-            }
-            return _buildPostItem(_posts[index]);
-          },
-        ),
-      ),
+              onRefresh: _refreshPosts,
+              child: _posts.isEmpty && _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _posts.isEmpty
+                      ? const Center(child: Text('Nincsenek posztok'))
+                      : ListView.builder(
+                          controller: _scrollController,
+                          itemCount: _posts.length + (_hasMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == _posts.length) {
+                              return _hasMore
+                                  ? const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  : const SizedBox();
+                            }
+                            return _buildPostItem(_posts[index]);
+                          },
+                        ),
+            ),
     );
   }
 }
