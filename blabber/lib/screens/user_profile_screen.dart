@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data'; // Needed for web image bytes
+import 'dart:typed_data';
 import 'package:blabber/screens/setting_screen.dart';
-import 'package:http_parser/http_parser.dart'; // For MediaType
-
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,36 +12,33 @@ import 'own_posts_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:blabber/screens/friends_list_screen.dart';
 
-
-
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   static String routeName = 'profile';
   static String routePath = '/profile';
 
-
-
   @override
   State<ProfilePage> createState() => ProfilePageState();
-
 }
-
 
 class ProfilePageState extends State<ProfilePage> {
   bool isLoading = true;
   String? error;
   Map<String, dynamic>? userData;
+  int avatarRefreshCounter = 0;
+
   static const accentColor = Color.fromRGBO(255, 32, 78, 1);
   static const baseColor = Color.fromRGBO(0, 34, 77, 1);
+
   @override
   void initState() {
     super.initState();
     fetchUserProfile();
   }
+
   Future<void> fetchUserProfile() async {
     try {
-      // Get token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
 
@@ -54,7 +50,6 @@ class ProfilePageState extends State<ProfilePage> {
         return;
       }
 
-      // Make API request
       final response = await http.get(
         Uri.parse('https://kovacscsabi.moriczcloud.hu/api/user'),
         headers: {
@@ -81,6 +76,7 @@ class ProfilePageState extends State<ProfilePage> {
       });
     }
   }
+
   Future<void> _pickAndUploadImage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -93,7 +89,6 @@ class ProfilePageState extends State<ProfilePage> {
       final String apiUrl = 'https://kovacscsabi.moriczcloud.hu/api/pfp/set';
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
-      // For web support, use bytes instead of file path
       final bytes = await image.readAsBytes();
       request.files.add(
         http.MultipartFile.fromBytes(
@@ -104,45 +99,37 @@ class ProfilePageState extends State<ProfilePage> {
         ),
       );
 
-      // Add any additional fields if required
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
 
-      // Send the request
       var response = await request.send();
 
       if (response.statusCode == 200) {
-        // Handle successful upload
-        final responseData = await response.stream.bytesToString();
-        // Parse responseData and update userData if needed
         setState(() {
-          // Update UI with new image
+          avatarRefreshCounter++;
         });
+        await fetchUserProfile(); // Frissítjük az adatokat
       } else {
-        // Handle error
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to upload image')),
         );
       }
     } catch (e) {
-      // Handle any errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
   }
+
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: baseColor, // Replace with your desired background color
+        backgroundColor: baseColor,
         body: Align(
           alignment: Alignment.center,
           child: Column(
@@ -151,23 +138,20 @@ class ProfilePageState extends State<ProfilePage> {
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: Stack(
-                  alignment: Alignment.bottomRight, // Position button at bottom-right
+                  alignment: Alignment.bottomRight,
                   children: [
                     Container(
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: baseColor,
-                        ),
+                        border: Border.all(color: baseColor),
                       ),
                       child: isLoading
                           ? const Center(child: CircularProgressIndicator())
                           : Padding(
                               padding: const EdgeInsets.all(5),
                               child: Image.network(
-                                "https://kovacscsabi.moriczcloud.hu/${userData?['pfp_url']}" ??
-                                    'https://pixabay.com/vectors/blank-profile-picture-mystery-man-973460/',
+                                "https://kovacscsabi.moriczcloud.hu/${userData?['pfp_url']}?t=$avatarRefreshCounter",
                                 width: 100,
                                 height: 100,
                                 fit: BoxFit.cover,
@@ -181,15 +165,11 @@ class ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                     ),
-
-                    // Add the edit button
                     GestureDetector(
-                      onTap: () async {
-                        await _pickAndUploadImage();
-                      },
+                      onTap: _pickAndUploadImage,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: baseColor,
                           shape: BoxShape.circle,
                         ),
@@ -209,8 +189,7 @@ class ProfilePageState extends State<ProfilePage> {
                     ? const CircularProgressIndicator()
                     : Text(
                         userData?['name'] ?? 'Jelentkezz be!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Roboto Mono',
                           fontSize: 24,
                           color: accentColor,
@@ -226,22 +205,19 @@ class ProfilePageState extends State<ProfilePage> {
                         fontSize: 16,
                         color: Colors.grey[600],
                       ),
-                ),
-
-
+                    ),
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 50),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 50),
                   child: Container(
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                    ),
+                    decoration: const BoxDecoration(color: accentColor),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
+                        const Padding(
+                          padding: EdgeInsets.only(top: 10),
                           child: Text(
                             'IDenticard',
                             style: TextStyle(
@@ -251,20 +227,20 @@ class ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 32),
                           child: Row(
-                            mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _buildActionButton(icon: Icons.edit_note_rounded,
-                                 label:  'szerkesztés',
-                                  targetScreen:
-                                  IdenticardScreen()
+                              _buildActionButton(
+                                icon: Icons.edit_note_rounded,
+                                label: 'szerkesztés',
+                                targetScreen: IdenticardScreen(),
                               ),
                               _buildActionButton(
-                                  icon: Icons.qr_code,
-                                  label:  'megosztás',
-                                  targetScreen:  IdentiCardScreen()
+                                icon: Icons.qr_code,
+                                label: 'megosztás',
+                                targetScreen: IdentiCardScreen(),
                               ),
                             ],
                           ),
@@ -275,32 +251,37 @@ class ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
                 child: Row(
-                  mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildActionButton(icon: Icons.people_sharp,
-                        label: 'barátok',
-                        targetScreen:  FriendsList(),
-                        backgroundColor: accentColor,
-                        iconColor: baseColor),
-                    _buildActionButton(icon: Icons.grid_on_sharp,
-                        label: 'bejegyzéseim',
-                        targetScreen:  OwnPostsScreen(),
-                        backgroundColor: accentColor,
-                        iconColor: baseColor),
-                    _buildActionButton(icon: Icons.settings_sharp,
-                        label: 'beállítások',
-                        targetScreen:  SettingsPage(),
-                        backgroundColor: accentColor,
-                        iconColor: baseColor),
+                    _buildActionButton(
+                      icon: Icons.people_sharp,
+                      label: 'barátok',
+                      targetScreen: FriendsList(),
+                      backgroundColor: accentColor,
+                      iconColor: baseColor,
+                    ),
+                    _buildActionButton(
+                      icon: Icons.grid_on_sharp,
+                      label: 'bejegyzéseim',
+                      targetScreen: OwnPostsScreen(),
+                      backgroundColor: accentColor,
+                      iconColor: baseColor,
+                    ),
+                    _buildActionButton(
+                      icon: Icons.settings_sharp,
+                      label: 'beállítások',
+                      targetScreen: SettingsPage(),
+                      backgroundColor: accentColor,
+                      iconColor: baseColor,
+                    ),
                   ],
                 ),
               ),
             ],
           ),
-
         ),
       ),
     );
@@ -311,16 +292,16 @@ class ProfilePageState extends State<ProfilePage> {
     required String label,
     required Widget targetScreen,
     Color? iconColor,
-    Color? backgroundColor
+    Color? backgroundColor,
   }) {
     return Expanded(
       child: InkWell(
-         onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => targetScreen),
-        );
-      },
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => targetScreen),
+          );
+        },
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -344,7 +325,7 @@ class ProfilePageState extends State<ProfilePage> {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Roboto Mono',
                 fontSize: 16,
               ),
@@ -355,4 +336,3 @@ class ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-
