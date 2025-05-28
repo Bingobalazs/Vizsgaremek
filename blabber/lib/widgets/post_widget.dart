@@ -15,15 +15,11 @@ class PostWidget extends StatefulWidget {
 }
 
 class _PostWidgetState extends State<PostWidget> {
-
-  late Future<int> commentCountFuture;
   bool _hasViewed = false; // To ensure we mark view only once
 
   @override
   void initState() {
     super.initState();
-
-    commentCountFuture = PostsApiService().getCommentCount(widget.post.id);
   }
 
   // Calculate days since the post was created
@@ -82,13 +78,12 @@ class _PostWidgetState extends State<PostWidget> {
                       highlightColor: accentColor,
                       hoverColor: accentColor,
                       focusColor: accentColor,
-
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                UserScreen(userId: widget.post.userId.toString()),
+                            builder: (context) => UserScreen(
+                                userId: widget.post.userId.toString()),
                           ),
                         );
                       },
@@ -107,10 +102,9 @@ class _PostWidgetState extends State<PostWidget> {
                   // Post content or media
                   if (widget.post.mediaUrl != null) ...[
                     Center(
-                      child:
-                    Image.network('https://kovacscsabi.moriczcloud.hu/' +
-                        widget.post.mediaUrl!),
-
+                      child: Image.network(
+                          'https://kovacscsabi.moriczcloud.hu/' +
+                              widget.post.mediaUrl!),
                     ),
                     Container(
                       height: 2,
@@ -186,24 +180,22 @@ class _PostWidgetState extends State<PostWidget> {
                               style: TextStyle(color: whiteColor),
                             ),
                             IconButton(
-                    icon: Icon(
-                      Icons.comment,
-                      color: whiteColor,
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CommentScreen(postId: widget.post.id),
-                        ),
-
-                      );
-                    },
-                  ),
+                              icon: Icon(
+                                Icons.comment,
+                                color: whiteColor,
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        CommentScreen(postId: widget.post.id),
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
-
                       ],
                     ),
                   ),
